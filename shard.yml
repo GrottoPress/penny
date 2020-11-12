@@ -1,0 +1,39 @@
+name: meth
+version: 0.1.0
+description: Get up and running with Lucky framework and Shield
+
+authors:
+  - GrottoPress <info@grottopress.com>
+  - N Atta Kusi Adusei <attakusiadusei@gmail.com>
+
+targets:
+  app:
+    main: src/start_server.cr
+
+crystal: 0.35.1
+
+dependencies:
+  # annotation:
+  #   github: grottopress/annotation.cr
+  #   version: ~> 0.4.0
+  lucky:
+    github: luckyframework/lucky
+    version: ~> 0.24.0
+  carbon:
+    github: luckyframework/carbon
+    version: ~> 0.1.0
+  envy:
+    github: GrottoPress/envy
+    version: ~> 0.2.0
+  shield:
+    github: GrottoPress/shield
+    branch: dev
+    # version: ~> 0.2.0
+
+development_dependencies:
+  # ameba:
+  #   github: veelenga/ameba
+  #   version: ~> 0.12.0
+  lucky_flow:
+    github: luckyframework/lucky_flow
+    version: ~> 0.7.0
