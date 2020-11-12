@@ -1,9 +1,10 @@
-*.dwarf
-/.crystal-version
-/.env*
-/shard.lock
 /.shards/
 /bin/
 /lib/
 /node_modules/
 /tmp/
+*.dwarf
+/.crystal-version
+/.env*
+/shard.lock
+/start_server
