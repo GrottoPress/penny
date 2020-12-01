@@ -27,8 +27,8 @@ dependencies:
     version: ~> 0.2.0
   shield:
     github: GrottoPress/shield
-    branch: dev
-    # version: ~> 0.2.0
+    # branch: dev
+    version: ~> 0.5.0
 
 development_dependencies:
   # ameba:

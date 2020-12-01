@@ -4,6 +4,7 @@ class UpdateUser < User::SaveOperation
   before_save do
     validate_required first_name, last_name, level
     validate_name first_name, last_name
+    validate_not_pwned password
 
     reset_level
   end
