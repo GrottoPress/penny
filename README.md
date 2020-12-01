@@ -18,6 +18,6 @@ Run tests with `docker-compose run --rm spec`, or `crystal spec`.
 
 ### Resources
 
-- [*Shield*](https://github.com/grottopress/shield)
-- [*Lucky*](https://luckyframework.org)
-- [*Crystal*](https://crystal-lang.org)
+- [Shield](https://github.com/grottopress/shield)
+- [Lucky](https://luckyframework.org)
+- [Crystal](https://crystal-lang.org)
