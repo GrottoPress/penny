@@ -4,7 +4,7 @@ class UpdateCurrentUser < User::SaveOperation
   before_save do
     validate_required first_name, last_name
     validate_name first_name, last_name
-    validate_not_pwned password
+    validate_not_pwned(password) if Lucky::Env.production?
   end
 
   include Shield::UpdateEmailConfirmationUser
