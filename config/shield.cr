@@ -10,6 +10,11 @@ Shield.configure do |settings|
   )
 
   settings.login_expiry = Time::Span.new(seconds: ENV["LOGIN_EXPIRY"].to_i)
+
+  settings.login_idle_timeout = Time::Span.new(
+    seconds: ENV["LOGIN_IDLE_TIMEOUT"].to_i
+  )
+
   settings.password_min_length = ENV["PASSWORD_MIN_LENGTH"].to_i
 
   settings.password_require_lowercase = Bool::Lucky
