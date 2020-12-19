@@ -5,8 +5,6 @@
 #   require "llvm/enums"
 # {% end %}
 
-require "crypto/bcrypt/password"
-
 require "envy"
 require "lucky"
 require "carbon"
