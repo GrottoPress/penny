@@ -1,4 +1,4 @@
-class Api::Users::Index < BrowserAction
+class Api::Users::Index < ApiAction
   include Shield::Api::Users::Index
 
   param page : Int32 = 1

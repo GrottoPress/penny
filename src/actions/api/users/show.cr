@@ -1,4 +1,4 @@
-class Api::Users::Show < BrowserAction
+class Api::Users::Show < ApiAction
   include Shield::Api::Users::Show
 
   get "/users/:user_id" do

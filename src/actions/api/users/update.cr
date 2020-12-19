@@ -1,4 +1,4 @@
-class Api::Users::Update < BrowserAction
+class Api::Users::Update < ApiAction
   include Shield::Api::Users::Update
 
   patch "/users/:user_id" do
