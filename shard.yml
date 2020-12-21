@@ -18,7 +18,7 @@ dependencies:
   #   version: ~> 0.4.0
   lucky:
     github: luckyframework/lucky
-    version: ~> 0.24.0
+    version: ~> 0.25.0
   carbon:
     github: luckyframework/carbon
     version: ~> 0.1.0
@@ -28,7 +28,7 @@ dependencies:
   shield:
     github: GrottoPress/shield
     # branch: dev
-    version: ~> 0.5.0
+    version: ~> 0.6.0
 
 development_dependencies:
   # ameba:
