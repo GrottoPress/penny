@@ -6,7 +6,7 @@ class EmailConfirmationRequestEmail < BaseEmail
   end
 
   private def receiver
-    @email_confirmation.user!.not_nil!
+    Carbon::Address.new(@email_confirmation.email)
   end
 
   private def heading
