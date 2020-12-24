@@ -1,10 +1,10 @@
-# Meth
+# Penny
 
-*Meth* is a [*Lucky*](https://luckyframework.org) application scaffold that gets you up and running with [*Shield*](https://github.com/grottopress/shield).
+*Penny* is a [*Lucky*](https://luckyframework.org) application scaffold that gets you up and running with [*Shield*](https://github.com/grottopress/shield).
 
 ### Setting up
 
-1. Clone this repository: `git clone https://github.com/GrottoPress/meth.git my-app`
+1. Clone this repository: `git clone https://github.com/GrottoPress/penny.git my-app`
 1. Change into the app directory: `cd my-app`
 1. Install dependencies: `shards install`
 1. Copy `sample.env.yml` to `.env.yml`

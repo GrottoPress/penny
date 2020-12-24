@@ -6,10 +6,10 @@ class Home::IndexPage < MainLayout
   def content
     h1 do
       text "Hello "
-      em "Meth"
+      em "Penny"
     end
 
-    para "Meth is a rather quick way to get started with Lucky framework and Shield"
+    para "Penny is a rather quick way to get started with Lucky framework and Shield"
 
     h2 "Resources"
 
@@ -19,7 +19,7 @@ class Home::IndexPage < MainLayout
       end
 
       li do
-        a "Meth", href: "https://github.com/grottopress/meth"
+        a "Penny", href: "https://github.com/grottopress/penny"
       end
 
       li do
