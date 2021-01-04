@@ -17,19 +17,19 @@ Shield.configure do |settings|
 
   settings.password_min_length = ENV["PASSWORD_MIN_LENGTH"].to_i
 
-  settings.password_require_lowercase = Bool::Lucky
+  settings.password_require_lowercase = Bool.adapter
     .parse(ENV["PASSWORD_REQUIRE_LOWERCASE"])
     .value.not_nil!
 
-  settings.password_require_uppercase = Bool::Lucky
+  settings.password_require_uppercase = Bool.adapter
     .parse(ENV["PASSWORD_REQUIRE_UPPERCASE"])
     .value.not_nil!
 
-  settings.password_require_number = Bool::Lucky
+  settings.password_require_number = Bool.adapter
     .parse(ENV["PASSWORD_REQUIRE_NUMBER"])
     .value.not_nil!
 
-  settings.password_require_special_char = Bool::Lucky
+  settings.password_require_special_char = Bool.adapter
     .parse(ENV["PASSWORD_REQUIRE_SPECIAL_CHAR"])
     .value.not_nil!
 
