@@ -21,7 +21,7 @@ class User < BaseModel
     column level : User::Level
   end
 
-  def full_name
+  def full_name : String
     "#{first_name} #{last_name}"
   end
 
