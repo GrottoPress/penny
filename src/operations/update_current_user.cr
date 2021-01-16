@@ -6,8 +6,4 @@ class UpdateCurrentUser < User::SaveOperation
     validate_name first_name, last_name
     validate_not_pwned(password) if Lucky::Env.production?
   end
-
-  include Shield::UpdateEmailConfirmationUser
-  include Shield::HasOneUpdateSaveUserOptions
-  include Shield::NotifyPasswordChange
 end

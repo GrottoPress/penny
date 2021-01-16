@@ -10,7 +10,7 @@ class BearerLogins::ShowPage < MainLayout
     h1 bearer_login.name
 
     para "Copy token below:"
-    pre BearerLoginHelper.token(bearer_login, operation)
+    pre BearerToken.new(operation, bearer_login).to_s
 
     para do
       link "[=] list all", to: Index

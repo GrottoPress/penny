@@ -3,7 +3,8 @@ class BearerLogins::New < BrowserAction
 
   get "/bearer-logins/new" do
     operation = CreateBearerLogin.new(
-      all_scopes: BearerLoginHelper.all_scopes
+      user: user,
+      allowed_scopes: BearerScope.action_scopes.map(&.to_s)
     )
 
     html NewPage, operation: operation

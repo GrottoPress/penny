@@ -1,0 +1,1038 @@
+diff --git a/.gitattributes b/.gitattributes
+new file mode 100644
+index 0000000..2c6c39a
+--- /dev/null
++++ b/.gitattributes
+@@ -0,0 +1 @@
++public/* linguist-vendored
+diff --git a/.security.txt b/.security.txt
+deleted file mode 100644
+index dbe6877..0000000
+--- a/.security.txt
++++ /dev/null
+@@ -1,5 +0,0 @@
+-# Our security address
+-Contact: mailto:admin@grottopress.com
+-
+-# Our PGP key
+-Encryption: https://www.grottopress.com/.well-known/admin-pgp-key.txt
+diff --git a/README.md b/README.md
+index f25201f..6a68f00 100644
+--- a/README.md
++++ b/README.md
+@@ -1,10 +1,10 @@
+-# Meth
++# Penny
+ 
+-*Meth* is a [*Lucky*](https://luckyframework.org) application scaffold that gets you up and running with [*Shield*](https://github.com/grottopress/shield).
++*Penny* is a [*Lucky*](https://luckyframework.org) application scaffold that gets you up and running with [*Shield*](https://github.com/grottopress/shield).
+ 
+ ### Setting up
+ 
+-1. Clone this repository: `git clone https://github.com/GrottoPress/meth.git my-app`
++1. Clone this repository: `git clone https://github.com/GrottoPress/penny.git my-app`
+ 1. Change into the app directory: `cd my-app`
+ 1. Install dependencies: `shards install`
+ 1. Copy `sample.env.yml` to `.env.yml`
+@@ -12,6 +12,10 @@
+ 1. Run `script/setup`
+ 1. Run `lucky dev` to start the app
+ 
++### Upgrading
++
++See `penny.diff` for changes.
++
+ ### Development
+ 
+ Run tests with `docker-compose run --rm spec`, or `crystal spec`.
+diff --git a/config/app.cr b/config/app.cr
+index d39df6d..4e1b282 100644
+--- a/config/app.cr
++++ b/config/app.cr
+@@ -16,7 +16,7 @@ App.configure do |settings|
+   settings.email_from = ENV["EMAIL_FROM"]
+   settings.email_reply_to = ENV["EMAIL_REPLY_TO"]
+ 
+-  settings.make_first_user_admin = Bool::Lucky
++  settings.make_first_user_admin = Bool.adapter
+     .parse(ENV["MAKE_FIRST_USER_ADMIN"])
+     .value
+     .not_nil!
+diff --git a/config/charms.cr b/config/charms.cr
+index 5372d26..107f6bc 100644
+--- a/config/charms.cr
++++ b/config/charms.cr
+@@ -7,8 +7,8 @@ module Lucky::SelectHelpers
+     select_options.each do |option_name, option_value|
+       attributes = {"value" => option_value.to_s}
+ 
+-      is_selected = field.value && option_value.to_s.in?(field.value.not_nil!)
+-      attributes["selected"] = "true" if is_selected
++      is_selected = field.value && attributes["value"].in?(field.value!)
++      attributes["selected"] = "selected" if is_selected
+ 
+       option option_name, merge_options(html_options, attributes)
+     end
+diff --git a/config/server.cr b/config/server.cr
+index 09a4c27..61a449f 100644
+--- a/config/server.cr
++++ b/config/server.cr
+@@ -8,7 +8,7 @@ Lucky::Server.configure do |settings|
+     settings.host = ENV["SERVER_HOST"]
+     settings.port = ENV["SERVER_PORT"].to_i
+ 
+-    settings.gzip_enabled = Bool::Lucky
++    settings.gzip_enabled = Bool.adapter
+       .parse(ENV["GZIP_ENABLED"])
+       .value.not_nil!
+ 
+@@ -32,7 +32,7 @@ Lucky::ForceSSLHandler.configure do |settings|
+   #
+   #    settings.enabled = Lucky::Env.production?
+   #    settings.strict_transport_security = {max_age: 1.year, include_subdomains: true}
+-  settings.enabled = Bool::Lucky.parse(ENV["SSL_ENABLED"]).value.not_nil!
++  settings.enabled = Bool.adapter.parse(ENV["SSL_ENABLED"]).value.not_nil!
+ end
+ 
+ private def secret_key_from_env
+diff --git a/config/shield.cr b/config/shield.cr
+index b7d5707..4b0aaa9 100644
+--- a/config/shield.cr
++++ b/config/shield.cr
+@@ -1,6 +1,4 @@
+ Shield.configure do |settings|
+-  settings.bcrypt_cost = ENV["BCRYPT_COST"].to_i
+-
+   settings.bearer_login_expiry = Time::Span.new(
+     seconds: ENV["BEARER_LOGIN_EXPIRY"].to_i
+   )
+@@ -17,19 +15,19 @@ Shield.configure do |settings|
+ 
+   settings.password_min_length = ENV["PASSWORD_MIN_LENGTH"].to_i
+ 
+-  settings.password_require_lowercase = Bool::Lucky
++  settings.password_require_lowercase = Bool.adapter
+     .parse(ENV["PASSWORD_REQUIRE_LOWERCASE"])
+     .value.not_nil!
+ 
+-  settings.password_require_uppercase = Bool::Lucky
++  settings.password_require_uppercase = Bool.adapter
+     .parse(ENV["PASSWORD_REQUIRE_UPPERCASE"])
+     .value.not_nil!
+ 
+-  settings.password_require_number = Bool::Lucky
++  settings.password_require_number = Bool.adapter
+     .parse(ENV["PASSWORD_REQUIRE_NUMBER"])
+     .value.not_nil!
+ 
+-  settings.password_require_special_char = Bool::Lucky
++  settings.password_require_special_char = Bool.adapter
+     .parse(ENV["PASSWORD_REQUIRE_SPECIAL_CHAR"])
+     .value.not_nil!
+ 
+diff --git a/db/migrations/20210202132011_rename_duration_columns.cr b/db/migrations/20210202132011_rename_duration_columns.cr
+new file mode 100644
+index 0000000..9f8731f
+--- /dev/null
++++ b/db/migrations/20210202132011_rename_duration_columns.cr
+@@ -0,0 +1,45 @@
++class RenameDurationColumns::V20210202132011 < Avram::Migrator::Migration::V1
++  def migrate
++    alter table_for(BearerLogin) do
++      rename :started_at, :active_at
++      rename :ended_at, :inactive_at
++    end
++
++    alter table_for(EmailConfirmation) do
++      rename :started_at, :active_at
++      rename :ended_at, :inactive_at
++    end
++
++    alter table_for(Login) do
++      rename :started_at, :active_at
++      rename :ended_at, :inactive_at
++    end
++
++    alter table_for(PasswordReset) do
++      rename :started_at, :active_at
++      rename :ended_at, :inactive_at
++    end
++  end
++
++  def rollback
++    alter table_for(BearerLogin) do
++      rename :active_at, :started_at
++      rename :inactive_at, :ended_at
++    end
++
++    alter table_for(EmailConfirmation) do
++      rename :active_at, :started_at
++      rename :inactive_at, :ended_at
++    end
++
++    alter table_for(Login) do
++      rename :active_at, :started_at
++      rename :inactive_at, :ended_at
++    end
++
++    alter table_for(PasswordReset) do
++      rename :active_at, :started_at
++      rename :inactive_at, :ended_at
++    end
++  end
++end
+diff --git a/sample.env.yml b/sample.env.yml
+index d29d5ff..5fadcb7 100644
+--- a/sample.env.yml
++++ b/sample.env.yml
+@@ -51,8 +51,6 @@ send_grid_key: unused
+ email_from: noreply@my-app.tld
+ email_reply_to: support@my-app.tld
+ 
+-bcrypt_cost: "4" # Set this to `12` in production
+-
+ bearer_login_expiry: "7776000" # 3 months
+ email_confirmation_expiry: "3600" # 1 hour
+ login_expiry: "86400" # 1 day
+diff --git a/shard.yml b/shard.yml
+index 2e39143..3720e95 100644
+--- a/shard.yml
++++ b/shard.yml
+@@ -1,4 +1,4 @@
+-name: meth
++name: penny
+ version: 0.1.0
+ description: Get up and running with Lucky framework and Shield
+ 
+@@ -27,8 +27,7 @@ dependencies:
+     version: ~> 0.2.0
+   shield:
+     github: GrottoPress/shield
+-    # branch: dev
+-    version: ~> 0.6.0
++    version: ~> 0.7.0
+ 
+ development_dependencies:
+   # ameba:
+diff --git a/spec/app/app_spec.cr b/spec/app/app_spec.cr
+index f6c17a2..00c6fe7 100644
+--- a/spec/app/app_spec.cr
++++ b/spec/app/app_spec.cr
+@@ -1,6 +1,6 @@
+ require "../spec_helper"
+ 
+-describe "" do
++describe App do
+   it "works" do
+     true.should be_false
+   end
+diff --git a/spec/setup/setup_database.cr b/spec/setup/setup_database.cr
+index 6d1c6f0..fca5460 100644
+--- a/spec/setup/setup_database.cr
++++ b/spec/setup/setup_database.cr
+@@ -1,4 +1,4 @@
+-unless Bool::Lucky.parse(ENV["SKIP_CREATE_DB"]?.to_s).value
++unless Bool.adapter.parse(ENV["SKIP_CREATE_DB"]?.to_s).value
+   Db::Create.new(quiet: true).call
+ end
+ 
+diff --git a/spec/spec_helper.cr b/spec/spec_helper.cr
+index 6b279d1..1aeb822 100644
+--- a/spec/spec_helper.cr
++++ b/spec/spec_helper.cr
+@@ -14,32 +14,12 @@ require "./support/**"
+ # configuring LuckyFlow, starting the app server, etc.
+ require "./setup/**"
+ 
++require "shield/spec"
++
+ include Carbon::Expectations
+ include Lucky::RequestExpectations
+ include LuckyFlow::Expectations
+ 
+-def assert_valid(attribute)
+-  attribute.errors.should be_empty
+-end
+-
+-def assert_valid(attribute, text)
+-  attribute.errors.select(&.includes? text).should be_empty
+-end
+-
+-def assert_invalid(attribute)
+-  attribute.errors.should_not be_empty
+-end
+-
+-def assert_invalid(attribute, text)
+-  attribute.errors.select(&.includes? text).size.should eq(1)
+-end
+-
+-def params(**named_args)
+-  Avram::Params.new named_args.to_h
+-    .transform_keys(&.to_s)
+-    .transform_values &.to_s
+-end
+-
+ Avram::Migrator::Runner.new.ensure_migrated!
+ Avram::SchemaEnforcer.ensure_correct_column_mappings!
+ Habitat.raise_if_missing_settings!
+diff --git a/spec/support/boxes/.keep b/spec/support/boxes/.keep
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/spec/support/boxes/bearer_login_box.cr b/spec/support/boxes/bearer_login_box.cr
+new file mode 100644
+index 0000000..75c7032
+--- /dev/null
++++ b/spec/support/boxes/bearer_login_box.cr
+@@ -0,0 +1,16 @@
++class BearerLoginBox < Avram::Box
++  def initialize
++    set_defaults
++  end
++
++  def token(token : String)
++    token_digest Sha256Hash.new(token).hash
++  end
++
++  private def set_defaults
++    name "super secret"
++    scopes ["api.current_user.create"]
++    active_at Time.utc
++    token "123.abcdefghijklmnopqrst"
++  end
++end
+diff --git a/spec/support/boxes/email_confirmation_box.cr b/spec/support/boxes/email_confirmation_box.cr
+new file mode 100644
+index 0000000..9359e01
+--- /dev/null
++++ b/spec/support/boxes/email_confirmation_box.cr
+@@ -0,0 +1,16 @@
++class EmailConfirmationBox < Avram::Box
++  def initialize
++    set_defaults
++  end
++
++  def token(token : String)
++    token_digest Sha256Hash.new(token).hash
++  end
++
++  private def set_defaults
++    email "user@example.tld"
++    ip_address "1.2.3.4"
++    active_at Time.utc
++    token "123.abcdefghijklmnopqrst"
++  end
++end
+diff --git a/spec/support/boxes/login_box.cr b/spec/support/boxes/login_box.cr
+new file mode 100644
+index 0000000..0249101
+--- /dev/null
++++ b/spec/support/boxes/login_box.cr
+@@ -0,0 +1,15 @@
++class LoginBox < Avram::Box
++  def initialize
++    set_defaults
++  end
++
++  def token(token : String)
++    token_digest Sha256Hash.new(token).hash
++  end
++
++  private def set_defaults
++    ip_address "1.2.3.4"
++    active_at Time.utc
++    token "123.abcdefghijklmnopqrst"
++  end
++end
+diff --git a/spec/support/boxes/password_reset_box.cr b/spec/support/boxes/password_reset_box.cr
+new file mode 100644
+index 0000000..a1cd85c
+--- /dev/null
++++ b/spec/support/boxes/password_reset_box.cr
+@@ -0,0 +1,15 @@
++class PasswordResetBox < Avram::Box
++  def initialize
++    set_defaults
++  end
++
++  def token(token : String)
++    token_digest Sha256Hash.new(token).hash
++  end
++
++  private def set_defaults
++    ip_address "1.2.3.4"
++    active_at Time.utc
++    token "123.abcdefghijklmnopqrst"
++  end
++end
+diff --git a/spec/support/boxes/user_box.cr b/spec/support/boxes/user_box.cr
+new file mode 100644
+index 0000000..68293bf
+--- /dev/null
++++ b/spec/support/boxes/user_box.cr
+@@ -0,0 +1,15 @@
++class UserBox < Avram::Box
++  def initialize
++    set_defaults
++  end
++
++  def password(password : String)
++    password_digest BcryptHash.new(password).hash
++  end
++
++  private def set_defaults
++    email "user@domain.tld"
++    level User::Level.new(:author)
++    password "password12U~password"
++  end
++end
+diff --git a/spec/support/boxes/user_options_box.cr b/spec/support/boxes/user_options_box.cr
+new file mode 100644
+index 0000000..7b04235
+--- /dev/null
++++ b/spec/support/boxes/user_options_box.cr
+@@ -0,0 +1,10 @@
++class UserOptionsBox < Avram::Box
++  def initialize
++    set_defaults
++  end
++
++  private def set_defaults
++    login_notify true
++    password_notify true
++  end
++end
+diff --git a/src/actions/bearer_logins/new.cr b/src/actions/bearer_logins/new.cr
+index 457f1f4..056b3d5 100644
+--- a/src/actions/bearer_logins/new.cr
++++ b/src/actions/bearer_logins/new.cr
+@@ -3,7 +3,8 @@ class BearerLogins::New < BrowserAction
+ 
+   get "/bearer-logins/new" do
+     operation = CreateBearerLogin.new(
+-      all_scopes: BearerLoginHelper.all_scopes
++      user: user,
++      allowed_scopes: BearerScope.action_scopes.map(&.to_s)
+     )
+ 
+     html NewPage, operation: operation
+diff --git a/src/actions/current_login/new.cr b/src/actions/current_login/new.cr
+index 491dea0..d6fd0e0 100644
+--- a/src/actions/current_login/new.cr
++++ b/src/actions/current_login/new.cr
+@@ -2,7 +2,7 @@ class CurrentLogin::New < BrowserAction
+   include Shield::CurrentLogin::New
+ 
+   get "/login" do
+-    operation = LogUserIn.new(remote_ip: remote_ip)
++    operation = LogUserIn.new(remote_ip: remote_ip, session: session)
+     html NewPage, operation: operation
+   end
+ end
+diff --git a/src/app.cr b/src/app.cr
+index 4e35a6d..ffee3d7 100644
+--- a/src/app.cr
++++ b/src/app.cr
+@@ -17,9 +17,11 @@ require "./app_database"
+ require "./models/mixins/**"
+ require "./models/base_model"
+ require "./models/**"
++
++require "shield/presets"
++
+ require "./queries/mixins/**"
+ require "./queries/**"
+-require "./utilities/**"
+ require "./operations/mixins/**"
+ require "./operations/**"
+ require "./serializers/base_serializer"
+@@ -34,7 +36,6 @@ require "./pages/mixins/**"
+ require "./pages/**"
+ require "./handlers/base_handler"
+ require "./handlers/**"
+-require "./helpers/**"
+ require "../config/env"
+ require "../config/**"
+ require "../db/migrations/**"
+diff --git a/src/app_settings.cr b/src/app_settings.cr
+index ff2b41c..f5fdecf 100644
+--- a/src/app_settings.cr
++++ b/src/app_settings.cr
+@@ -1,4 +1,4 @@
+-class App
++struct App
+   Habitat.create do
+     setting date_format : String
+     setting domain : String
+diff --git a/src/emails/email_confirmation_request_email.cr b/src/emails/email_confirmation_request_email.cr
+index 9cb7ea2..c1c3a5e 100644
+--- a/src/emails/email_confirmation_request_email.cr
++++ b/src/emails/email_confirmation_request_email.cr
+@@ -23,10 +23,7 @@ class EmailConfirmationRequestEmail < BaseEmail
+ 
+     To proceed to confirm your email, click the link below:
+ 
+-    #{EmailConfirmationHelper.email_confirmation_url(
+-      @email_confirmation,
+-      @operation
+-    )}
++    #{EmailConfirmationUrl.new(@operation, @email_confirmation)}
+ 
+     This email confirmation link will expire in #{Shield.settings.email_confirmation_expiry.total_minutes.to_i} minutes.
+ 
+diff --git a/src/emails/login_notification_email.cr b/src/emails/login_notification_email.cr
+index d1e4934..c867ea1 100644
+--- a/src/emails/login_notification_email.cr
++++ b/src/emails/login_notification_email.cr
+@@ -20,7 +20,7 @@ class LoginNotificationEmail < BaseEmail
+     accessed.
+ 
+     =====
+-    Date: #{@login.started_at.to_s(date_time_format)}
++    Date: #{@login.active_at.to_s(date_time_format)}
+     IP Address: #{@login.ip_address}
+     =====
+ 
+diff --git a/src/emails/password_reset_request_email.cr b/src/emails/password_reset_request_email.cr
+index 114d92d..026abb6 100644
+--- a/src/emails/password_reset_request_email.cr
++++ b/src/emails/password_reset_request_email.cr
+@@ -21,7 +21,7 @@ class PasswordResetRequestEmail < BaseEmail
+ 
+     To proceed with the password reset process, click the link below:
+ 
+-    #{PasswordResetHelper.password_reset_url(@password_reset, @operation)}
++    #{PasswordResetUrl.new(@operation, @password_reset)}
+ 
+     This password reset link will expire in #{Shield.settings.password_reset_expiry.total_minutes.to_i} minutes.
+ 
+diff --git a/src/helpers/bearer_login_helper.cr b/src/helpers/bearer_login_helper.cr
+deleted file mode 100644
+index 778f035..0000000
+--- a/src/helpers/bearer_login_helper.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module BearerLoginHelper
+-  extend Shield::BearerLoginHelper
+-end
+diff --git a/src/helpers/crypto_helper.cr b/src/helpers/crypto_helper.cr
+deleted file mode 100644
+index b588d1f..0000000
+--- a/src/helpers/crypto_helper.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module CryptoHelper
+-  extend Shield::CryptoHelper
+-end
+diff --git a/src/helpers/email_confirmation_helper.cr b/src/helpers/email_confirmation_helper.cr
+deleted file mode 100644
+index 880d7e3..0000000
+--- a/src/helpers/email_confirmation_helper.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module EmailConfirmationHelper
+-  extend Shield::EmailConfirmationHelper
+-end
+diff --git a/src/helpers/login_helper.cr b/src/helpers/login_helper.cr
+deleted file mode 100644
+index 331eb4a..0000000
+--- a/src/helpers/login_helper.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module LoginHelper
+-  extend Shield::LoginHelper
+-end
+diff --git a/src/helpers/password_reset_helper.cr b/src/helpers/password_reset_helper.cr
+deleted file mode 100644
+index 899f991..0000000
+--- a/src/helpers/password_reset_helper.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module PasswordResetHelper
+-  extend Shield::PasswordResetHelper
+-end
+diff --git a/src/helpers/user_helper.cr b/src/helpers/user_helper.cr
+deleted file mode 100644
+index 0f6928b..0000000
+--- a/src/helpers/user_helper.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-module UserHelper
+-  extend Shield::UserHelper
+-end
+diff --git a/src/models/base_model.cr b/src/models/base_model.cr
+index 522a89d..6bafeb8 100644
+--- a/src/models/base_model.cr
++++ b/src/models/base_model.cr
+@@ -1,6 +1,4 @@
+ abstract class BaseModel < Avram::Model
+-  include Shield::Model
+-
+   def self.database : Avram::Database.class
+     AppDatabase
+   end
+diff --git a/src/models/user.cr b/src/models/user.cr
+index 259cfc4..8d5c564 100644
+--- a/src/models/user.cr
++++ b/src/models/user.cr
+@@ -1,12 +1,5 @@
+ class User < BaseModel
+   include Shield::User
+-
+-  include Shield::HasManyBearerLogins
+-  include Shield::HasManyEmailConfirmations
+-  include Shield::HasManyLogins
+-  include Shield::HasManyPasswordResets
+-  include Shield::HasOneUserOptions
+-
+   include Carbon::Emailable
+ 
+   __enum Level do
+@@ -21,7 +14,7 @@ class User < BaseModel
+     column level : User::Level
+   end
+ 
+-  def full_name
++  def full_name : String
+     "#{first_name} #{last_name}"
+   end
+ 
+diff --git a/src/operations/create_bearer_login.cr b/src/operations/create_bearer_login.cr
+deleted file mode 100644
+index 37c26ed..0000000
+--- a/src/operations/create_bearer_login.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class CreateBearerLogin < BearerLogin::SaveOperation
+-  include Shield::CreateBearerLogin
+-end
+diff --git a/src/operations/delete_user.cr b/src/operations/delete_user.cr
+deleted file mode 100644
+index 5c02f00..0000000
+--- a/src/operations/delete_user.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class DeleteUser < Avram::Operation
+-  include Shield::DeleteUser
+-end
+diff --git a/src/operations/end_email_confirmation.cr b/src/operations/end_email_confirmation.cr
+deleted file mode 100644
+index 9ce5f52..0000000
+--- a/src/operations/end_email_confirmation.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class EndEmailConfirmation < EmailConfirmation::SaveOperation
+-  include Shield::EndEmailConfirmation
+-end
+diff --git a/src/operations/end_password_reset.cr b/src/operations/end_password_reset.cr
+deleted file mode 100644
+index 2e00ee8..0000000
+--- a/src/operations/end_password_reset.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class EndPasswordReset < PasswordReset::SaveOperation
+-  include Shield::EndPasswordReset
+-end
+diff --git a/src/operations/log_user_in.cr b/src/operations/log_user_in.cr
+deleted file mode 100644
+index 3b1fa34..0000000
+--- a/src/operations/log_user_in.cr
++++ /dev/null
+@@ -1,4 +0,0 @@
+-class LogUserIn < Login::SaveOperation
+-  include Shield::LogUserIn
+-  include Shield::NotifyLogin
+-end
+diff --git a/src/operations/log_user_out.cr b/src/operations/log_user_out.cr
+deleted file mode 100644
+index e9b1404..0000000
+--- a/src/operations/log_user_out.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class LogUserOut < Login::SaveOperation
+-  include Shield::LogUserOut
+-end
+diff --git a/src/operations/register_current_user.cr b/src/operations/register_current_user.cr
+index 8e205fd..63a412b 100644
+--- a/src/operations/register_current_user.cr
++++ b/src/operations/register_current_user.cr
+@@ -1,5 +1,3 @@
+-require "./save_user_options"
+-
+ class RegisterCurrentUser < User::SaveOperation
+   permit_columns :first_name, :last_name
+ 
+@@ -11,8 +9,6 @@ class RegisterCurrentUser < User::SaveOperation
+     set_level
+   end
+ 
+-  include Shield::RegisterEmailConfirmationUser
+-  include Shield::HasOneCreateSaveUserOptions
+   include Shield::SendWelcomeEmail
+ 
+   private def set_level
+diff --git a/src/operations/register_user.cr b/src/operations/register_user.cr
+index d02faa6..dd1652c 100644
+--- a/src/operations/register_user.cr
++++ b/src/operations/register_user.cr
+@@ -6,7 +6,4 @@ class RegisterUser < User::SaveOperation
+     validate_name first_name, last_name
+     validate_not_pwned(password) if Lucky::Env.production?
+   end
+-
+-  include Shield::RegisterUser
+-  include Shield::HasOneCreateSaveUserOptions
+ end
+diff --git a/src/operations/reset_password.cr b/src/operations/reset_password.cr
+deleted file mode 100644
+index a78ee00..0000000
+--- a/src/operations/reset_password.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class ResetPassword < User::SaveOperation
+-  include Shield::ResetPassword
+-end
+diff --git a/src/operations/revoke_bearer_login.cr b/src/operations/revoke_bearer_login.cr
+deleted file mode 100644
+index 145b937..0000000
+--- a/src/operations/revoke_bearer_login.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class RevokeBearerLogin < BearerLogin::SaveOperation
+-  include Shield::RevokeBearerLogin
+-end
+diff --git a/src/operations/save_user_options.cr b/src/operations/save_user_options.cr
+deleted file mode 100644
+index fdfd679..0000000
+--- a/src/operations/save_user_options.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class SaveUserOptions < UserOptions::SaveOperation
+-  include Shield::SaveUserOptions
+-end
+diff --git a/src/operations/start_email_confirmation.cr b/src/operations/start_email_confirmation.cr
+deleted file mode 100644
+index 804d573..0000000
+--- a/src/operations/start_email_confirmation.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class StartEmailConfirmation < EmailConfirmation::SaveOperation
+-  include Shield::StartEmailConfirmation
+-end
+diff --git a/src/operations/start_password_reset.cr b/src/operations/start_password_reset.cr
+deleted file mode 100644
+index 3eb455d..0000000
+--- a/src/operations/start_password_reset.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class StartPasswordReset < PasswordReset::SaveOperation
+-  include Shield::StartPasswordReset
+-end
+diff --git a/src/operations/update_confirmed_email.cr b/src/operations/update_confirmed_email.cr
+deleted file mode 100644
+index c4dccf0..0000000
+--- a/src/operations/update_confirmed_email.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class UpdateConfirmedEmail < User::SaveOperation
+-  include Shield::UpdateConfirmedEmail
+-end
+diff --git a/src/operations/update_current_user.cr b/src/operations/update_current_user.cr
+index 39cd512..28867f1 100644
+--- a/src/operations/update_current_user.cr
++++ b/src/operations/update_current_user.cr
+@@ -6,8 +6,4 @@ class UpdateCurrentUser < User::SaveOperation
+     validate_name first_name, last_name
+     validate_not_pwned(password) if Lucky::Env.production?
+   end
+-
+-  include Shield::UpdateEmailConfirmationUser
+-  include Shield::HasOneUpdateSaveUserOptions
+-  include Shield::NotifyPasswordChange
+ end
+diff --git a/src/operations/update_user.cr b/src/operations/update_user.cr
+index 48d4294..de76eef 100644
+--- a/src/operations/update_user.cr
++++ b/src/operations/update_user.cr
+@@ -9,9 +9,6 @@ class UpdateUser < User::SaveOperation
+     reset_level
+   end
+ 
+-  include Shield::UpdateUser
+-  include Shield::HasOneUpdateSaveUserOptions
+-
+   # Ensure current admin cannot change their own level,
+   # lest they get locked out
+   private def reset_level
+diff --git a/src/pages/auth_layout.cr b/src/pages/auth_layout.cr
+index 28be58a..322da6a 100644
+--- a/src/pages/auth_layout.cr
++++ b/src/pages/auth_layout.cr
+@@ -6,7 +6,7 @@ abstract class AuthLayout
+   # Add a `page_title` method to pages to override it. You can also remove
+   # This method so every page is required to have its own page title.
+   def page_title
+-    "Meth"
++    "Penny"
+   end
+ 
+   def render
+diff --git a/src/pages/bearer_logins/new_page.cr b/src/pages/bearer_logins/new_page.cr
+index b76af9c..fccbf02 100644
+--- a/src/pages/bearer_logins/new_page.cr
++++ b/src/pages/bearer_logins/new_page.cr
+@@ -38,6 +38,6 @@ class BearerLogins::NewPage < MainLayout
+   end
+ 
+   private def options_for_scopes
+-    BearerLoginHelper.all_scopes.map { |scope| {scope, scope} }
++    BearerScope.action_scopes.map { |scope| {scope.to_s, scope.to_s} }
+   end
+ end
+diff --git a/src/pages/bearer_logins/show_page.cr b/src/pages/bearer_logins/show_page.cr
+index f33a40e..01e2bbc 100644
+--- a/src/pages/bearer_logins/show_page.cr
++++ b/src/pages/bearer_logins/show_page.cr
+@@ -10,7 +10,7 @@ class BearerLogins::ShowPage < MainLayout
+     h1 bearer_login.name
+ 
+     para "Copy token below:"
+-    pre BearerLoginHelper.token(bearer_login, operation)
++    pre BearerToken.new(operation, bearer_login).to_s
+ 
+     para do
+       link "[=] list all", to: Index
+diff --git a/src/pages/home/index_page.cr b/src/pages/home/index_page.cr
+index 7839e4a..65bf485 100644
+--- a/src/pages/home/index_page.cr
++++ b/src/pages/home/index_page.cr
+@@ -6,10 +6,10 @@ class Home::IndexPage < MainLayout
+   def content
+     h1 do
+       text "Hello "
+-      em "Meth"
++      em "Penny"
+     end
+ 
+-    para "Meth is a rather quick way to get started with Lucky framework and Shield"
++    para "Penny is a rather quick way to get started with Lucky framework and Shield"
+ 
+     h2 "Resources"
+ 
+@@ -19,7 +19,7 @@ class Home::IndexPage < MainLayout
+       end
+ 
+       li do
+-        a "Meth", href: "https://github.com/grottopress/meth"
++        a "Penny", href: "https://github.com/grottopress/penny"
+       end
+ 
+       li do
+diff --git a/src/pages/main_layout.cr b/src/pages/main_layout.cr
+index 01aa503..ffe44f1 100644
+--- a/src/pages/main_layout.cr
++++ b/src/pages/main_layout.cr
+@@ -6,7 +6,7 @@ abstract class MainLayout
+   # Add a `page_title` method to pages to override it. You can also remove
+   # This method so every page is required to have its own page title.
+   def page_title
+-    "Meth"
++    "Penny"
+   end
+ 
+   def render
+diff --git a/src/pages/users/edit_page.cr b/src/pages/users/edit_page.cr
+index a417cdc..5b03088 100644
+--- a/src/pages/users/edit_page.cr
++++ b/src/pages/users/edit_page.cr
+@@ -8,7 +8,7 @@ class Users::EditPage < MainLayout
+   def content
+     h1 "Edit User"
+ 
+-    form_for Update.with(user_id: operation.id.value.not_nil!) do
++    form_for Update.with(user_id: operation.id.value!) do
+       para do
+         mount Shared::Field, operation.email
+       end
+diff --git a/src/queries/bearer_login_query.cr b/src/queries/bearer_login_query.cr
+deleted file mode 100644
+index bb7d7c1..0000000
+--- a/src/queries/bearer_login_query.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class BearerLoginQuery < BearerLogin::BaseQuery
+-  include Shield::BearerLoginQuery
+-end
+diff --git a/src/queries/email_confirmation_query.cr b/src/queries/email_confirmation_query.cr
+deleted file mode 100644
+index 732c65a..0000000
+--- a/src/queries/email_confirmation_query.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class EmailConfirmationQuery < EmailConfirmation::BaseQuery
+-  include Shield::EmailConfirmationQuery
+-end
+diff --git a/src/queries/login_query.cr b/src/queries/login_query.cr
+deleted file mode 100644
+index 9978267..0000000
+--- a/src/queries/login_query.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class LoginQuery < Login::BaseQuery
+-  include Shield::LoginQuery
+-end
+diff --git a/src/queries/password_reset_query.cr b/src/queries/password_reset_query.cr
+deleted file mode 100644
+index dcad224..0000000
+--- a/src/queries/password_reset_query.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class PasswordResetQuery < PasswordReset::BaseQuery
+-  include Shield::PasswordResetQuery
+-end
+diff --git a/src/queries/user_options_query.cr b/src/queries/user_options_query.cr
+deleted file mode 100644
+index 302fc90..0000000
+--- a/src/queries/user_options_query.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class UserOptionsQuery < User::BaseQuery
+-  include Shield::UserOptionsQuery
+-end
+diff --git a/src/queries/user_query.cr b/src/queries/user_query.cr
+deleted file mode 100644
+index f4fcada..0000000
+--- a/src/queries/user_query.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class UserQuery < User::BaseQuery
+-  include Shield::UserQuery
+-end
+diff --git a/src/serializers/bearer_login_serializer.cr b/src/serializers/bearer_login_serializer.cr
+index 31158ad..d29d43b 100644
+--- a/src/serializers/bearer_login_serializer.cr
++++ b/src/serializers/bearer_login_serializer.cr
+@@ -7,8 +7,8 @@ class BearerLoginSerializer < BaseSerializer
+       id: @bearer_login.id,
+       name: @bearer_login.name,
+       scopes: @bearer_login.scopes,
+-      started_at: @bearer_login.started_at.to_unix,
+-      ended_at: @bearer_login.ended_at.try &.to_unix
++      active_at: @bearer_login.active_at.to_unix,
++      inactive_at: @bearer_login.inactive_at.try &.to_unix
+     }
+   end
+ end
+diff --git a/src/serializers/login_serializer.cr b/src/serializers/login_serializer.cr
+index cbb01d2..77cd81d 100644
+--- a/src/serializers/login_serializer.cr
++++ b/src/serializers/login_serializer.cr
+@@ -6,8 +6,8 @@ class LoginSerializer < BaseSerializer
+     {
+       id: @login.id,
+       ip_address: @login.ip_address,
+-      started_at: @login.started_at.to_unix,
+-      ended_at: @login.ended_at.try &.to_unix
++      active_at: @login.active_at.to_unix,
++      inactive_at: @login.inactive_at.try &.to_unix
+     }
+   end
+ end
+diff --git a/src/utilities/bearer_login_headers.cr b/src/utilities/bearer_login_headers.cr
+deleted file mode 100644
+index f79199f..0000000
+--- a/src/utilities/bearer_login_headers.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class BearerLoginHeaders
+-  include Shield::BearerLoginHeaders
+-end
+diff --git a/src/utilities/email_confirmation_params.cr b/src/utilities/email_confirmation_params.cr
+deleted file mode 100644
+index 47579d7..0000000
+--- a/src/utilities/email_confirmation_params.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class EmailConfirmationParams
+-  include Shield::EmailConfirmationParams
+-end
+diff --git a/src/utilities/email_confirmation_session.cr b/src/utilities/email_confirmation_session.cr
+deleted file mode 100644
+index 8f8148a..0000000
+--- a/src/utilities/email_confirmation_session.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class EmailConfirmationSession
+-  include Shield::EmailConfirmationSession
+-end
+diff --git a/src/utilities/login_headers.cr b/src/utilities/login_headers.cr
+deleted file mode 100644
+index fe97e89..0000000
+--- a/src/utilities/login_headers.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class LoginHeaders
+-  include Shield::LoginHeaders
+-end
+diff --git a/src/utilities/login_idle_timeout_session.cr b/src/utilities/login_idle_timeout_session.cr
+deleted file mode 100644
+index 9b1f05c..0000000
+--- a/src/utilities/login_idle_timeout_session.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class LoginIdleTimeoutSession
+-  include Shield::LoginIdleTimeoutSession
+-end
+diff --git a/src/utilities/login_session.cr b/src/utilities/login_session.cr
+deleted file mode 100644
+index f7ccb13..0000000
+--- a/src/utilities/login_session.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class LoginSession
+-  include Shield::LoginSession
+-end
+diff --git a/src/utilities/page_url_session.cr b/src/utilities/page_url_session.cr
+deleted file mode 100644
+index 1630443..0000000
+--- a/src/utilities/page_url_session.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class PageUrlSession
+-  include Shield::PageUrlSession
+-end
+diff --git a/src/utilities/password_reset_params.cr b/src/utilities/password_reset_params.cr
+deleted file mode 100644
+index 416265a..0000000
+--- a/src/utilities/password_reset_params.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class PasswordResetParams
+-  include Shield::PasswordResetParams
+-end
+diff --git a/src/utilities/password_reset_session.cr b/src/utilities/password_reset_session.cr
+deleted file mode 100644
+index 4f3ab1a..0000000
+--- a/src/utilities/password_reset_session.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class PasswordResetSession
+-  include Shield::PasswordResetSession
+-end
+diff --git a/src/utilities/pwned_passwords.cr b/src/utilities/pwned_passwords.cr
+deleted file mode 100644
+index a5499e6..0000000
+--- a/src/utilities/pwned_passwords.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class PwnedPasswords
+-  include Shield::PwnedPasswords
+-end
+diff --git a/src/utilities/return_url_session.cr b/src/utilities/return_url_session.cr
+deleted file mode 100644
+index af93e71..0000000
+--- a/src/utilities/return_url_session.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-class ReturnUrlSession
+-  include Shield::ReturnUrlSession
+-end

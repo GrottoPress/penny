@@ -7,8 +7,8 @@ class BearerLoginSerializer < BaseSerializer
       id: @bearer_login.id,
       name: @bearer_login.name,
       scopes: @bearer_login.scopes,
-      started_at: @bearer_login.started_at.to_unix,
-      ended_at: @bearer_login.ended_at.try &.to_unix
+      active_at: @bearer_login.active_at.to_unix,
+      inactive_at: @bearer_login.inactive_at.try &.to_unix
     }
   end
 end

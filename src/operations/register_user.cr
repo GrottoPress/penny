@@ -6,7 +6,4 @@ class RegisterUser < User::SaveOperation
     validate_name first_name, last_name
     validate_not_pwned(password) if Lucky::Env.production?
   end
-
-  include Shield::RegisterUser
-  include Shield::HasOneCreateSaveUserOptions
 end

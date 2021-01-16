@@ -38,6 +38,6 @@ class BearerLogins::NewPage < MainLayout
   end
 
   private def options_for_scopes
-    BearerLoginHelper.all_scopes.map { |scope| {scope, scope} }
+    BearerScope.action_scopes.map { |scope| {scope.to_s, scope.to_s} }
   end
 end
