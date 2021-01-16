@@ -23,10 +23,7 @@ class EmailConfirmationRequestEmail < BaseEmail
 
     To proceed to confirm your email, click the link below:
 
-    #{EmailConfirmationHelper.email_confirmation_url(
-      @email_confirmation,
-      @operation
-    )}
+    #{EmailConfirmationUrl.new(@operation, @email_confirmation)}
 
     This email confirmation link will expire in #{Shield.settings.email_confirmation_expiry.total_minutes.to_i} minutes.
 

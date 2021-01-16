@@ -9,9 +9,6 @@ class UpdateUser < User::SaveOperation
     reset_level
   end
 
-  include Shield::UpdateUser
-  include Shield::HasOneUpdateSaveUserOptions
-
   # Ensure current admin cannot change their own level,
   # lest they get locked out
   private def reset_level

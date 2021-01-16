@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-describe "" do
+describe App do
   it "works" do
     true.should be_false
   end

@@ -1,6 +1,4 @@
 Shield.configure do |settings|
-  settings.bcrypt_cost = ENV["BCRYPT_COST"].to_i
-
   settings.bearer_login_expiry = Time::Span.new(
     seconds: ENV["BEARER_LOGIN_EXPIRY"].to_i
   )

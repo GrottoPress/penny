@@ -20,7 +20,7 @@ class LoginNotificationEmail < BaseEmail
     accessed.
 
     =====
-    Date: #{@login.started_at.to_s(date_time_format)}
+    Date: #{@login.active_at.to_s(date_time_format)}
     IP Address: #{@login.ip_address}
     =====
 

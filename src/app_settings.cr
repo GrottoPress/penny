@@ -1,4 +1,4 @@
-class App
+struct App
   Habitat.create do
     setting date_format : String
     setting domain : String

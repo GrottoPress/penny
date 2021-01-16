@@ -21,7 +21,7 @@ class PasswordResetRequestEmail < BaseEmail
 
     To proceed with the password reset process, click the link below:
 
-    #{PasswordResetHelper.password_reset_url(@password_reset, @operation)}
+    #{PasswordResetUrl.new(@operation, @password_reset)}
 
     This password reset link will expire in #{Shield.settings.password_reset_expiry.total_minutes.to_i} minutes.
 

@@ -14,31 +14,11 @@ require "./support/**"
 # configuring LuckyFlow, starting the app server, etc.
 require "./setup/**"
 
+require "shield/spec"
+
 include Carbon::Expectations
 include Lucky::RequestExpectations
 include LuckyFlow::Expectations
-
-def assert_valid(attribute)
-  attribute.errors.should be_empty
-end
-
-def assert_valid(attribute, text)
-  attribute.errors.select(&.includes? text).should be_empty
-end
-
-def assert_invalid(attribute)
-  attribute.errors.should_not be_empty
-end
-
-def assert_invalid(attribute, text)
-  attribute.errors.select(&.includes? text).size.should eq(1)
-end
-
-def params(**named_args)
-  Avram::Params.new named_args.to_h
-    .transform_keys(&.to_s)
-    .transform_values &.to_s
-end
 
 Avram::Migrator::Runner.new.ensure_migrated!
 Avram::SchemaEnforcer.ensure_correct_column_mappings!
