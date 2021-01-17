@@ -7,8 +7,8 @@ module Lucky::SelectHelpers
     select_options.each do |option_name, option_value|
       attributes = {"value" => option_value.to_s}
 
-      is_selected = field.value && option_value.to_s.in?(field.value.not_nil!)
-      attributes["selected"] = "true" if is_selected
+      is_selected = field.value && attributes["value"].in?(field.value!)
+      attributes["selected"] = "selected" if is_selected
 
       option option_name, merge_options(html_options, attributes)
     end
