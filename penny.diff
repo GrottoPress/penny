@@ -401,6 +401,27 @@ index 0000000..7b04235
 +    password_notify true
 +  end
 +end
+diff --git a/src/actions/api_action.cr b/src/actions/api_action.cr
+index a431a26..027b148 100644
+--- a/src/actions/api_action.cr
++++ b/src/actions/api_action.cr
+@@ -1,16 +1,4 @@
+ abstract class ApiAction < Lucky::Action
+-  include Shield::ApiAction
+-
+-  include Shield::Api::LoginHelpers
+-  include Shield::Api::AuthorizationHelpers
+-  include Shield::Api::PasswordResetHelpers
+-  include Shield::Api::EmailConfirmationHelpers
+-
+-  include Shield::Api::LoginPipes
+-  include Shield::Api::AuthorizationPipes
+-  include Shield::Api::PasswordResetPipes
+-  include Shield::Api::EmailConfirmationPipes
+-
+   skip :pin_login_to_ip_address
+ 
+   accepted_formats [:html, :json], default: :json
 diff --git a/src/actions/bearer_logins/new.cr b/src/actions/bearer_logins/new.cr
 index 457f1f4..056b3d5 100644
 --- a/src/actions/bearer_logins/new.cr
@@ -415,6 +436,27 @@ index 457f1f4..056b3d5 100644
      )
  
      html NewPage, operation: operation
+diff --git a/src/actions/browser_action.cr b/src/actions/browser_action.cr
+index b0c63c0..636e5a1 100644
+--- a/src/actions/browser_action.cr
++++ b/src/actions/browser_action.cr
+@@ -1,16 +1,4 @@
+ abstract class BrowserAction < Lucky::Action
+-  include Shield::BrowserAction
+-
+-  include Shield::LoginHelpers
+-  include Shield::AuthorizationHelpers
+-  include Shield::PasswordResetHelpers
+-  include Shield::EmailConfirmationHelpers
+-
+-  include Shield::LoginPipes
+-  include Shield::AuthorizationPipes
+-  include Shield::PasswordResetPipes
+-  include Shield::EmailConfirmationPipes
+-
+   include Lucky::SecureHeaders::SetFrameGuard
+   include Lucky::SecureHeaders::SetSniffGuard
+   include Lucky::SecureHeaders::SetXSSGuard
 diff --git a/src/actions/current_login/new.cr b/src/actions/current_login/new.cr
 index 491dea0..d6fd0e0 100644
 --- a/src/actions/current_login/new.cr
