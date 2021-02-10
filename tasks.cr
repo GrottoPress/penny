@@ -13,7 +13,7 @@ require "./src/app"
 require "./tasks/**"
 
 # Load migrations
-require "./db/migrations/**"
+# require "./db/migrations/**"
 
 # Load Lucky tasks (dev, routes, etc.)
 require "lucky/tasks/**"

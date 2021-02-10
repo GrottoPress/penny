@@ -26,7 +26,7 @@ class CurrentLogin::NewPage < AuthLayout
       end
 
       para do
-        button "Log in", role: "submit"
+        button "Log in", role: "submit", flow_id: "login-button"
       end
     end
   end

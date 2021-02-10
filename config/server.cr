@@ -8,9 +8,7 @@ Lucky::Server.configure do |settings|
     settings.host = ENV["SERVER_HOST"]
     settings.port = ENV["SERVER_PORT"].to_i
 
-    settings.gzip_enabled = Bool.adapter
-      .parse(ENV["GZIP_ENABLED"])
-      .value.not_nil!
+    settings.gzip_enabled = Bool.adapter.parse!(ENV["GZIP_ENABLED"])
 
     # By default certain content types will be gzipped.
     # For a full list look in
@@ -32,7 +30,7 @@ Lucky::ForceSSLHandler.configure do |settings|
   #
   #    settings.enabled = Lucky::Env.production?
   #    settings.strict_transport_security = {max_age: 1.year, include_subdomains: true}
-  settings.enabled = Bool.adapter.parse(ENV["SSL_ENABLED"]).value.not_nil!
+  settings.enabled = Bool.adapter.parse!(ENV["SSL_ENABLED"])
 end
 
 private def secret_key_from_env

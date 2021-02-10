@@ -9,8 +9,6 @@ end
 
 app_server = AppServer.new
 
-{Signal::INT, Signal::TERM}.each &.trap do
-  app_server.close
-end
+{Signal::INT, Signal::TERM}.each &.trap { app_server.close }
 
 app_server.listen

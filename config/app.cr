@@ -17,7 +17,5 @@ App.configure do |settings|
   settings.email_reply_to = ENV["EMAIL_REPLY_TO"]
 
   settings.make_first_user_admin = Bool.adapter
-    .parse(ENV["MAKE_FIRST_USER_ADMIN"])
-    .value
-    .not_nil!
+    .parse!(ENV["MAKE_FIRST_USER_ADMIN"])
 end

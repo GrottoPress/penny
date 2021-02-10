@@ -29,6 +29,14 @@ class CurrentUser::EditPage < MainLayout
 
       para do
         mount Shared::Field,
+          operation.save_user_options.bearer_login_notify,
+          label_text: bearer_login_notify_label_text do |builder|
+          builder.checkbox
+        end
+      end
+
+      para do
+        mount Shared::Field,
           operation.save_user_options.login_notify,
           label_text: login_notify_label_text do |builder|
           builder.checkbox
@@ -51,6 +59,10 @@ class CurrentUser::EditPage < MainLayout
         button "Update account", role: "submit"
       end
     end
+  end
+
+  private def bearer_login_notify_label_text
+    label_text = "Send me an email whenever I create a new bearer login"
   end
 
   private def login_notify_label_text

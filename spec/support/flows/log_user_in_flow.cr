@@ -8,7 +8,7 @@ class LogUserInFlow < BaseFlow
       email: "user@example.tld",
       password: "passwo)rdA1passw8d*hgh"
 
-    click ".login-button"
+    click "@login-button"
   end
 
   def login_should_be_successful

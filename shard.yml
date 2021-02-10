@@ -4,13 +4,13 @@ description: Get up and running with Lucky framework and Shield
 
 authors:
   - GrottoPress <info@grottopress.com>
-  - N Atta Kusi Adusei <attakusiadusei@gmail.com>
+  - N Atta Kusi Adusei
 
 targets:
   app:
     main: src/start_server.cr
 
-crystal: 0.35.1
+crystal: ~> 0.36.0
 
 dependencies:
   # annotation:
@@ -18,7 +18,7 @@ dependencies:
   #   version: ~> 0.4.0
   lucky:
     github: luckyframework/lucky
-    version: ~> 0.25.0
+    version: ~> 0.26.0
   carbon:
     github: luckyframework/carbon
     version: ~> 0.1.0
@@ -27,12 +27,12 @@ dependencies:
     version: ~> 0.2.0
   shield:
     github: GrottoPress/shield
-    version: ~> 0.7.0
+    version: ~> 0.8.0
 
 development_dependencies:
   # ameba:
   #   github: veelenga/ameba
-  #   version: ~> 0.12.0
+  #   version: ~> 0.13.0
   lucky_flow:
     github: luckyframework/lucky_flow
     version: ~> 0.7.0
