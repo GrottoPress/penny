@@ -6,5 +6,5 @@
 *.dwarf
 /.crystal-version
 /.env*
-/shard.lock
+/*.lock
 /start_server
