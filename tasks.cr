@@ -6,6 +6,8 @@
 # https://luckyframework.org/guides/command-line-tasks/custom-tasks
 ENV["LUCKY_TASK"] = "true"
 
+require "lucky_task"
+
 # Load Lucky and the app (actions, models, etc.)
 require "./src/app"
 
@@ -18,4 +20,4 @@ require "./tasks/**"
 # Load Lucky tasks (dev, routes, etc.)
 require "lucky/tasks/**"
 
-LuckyCli::Runner.run
+LuckyTask::Runner.run

@@ -1,6 +1,6 @@
 class CreateEmailConfirmations::V20201026210922 < Avram::Migrator::Migration::V1
   def migrate
-    create table_for(EmailConfirmation) do
+    create :email_confirmations do
       primary_key id : Int64
 
       add_belongs_to user : User?, on_delete: :cascade
@@ -15,6 +15,6 @@ class CreateEmailConfirmations::V20201026210922 < Avram::Migrator::Migration::V1
   end
 
   def rollback
-    drop table_for(EmailConfirmation)
+    drop :email_confirmations
   end
 end

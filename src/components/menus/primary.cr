@@ -7,6 +7,8 @@ class Menus::Primary < BaseComponent
       text " | "
       link "Users", to: Users::Index
       text " | "
+      link "Logins", to: Logins::Index
+      text " | "
       link "Bearer logins", to: BearerLogins::Index
     end
   end

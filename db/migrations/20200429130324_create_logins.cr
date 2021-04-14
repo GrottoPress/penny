@@ -1,6 +1,6 @@
 class CreateLogins::V20200429130324 < Avram::Migrator::Migration::V1
   def migrate
-    create table_for(Login) do
+    create :logins do
       primary_key id : Int64
 
       add_belongs_to user : User, on_delete: :cascade
@@ -13,6 +13,6 @@ class CreateLogins::V20200429130324 < Avram::Migrator::Migration::V1
   end
 
   def rollback
-    drop table_for(Login)
+    drop :logins
   end
 end
