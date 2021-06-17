@@ -1,573 +1,125 @@
-diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-new file mode 100644
-index 0000000..baed521
---- /dev/null
-+++ b/.github/workflows/ci.yml
-@@ -0,0 +1,60 @@
-+name: CI
-+on:
-+  push:
-+    paths:
-+      - '**.cr'
-+      - '.github/workflows/**'
-+  pull_request:
-+    branches: [master]
-+    paths:
-+      - '**.cr'
-+      - '.github/workflows/**'
-+  # schedule:
-+  #   - cron: '0 6 * * 6'
-+jobs:
-+  specs:
-+    strategy:
-+      fail-fast: false
-+      matrix:
-+        crystal: [0.36.1]
-+        experimental: [false]
-+        include:
-+          - crystal: 1.0.0
-+            experimental: true
-+          - crystal: nightly
-+            experimental: true
-+    runs-on: ubuntu-latest
-+    continue-on-error: ${{ matrix.experimental }}
-+    steps:
-+      - name: Download source
-+        uses: actions/checkout@v2
-+      - name: Install Crystal
-+        uses: oprypin/install-crystal@v1
-+        with:
-+          crystal: ${{ matrix.crystal }}
-+      - name: Cache shards
-+        uses: actions/cache@v2
-+        with:
-+          path: ~/.cache/shards
-+          key: ${{ runner.os }}-shards-${{ hashFiles('shard.yml') }}
-+          restore-keys: ${{ runner.os }}-shards-
-+      - name: Install shards
-+        run: shards update
-+      - name: Install Postgresql
-+        run: sudo apt -y install postgresql
-+      - name: Start Postgresql
-+        run: sudo systemctl start postgresql
-+      - name: Set Postgres password
-+        run: >-
-+          sudo -u postgres psql -c
-+          "ALTER USER postgres WITH PASSWORD 'password';"
-+      - name: Run tests
-+        env:
-+          HOST: localhost
-+          NAME: app_development
-+          PASSWORD: password
-+          PORT: "5432"
-+          USERNAME: postgres
-+          SERVER_HOST: "0.0.0.0"
-+          SERVER_PORT: "5000"
-+        run: crystal spec --error-on-warnings spec/app
-diff --git a/.travis.yml b/.travis.yml
-deleted file mode 100644
-index 0999c03..0000000
---- a/.travis.yml
-+++ /dev/null
-@@ -1,12 +0,0 @@
--language: minimal
--dist: bionic
--sudo: false
--
--services:
--  - docker
--
--install:
--  - docker-compose run --rm shards
--
--script:
--  - docker-compose run --rm spec
-diff --git a/config/cookies.cr b/config/cookies.cr
-index 234f4d9..f336986 100644
---- a/config/cookies.cr
-+++ b/config/cookies.cr
-@@ -12,6 +12,12 @@ Lucky::CookieJar.configure do |settings|
-     # By default, don't allow reading cookies with JavaScript
-     cookie.http_only(true)
- 
-+    # Restrict cookies to a first-party or same-site context
-+    cookie.samesite(:lax)
-+
-+    # Set all cookies to the root path by default
-+    cookie.path("/")
-+
-     # You can set other defaults for cookies here. For example:
-     #
-     #    cookie.expires(1.year.from_now).domain("mydomain.com")
-diff --git a/db/migrations/20200428163501_create_users.cr b/db/migrations/20200428163501_create_users.cr
-index 2756eb2..46f9b99 100644
---- a/db/migrations/20200428163501_create_users.cr
-+++ b/db/migrations/20200428163501_create_users.cr
-@@ -1,6 +1,6 @@
- class CreateUsers::V20200428163501 < Avram::Migrator::Migration::V1
-   def migrate
--    create table_for(User) do
-+    create :users do
-       primary_key id : Int64
- 
-       add_timestamps
-@@ -14,6 +14,6 @@ class CreateUsers::V20200428163501 < Avram::Migrator::Migration::V1
-   end
- 
-   def rollback
--    drop table_for(User)
-+    drop :users
-   end
- end
-diff --git a/db/migrations/20200428231231_create_password_resets.cr b/db/migrations/20200428231231_create_password_resets.cr
-index e82e1cd..37bee96 100644
---- a/db/migrations/20200428231231_create_password_resets.cr
-+++ b/db/migrations/20200428231231_create_password_resets.cr
-@@ -1,6 +1,6 @@
- class CreatePasswordResets::V20200428231231 < Avram::Migrator::Migration::V1
-   def migrate
--    create table_for(PasswordReset) do
-+    create :password_resets do
-       primary_key id : Int64
- 
-       add_belongs_to user : User, on_delete: :cascade
-@@ -13,6 +13,6 @@ class CreatePasswordResets::V20200428231231 < Avram::Migrator::Migration::V1
-   end
- 
-   def rollback
--    drop table_for(PasswordReset)
-+    drop :password_resets
-   end
- end
-diff --git a/db/migrations/20200429130324_create_logins.cr b/db/migrations/20200429130324_create_logins.cr
-index 2861a5b..6ae0890 100644
---- a/db/migrations/20200429130324_create_logins.cr
-+++ b/db/migrations/20200429130324_create_logins.cr
-@@ -1,6 +1,6 @@
- class CreateLogins::V20200429130324 < Avram::Migrator::Migration::V1
-   def migrate
--    create table_for(Login) do
-+    create :logins do
-       primary_key id : Int64
- 
-       add_belongs_to user : User, on_delete: :cascade
-@@ -13,6 +13,6 @@ class CreateLogins::V20200429130324 < Avram::Migrator::Migration::V1
-   end
- 
-   def rollback
--    drop table_for(Login)
-+    drop :logins
-   end
- end
-diff --git a/db/migrations/20200905163024_create_user_options.cr b/db/migrations/20200905163024_create_user_options.cr
-index 080ffda..e4759fb 100644
---- a/db/migrations/20200905163024_create_user_options.cr
-+++ b/db/migrations/20200905163024_create_user_options.cr
-@@ -1,6 +1,6 @@
- class CreateUserOptions::V20200905163024 < Avram::Migrator::Migration::V1
-   def migrate
--    create table_for(UserOptions) do
-+    create :user_options do
-       primary_key id : Int64
- 
-       add_timestamps
-@@ -12,6 +12,6 @@ class CreateUserOptions::V20200905163024 < Avram::Migrator::Migration::V1
-   end
- 
-   def rollback
--    drop table_for(UserOptions)
-+    drop :user_options
-   end
- end
-diff --git a/db/migrations/20201026210922_create_email_confirmations.cr b/db/migrations/20201026210922_create_email_confirmations.cr
-index a926a99..6dbb288 100644
---- a/db/migrations/20201026210922_create_email_confirmations.cr
-+++ b/db/migrations/20201026210922_create_email_confirmations.cr
-@@ -1,6 +1,6 @@
- class CreateEmailConfirmations::V20201026210922 < Avram::Migrator::Migration::V1
-   def migrate
--    create table_for(EmailConfirmation) do
-+    create :email_confirmations do
-       primary_key id : Int64
- 
-       add_belongs_to user : User?, on_delete: :cascade
-@@ -15,6 +15,6 @@ class CreateEmailConfirmations::V20201026210922 < Avram::Migrator::Migration::V1
-   end
- 
-   def rollback
--    drop table_for(EmailConfirmation)
-+    drop :email_confirmations
-   end
- end
-diff --git a/db/migrations/20201026211114_create_bearer_logins.cr b/db/migrations/20201026211114_create_bearer_logins.cr
-index 25a2224..39fb5ff 100644
---- a/db/migrations/20201026211114_create_bearer_logins.cr
-+++ b/db/migrations/20201026211114_create_bearer_logins.cr
-@@ -1,6 +1,6 @@
- class CreateBearerLogins::V20201026211114 < Avram::Migrator::Migration::V1
-   def migrate
--    create table_for(BearerLogin) do
-+    create :bearer_logins do
-       primary_key id : Int64
- 
-       add_belongs_to user : User, on_delete: :cascade
-@@ -15,6 +15,6 @@ class CreateBearerLogins::V20201026211114 < Avram::Migrator::Migration::V1
-   end
- 
-   def rollback
--    drop table_for(BearerLogin)
-+    drop :bearer_logins
-   end
- end
-diff --git a/db/migrations/20210202132011_rename_duration_columns.cr b/db/migrations/20210202132011_rename_duration_columns.cr
-index 9f8731f..fedb112 100644
---- a/db/migrations/20210202132011_rename_duration_columns.cr
-+++ b/db/migrations/20210202132011_rename_duration_columns.cr
-@@ -1,43 +1,43 @@
- class RenameDurationColumns::V20210202132011 < Avram::Migrator::Migration::V1
-   def migrate
--    alter table_for(BearerLogin) do
-+    alter :bearer_logins do
-       rename :started_at, :active_at
-       rename :ended_at, :inactive_at
-     end
- 
--    alter table_for(EmailConfirmation) do
-+    alter :email_confirmations do
-       rename :started_at, :active_at
-       rename :ended_at, :inactive_at
-     end
- 
--    alter table_for(Login) do
-+    alter :logins do
-       rename :started_at, :active_at
-       rename :ended_at, :inactive_at
-     end
- 
--    alter table_for(PasswordReset) do
-+    alter :password_resets do
-       rename :started_at, :active_at
-       rename :ended_at, :inactive_at
-     end
-   end
- 
-   def rollback
--    alter table_for(BearerLogin) do
-+    alter :bearer_logins do
-       rename :active_at, :started_at
-       rename :inactive_at, :ended_at
-     end
- 
--    alter table_for(EmailConfirmation) do
-+    alter :email_confirmations do
-       rename :active_at, :started_at
-       rename :inactive_at, :ended_at
-     end
- 
--    alter table_for(Login) do
-+    alter :logins do
-       rename :active_at, :started_at
-       rename :inactive_at, :ended_at
-     end
- 
--    alter table_for(PasswordReset) do
-+    alter :password_resets do
-       rename :active_at, :started_at
-       rename :inactive_at, :ended_at
-     end
-diff --git a/db/migrations/20210208231305_make_email_columns_case_insensitive.cr b/db/migrations/20210208231305_make_email_columns_case_insensitive.cr
-index e2c552f..a5bd0d6 100644
---- a/db/migrations/20210208231305_make_email_columns_case_insensitive.cr
-+++ b/db/migrations/20210208231305_make_email_columns_case_insensitive.cr
-@@ -2,21 +2,21 @@ class MakeEmailColumnsCaseInsensitive::V20210208231305 < Avram::Migrator::Migrat
-   def migrate
-     enable_extension "citext"
- 
--    alter table_for(User) do
-+    alter :users do
-       change_type email : String, case_sensitive: false
-     end
- 
--    alter table_for(EmailConfirmation) do
-+    alter :email_confirmations do
-       change_type email : String, case_sensitive: false
-     end
-   end
- 
-   def rollback
--    alter table_for(User) do
-+    alter :users do
-       change_type email : String, case_sensitive: true
-     end
- 
--    alter table_for(EmailConfirmation) do
-+    alter :email_confirmations do
-       change_type email : String, case_sensitive: true
-     end
-   end
-diff --git a/db/migrations/20210210123800_add_bearer_login_notify_to_user_options.cr b/db/migrations/20210210123800_add_bearer_login_notify_to_user_options.cr
-index 6cb6c94..4a11617 100644
---- a/db/migrations/20210210123800_add_bearer_login_notify_to_user_options.cr
-+++ b/db/migrations/20210210123800_add_bearer_login_notify_to_user_options.cr
-@@ -1,12 +1,12 @@
- class AddBearerLoginNotifyToUserOptions::V20210210123800 < Avram::Migrator::Migration::V1
-   def migrate
--    alter table_for(UserOptions) do
-+    alter :user_options do
-       add bearer_login_notify : Bool, fill_existing_with: false
-     end
-   end
- 
-   def rollback
--    alter table_for(UserOptions) do
-+    alter :user_options do
-       remove :bearer_login_notify
-     end
-   end
-diff --git a/docker-compose.yml b/docker-compose.yml
-deleted file mode 100644
-index f43af34..0000000
---- a/docker-compose.yml
-+++ /dev/null
-@@ -1,32 +0,0 @@
--services:
--  app: &crystal
--    depends_on:
--      - db
--    environment:
--      DATABASE_HOST: db
--      DATABASE_NAME: app_spec
--      DATABASE_PASSWORD: password
--      DATABASE_PORT: "5432"
--      DATABASE_USERNAME: username
--      SERVER_HOST: "0.0.0.0"
--      SERVER_PORT: "5000"
--      SKIP_CREATE_DB: "true"
--    image: crystallang/crystal:0.36.1-alpine
--    volumes:
--      - .:/var/www/html
--    working_dir: /var/www/html
--  db:
--    environment:
--      POSTGRES_DB: app_spec
--      POSTGRES_PASSWORD: password
--      POSTGRES_USER: username
--    image: postgres:12.5-alpine
--  shards:
--    <<: *crystal
--    command: 'sh -c "shards update"'
--    depends_on: []
--    environment: {}
--  spec:
--    <<: *crystal
--    command: 'sh -c "crystal spec spec/app"'
--version: "2.4"
 diff --git a/shard.yml b/shard.yml
-index ad57925..5382bfa 100644
+index 5382bfa..228bf45 100644
 --- a/shard.yml
 +++ b/shard.yml
-@@ -10,7 +10,7 @@ targets:
-   app:
-     main: src/start_server.cr
- 
--crystal: ~> 0.36.0
-+crystal: ~> 1.0
- 
+@@ -15,24 +15,27 @@ crystal: ~> 1.0
  dependencies:
    # annotation:
-@@ -18,16 +18,16 @@ dependencies:
-   #   version: ~> 0.4.0
+   #   github: grottopress/annotation.cr
+-  #   version: ~> 0.4.0
++  #   version: ~> 0.5.0
    lucky:
      github: luckyframework/lucky
--    version: ~> 0.26.0
-+    version: ~> 0.27.0
+     version: ~> 0.27.0
    carbon:
      github: luckyframework/carbon
--    version: ~> 0.1.0
-+    version: ~> 0.1.4
+-    version: ~> 0.1.4
++    version: ~> 0.2.0
++  carbon_sendgrid_adapter:
++    github: luckyframework/carbon_sendgrid_adapter
++    version: ~> 0.1.0
    envy:
      github: GrottoPress/envy
--    version: ~> 0.2.0
-+    version: ~> 0.3.0
+     version: ~> 0.3.0
    shield:
      github: GrottoPress/shield
--    version: ~> 0.8.0
-+    version: ~> 0.9.0
+-    version: ~> 0.9.0
++    version: ~> 0.10.0
  
  development_dependencies:
    # ameba:
-@@ -35,4 +35,4 @@ development_dependencies:
-   #   version: ~> 0.13.0
+   #   github: veelenga/ameba
+-  #   version: ~> 0.13.0
++  #   version: ~> 0.14.0
    lucky_flow:
      github: luckyframework/lucky_flow
--    version: ~> 0.7.0
-+    version: ~> 0.7.3
-diff --git a/src/actions/api/logins/destroy.cr b/src/actions/api/logins/destroy.cr
-new file mode 100644
-index 0000000..c8c774d
---- /dev/null
-+++ b/src/actions/api/logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::Logins::Destroy < ApiAction
-+  include Shield::Api::Logins::Destroy
-+
-+  delete "/logins/:login_id" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/logins/index.cr b/src/actions/api/logins/index.cr
-new file mode 100644
-index 0000000..8cfe1ae
---- /dev/null
-+++ b/src/actions/api/logins/index.cr
-@@ -0,0 +1,20 @@
-+class Api::Logins::Index < ApiAction
-+  include Shield::Api::Logins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/logins" do
-+    json({
-+      status: "success",
-+      data: {logins: LoginSerializer.for_collection(active_logins)},
-+      pages: {
-+        current: page,
-+        total: pages.total
-+      }
-+    })
-+  end
-+
-+  private def active_logins
-+    logins.select &.active?
-+  end
-+end
-diff --git a/src/actions/logins/destroy.cr b/src/actions/logins/destroy.cr
-new file mode 100644
-index 0000000..b17c260
---- /dev/null
-+++ b/src/actions/logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Logins::Destroy < BrowserAction
-+  include Shield::Logins::Destroy
-+
-+  delete "/logins/:login_id" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/logins/index.cr b/src/actions/logins/index.cr
-new file mode 100644
-index 0000000..116bfcc
---- /dev/null
-+++ b/src/actions/logins/index.cr
-@@ -0,0 +1,13 @@
-+class Logins::Index < BrowserAction
-+  include Shield::Logins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/logins" do
-+    html IndexPage, logins: active_logins, pages: pages
-+  end
-+
-+  private def active_logins
-+    logins.select &.active?
-+  end
-+end
-diff --git a/src/components/menus/primary.cr b/src/components/menus/primary.cr
-index d7116ad..0eb97b4 100644
---- a/src/components/menus/primary.cr
-+++ b/src/components/menus/primary.cr
-@@ -7,6 +7,8 @@ class Menus::Primary < BaseComponent
-       text " | "
-       link "Users", to: Users::Index
-       text " | "
-+      link "Logins", to: Logins::Index
-+      text " | "
-       link "Bearer logins", to: BearerLogins::Index
-     end
+     version: ~> 0.7.3
+diff --git a/src/actions/api/bearer_logins/index.cr b/src/actions/api/bearer_logins/index.cr
+index 1beb009..4374853 100644
+--- a/src/actions/api/bearer_logins/index.cr
++++ b/src/actions/api/bearer_logins/index.cr
+@@ -7,9 +7,7 @@ class Api::BearerLogins::Index < ApiAction
+     json({
+       status: "success",
+       data: {
+-        bearer_logins: BearerLoginSerializer.for_collection(
+-          active_bearer_logins
+-        )
++        bearer_logins: BearerLoginSerializer.for_collection(bearer_logins)
+       },
+       pages: {
+         current: page,
+@@ -17,8 +15,4 @@ class Api::BearerLogins::Index < ApiAction
+       }
+     })
    end
-diff --git a/src/pages/logins/index_page.cr b/src/pages/logins/index_page.cr
-new file mode 100644
-index 0000000..8b60f0f
---- /dev/null
-+++ b/src/pages/logins/index_page.cr
-@@ -0,0 +1,34 @@
-+class Logins::IndexPage < MainLayout
-+  needs logins : Array(Login)
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    "Active logins"
-+  end
-+
-+  def content
-+    h1 "Active Logins"
-+
-+    if logins.empty?
-+      para do
-+        text "No active logins"
-+      end
-+    else
-+      ul do
-+        logins.each do |login|
-+          li do
-+            text login.active_at.to_s
-+            text " | "
-+            text login.ip_address
-+            text " | "
-+            link "[-] log out", to: Destroy.with(login.id)
-+          end
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/tasks.cr b/tasks.cr
-index 288b151..8bc2590 100644
---- a/tasks.cr
-+++ b/tasks.cr
-@@ -6,6 +6,8 @@
- # https://luckyframework.org/guides/command-line-tasks/custom-tasks
- ENV["LUCKY_TASK"] = "true"
+-
+-  private def active_bearer_logins
+-    bearer_logins.select &.active?
+-  end
+ end
+diff --git a/src/actions/api/logins/index.cr b/src/actions/api/logins/index.cr
+index 8cfe1ae..447041c 100644
+--- a/src/actions/api/logins/index.cr
++++ b/src/actions/api/logins/index.cr
+@@ -6,15 +6,11 @@ class Api::Logins::Index < ApiAction
+   get "/logins" do
+     json({
+       status: "success",
+-      data: {logins: LoginSerializer.for_collection(active_logins)},
++      data: {logins: LoginSerializer.for_collection(logins)},
+       pages: {
+         current: page,
+         total: pages.total
+       }
+     })
+   end
+-
+-  private def active_logins
+-    logins.select &.active?
+-  end
+ end
+diff --git a/src/actions/bearer_logins/index.cr b/src/actions/bearer_logins/index.cr
+index 9fd55b1..bfb6eb4 100644
+--- a/src/actions/bearer_logins/index.cr
++++ b/src/actions/bearer_logins/index.cr
+@@ -4,10 +4,6 @@ class BearerLogins::Index < BrowserAction
+   param page : Int32 = 1
  
-+require "lucky_task"
-+
- # Load Lucky and the app (actions, models, etc.)
- require "./src/app"
+   get "/bearer-logins" do
+-    html IndexPage, bearer_logins: active_bearer_logins, pages: pages
+-  end
+-
+-  private def active_bearer_logins
+-    bearer_logins.select &.active?
++    html IndexPage, bearer_logins: bearer_logins, pages: pages
+   end
+ end
+diff --git a/src/actions/logins/index.cr b/src/actions/logins/index.cr
+index 116bfcc..07f9c8b 100644
+--- a/src/actions/logins/index.cr
++++ b/src/actions/logins/index.cr
+@@ -4,10 +4,6 @@ class Logins::Index < BrowserAction
+   param page : Int32 = 1
  
-@@ -18,4 +20,4 @@ require "./tasks/**"
- # Load Lucky tasks (dev, routes, etc.)
- require "lucky/tasks/**"
+   get "/logins" do
+-    html IndexPage, logins: active_logins, pages: pages
+-  end
+-
+-  private def active_logins
+-    logins.select &.active?
++    html IndexPage, logins: logins, pages: pages
+   end
+ end
+diff --git a/src/app.cr b/src/app.cr
+index ffee3d7..7e2209c 100644
+--- a/src/app.cr
++++ b/src/app.cr
+@@ -8,6 +8,7 @@
+ require "envy"
+ require "lucky"
+ require "carbon"
++require "carbon_sendgrid_adapter"
+ # require "annotation"
+ require "shield"
  
--LuckyCli::Runner.run
-+LuckyTask::Runner.run
-diff --git a/tasks/db/seed/required_data.cr b/tasks/db/seed/required_data.cr
-index bbf463a..d866040 100644
---- a/tasks/db/seed/required_data.cr
-+++ b/tasks/db/seed/required_data.cr
-@@ -6,7 +6,7 @@ require "../../../spec/support/factories/**"
- #
- # Use `Db::Seed::SampleData` if your only want to add sample data helpful for
- # development.
--class Db::Seed::RequiredData < LuckyCli::Task
-+class Db::Seed::RequiredData < LuckyTask::Task
-   summary "Add database records required for the app to work"
- 
-   def call
-diff --git a/tasks/db/seed/sample_data.cr b/tasks/db/seed/sample_data.cr
-index c0abea7..0d14b29 100644
---- a/tasks/db/seed/sample_data.cr
-+++ b/tasks/db/seed/sample_data.cr
-@@ -4,7 +4,7 @@ require "../../../spec/support/factories/**"
- #
- # Use `Db::Seed::RequiredData` if you need to create data *required* for your
- # app to work.
--class Db::Seed::SampleData < LuckyCli::Task
-+class Db::Seed::SampleData < LuckyTask::Task
-   summary "Add sample database records helpful for development"
- 
-   def call
