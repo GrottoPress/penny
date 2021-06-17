@@ -8,6 +8,7 @@
 require "envy"
 require "lucky"
 require "carbon"
+require "carbon_sendgrid_adapter"
 # require "annotation"
 require "shield"
 

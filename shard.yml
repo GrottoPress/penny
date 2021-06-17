@@ -21,7 +21,10 @@ dependencies:
     version: ~> 0.27.0
   carbon:
     github: luckyframework/carbon
-    version: ~> 0.1.4
+    version: ~> 0.2.0
+  carbon_sendgrid_adapter:
+    github: luckyframework/carbon_sendgrid_adapter
+    version: ~> 0.1.0
   envy:
     github: GrottoPress/envy
     version: ~> 0.3.0
