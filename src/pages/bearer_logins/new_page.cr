@@ -19,13 +19,21 @@ class BearerLogins::NewPage < MainLayout
         label "Scopes", for: "#{param_key}_scopes"
 
         select_tag id: "#{param_key}_scopes",
-          name: "#{param_key}:scopes",
+          name: "#{param_key}:scopes[]",
           attrs: [:multiple] do
             options_for_multi_select operation.scopes, options_for_scopes
         end
 
         mount Shared::FieldErrors, operation.scopes
       end
+
+      # para do
+      #   mount Shared::Field, operation.scopes do |builder|
+      #     builder.multi_select_input do
+      #       builder.options_for_select(select_options: options_for_scopes)
+      #     end
+      #   end
+      # end
 
       para do
         button "Add bearer login", role: "submit"

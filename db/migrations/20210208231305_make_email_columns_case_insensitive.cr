@@ -12,6 +12,8 @@ class MakeEmailColumnsCaseInsensitive::V20210208231305 < Avram::Migrator::Migrat
   end
 
   def rollback
+    disable_extension "citext"
+
     alter :users do
       change_type email : String, case_sensitive: true
     end

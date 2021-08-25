@@ -7,6 +7,6 @@ class Home::Index < BrowserAction
   end
 
   def authorize?(user : User) : Bool
-    user.id == current_user.try &.id
+    user.id == current_user?.try &.id
   end
 end

@@ -8,7 +8,7 @@ class Users::EditPage < MainLayout
   def content
     h1 "Edit User"
 
-    form_for Update.with(user_id: operation.id.value!) do
+    form_for Update.with(user_id: operation.id.value.not_nil!) do
       para do
         mount Shared::Field, operation.email
       end
