@@ -1,4 +1,4 @@
-class PasswordResets::EditPage < AuthLayout
+struct PasswordResets::EditPage < AuthLayout
   needs operation : ResetPassword
 
   def page_title

@@ -1,4 +1,4 @@
-class Errors::ShowPage
+struct Errors::ShowPage
   include Lucky::HTMLPage
 
   needs message : String

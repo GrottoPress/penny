@@ -1,4 +1,4 @@
-class EmailConfirmations::NewPage < AuthLayout
+struct EmailConfirmations::NewPage < AuthLayout
   needs operation : StartEmailConfirmation
 
   def page_title

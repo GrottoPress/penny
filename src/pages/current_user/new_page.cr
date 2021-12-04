@@ -1,4 +1,4 @@
-class CurrentUser::NewPage < AuthLayout
+struct CurrentUser::NewPage < AuthLayout
   needs operation : RegisterCurrentUser
 
   include PageParamKey

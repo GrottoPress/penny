@@ -1,4 +1,4 @@
-abstract class MainLayout
+abstract struct MainLayout
   include Lucky::HTMLPage
 
   # The default page title. It is passed to `Shared::LayoutHead`.

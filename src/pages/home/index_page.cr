@@ -1,4 +1,4 @@
-class Home::IndexPage < MainLayout
+struct Home::IndexPage < MainLayout
   def page_title
     ""
   end

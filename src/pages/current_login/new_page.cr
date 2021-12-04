@@ -1,4 +1,4 @@
-class CurrentLogin::NewPage < AuthLayout
+struct CurrentLogin::NewPage < AuthLayout
   needs operation : LogUserIn
 
   def page_title

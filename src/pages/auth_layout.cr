@@ -1,4 +1,4 @@
-abstract class AuthLayout
+abstract struct AuthLayout
   include Lucky::HTMLPage
 
   # The default page title. It is passed to `Shared::LayoutHead`.
