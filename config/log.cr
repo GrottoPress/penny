@@ -1,6 +1,6 @@
 require "file_utils"
 
-if Lucky::Env.test?
+if LuckyEnv.test?
   # Logs to `tmp/test.log` so you can see what's happening without having
   # a bunch of log output in your spec results.
   FileUtils.mkdir_p("tmp")
@@ -8,7 +8,7 @@ if Lucky::Env.test?
   backend = Log::IOBackend.new(File.new("tmp/test.log", mode: "w"))
   backend.formatter = Lucky::PrettyLogFormatter.proc
   Log.dexter.configure(:debug, backend)
-elsif Lucky::Env.production?
+elsif LuckyEnv.production?
   # Lucky uses JSON in production so logs can be searched more easily
   #
   # If you want logs like in develpoment use 'Lucky::PrettyLogFormatter.proc'.

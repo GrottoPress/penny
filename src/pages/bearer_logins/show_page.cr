@@ -1,6 +1,6 @@
 struct BearerLogins::ShowPage < MainLayout
   needs bearer_login : BearerLogin
-  needs operation : CreateBearerLogin
+  needs token : String
 
   def page_title
     bearer_login.name
@@ -10,7 +10,7 @@ struct BearerLogins::ShowPage < MainLayout
     h1 bearer_login.name
 
     para "Copy token below:"
-    pre BearerToken.new(operation, bearer_login).to_s
+    pre token
 
     para do
       link "[=] list all", to: Index

@@ -6,11 +6,13 @@
 # {% end %}
 
 require "envy"
+require "lucky_env"
 require "lucky"
 require "carbon"
 require "carbon_sendgrid_adapter"
-# require "annotation"
 require "shield"
+require "unslash"
+require "i18n"
 
 require "./app_settings"
 require "../config/charms"
@@ -35,8 +37,6 @@ require "./components/base_component"
 require "./components/**"
 require "./pages/mixins/**"
 require "./pages/**"
-require "./handlers/base_handler"
-require "./handlers/**"
 require "../config/env"
 require "../config/**"
 require "../db/migrations/**"

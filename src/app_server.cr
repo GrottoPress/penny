@@ -3,11 +3,12 @@ class AppServer < Lucky::BaseAppServer
   # https://luckyframework.org/guides/http-and-routing/http-handlers
   def middleware : Array(HTTP::Handler)
     [
+      Lucky::RequestIdHandler.new,
       Lucky::ForceSSLHandler.new,
       Lucky::HttpMethodOverrideHandler.new,
       Lucky::LogHandler.new,
       Lucky::ErrorHandler.new(action: Errors::Show),
-      UnslashPathHandler.new,
+      Unslash::Handler.new(308, safe: false),
       Lucky::RouteHandler.new,
       Lucky::StaticCompressionHandler.new(
         "./public",
@@ -18,14 +19,4 @@ class AppServer < Lucky::BaseAppServer
       Lucky::RouteNotFoundHandler.new,
     ] of HTTP::Handler
   end
-
-  # def protocol
-  #   "http"
-  # end
-
-  # def listen
-  #   # Learn about bind_tcp: https://tinyurl.com/bind-tcp-docs
-  #   server.bind_tcp(host, port, reuse_port: false)
-  #   server.listen
-  # end
 end

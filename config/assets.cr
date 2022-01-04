@@ -3,7 +3,7 @@
 # However you could use a CDN when in production like this:
 #
 #   Lucky::Server.configure do |settings|
-#     if Lucky::Env.production?
+#     if LuckyEnv.production?
 #       settings.asset_host = "https://mycdnhost.com"
 #     else
 #       settings.asset_host = ""

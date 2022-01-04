@@ -1,26 +1,807 @@
 diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index baed521..d50e124 100644
+index d50e124..3d060db 100644
 --- a/.github/workflows/ci.yml
 +++ b/.github/workflows/ci.yml
-@@ -16,7 +16,7 @@ jobs:
-     strategy:
-       fail-fast: false
-       matrix:
--        crystal: [0.36.1]
-+        crystal: [1.0.0, 1.1.1, 1.2.2]
-         experimental: [false]
-         include:
-           - crystal: 1.0.0
+@@ -57,4 +57,5 @@ jobs:
+           USERNAME: postgres
+           SERVER_HOST: "0.0.0.0"
+           SERVER_PORT: "5000"
++          SKIP_LOAD_ENV: "true"
+         run: crystal spec --error-on-warnings spec/app
+diff --git a/config/app.cr b/config/app.cr
+index 2e314f9..311daa6 100644
+--- a/config/app.cr
++++ b/config/app.cr
+@@ -9,6 +9,7 @@ App.configure do |settings|
+ 
+   settings.date_format = ENV["DATE_FORMAT"]
+   settings.time_format = ENV["TIME_FORMAT"]
++  settings.timezone = ENV["TIMEZONE"]?
+ 
+   settings.logo_url = ENV["LOGO_URL"]
+   settings.favicon_url = ENV["FAVICON_URL"]
+@@ -19,3 +20,5 @@ App.configure do |settings|
+   settings.make_first_user_admin = Bool.adapter
+     .parse!(ENV["MAKE_FIRST_USER_ADMIN"])
+ end
++
++App.settings.timezone.try { |timezone| Time::Location.load(timezone) }
+diff --git a/config/assets.cr b/config/assets.cr
+index 37080e2..13e30a7 100644
+--- a/config/assets.cr
++++ b/config/assets.cr
+@@ -3,7 +3,7 @@
+ # However you could use a CDN when in production like this:
+ #
+ #   Lucky::Server.configure do |settings|
+-#     if Lucky::Env.production?
++#     if LuckyEnv.production?
+ #       settings.asset_host = "https://mycdnhost.com"
+ #     else
+ #       settings.asset_host = ""
+diff --git a/config/colors.cr b/config/colors.cr
+index de3e2f8..761ae94 100644
+--- a/config/colors.cr
++++ b/config/colors.cr
+@@ -1,4 +1,4 @@
+ # This enables the color output when in development or test
+ # Check out the Colorize docs for more information
+ # https://crystal-lang.org/api/Colorize.html
+-Colorize.enabled = Lucky::Env.development? || Lucky::Env.test?
++Colorize.enabled = LuckyEnv.development? || LuckyEnv.test?
+diff --git a/config/database.cr b/config/database.cr
+index d034ac8..051e2c0 100644
+--- a/config/database.cr
++++ b/config/database.cr
+@@ -15,5 +15,8 @@ Avram.configure do |settings|
+ 
+   # In production, allow lazy loading (N+1).
+   # In development and test, raise an error if you forget to preload associations
+-  settings.lazy_load_enabled = Lucky::Env.production?
++  settings.lazy_load_enabled = LuckyEnv.production?
++
++  # Disable query cache during tests
++  # settings.query_cache_enabled = !LuckyEnv.test?
+ end
+diff --git a/config/email.cr b/config/email.cr
+index 5954568..1535058 100644
+--- a/config/email.cr
++++ b/config/email.cr
+@@ -5,7 +5,7 @@ private class DevDeliverLaterStrategy < Carbon::DeliverLaterStrategy
+ end
+ 
+ BaseEmail.configure do |settings|
+-  if Lucky::Env.production?
++  if LuckyEnv.production?
+     # If you don't need to send emails, set the adapter to DevAdapter instead:
+     #
+     #   settings.adapter = Carbon::DevAdapter.new
+diff --git a/config/env.cr b/config/env.cr
+index 80581b5..9b0df97 100644
+--- a/config/env.cr
++++ b/config/env.cr
+@@ -1,19 +1,7 @@
+-Envy.from_file ".env.yml"
++unless Bool.adapter.parse(ENV["SKIP_LOAD_ENV"]?.to_s).value
++  # LuckyEnv.load(".env")
+ 
+-module Lucky::Env
+-  extend self
+-
+-  {% for env in [:development, :test, :production] %}
+-    def {{ env.id }}?
+-      name == {{ env.id.stringify }}
+-    end
+-  {% end %}
+-
+-  def name
+-    ENV["LUCKY_ENV"]? || "development"
+-  end
+-
+-  def task?
+-    ENV["LUCKY_TASK"]? == "true"
+-  end
++  # This only replaces the `LuckyEnv` loader;
++  # You can still use `LuckyEnv` methods.
++  Envy.from_file ".env.yml"
+ end
+diff --git a/config/error_handler.cr b/config/error_handler.cr
+index 6fbca08..c6b736e 100644
+--- a/config/error_handler.cr
++++ b/config/error_handler.cr
+@@ -1,3 +1,3 @@
+ Lucky::ErrorHandler.configure do |settings|
+-  settings.show_debug_output = !Lucky::Env.production?
++  settings.show_debug_output = !LuckyEnv.production?
+ end
+diff --git a/config/html_page.cr b/config/html_page.cr
+index 1133e59..dca168e 100644
+--- a/config/html_page.cr
++++ b/config/html_page.cr
+@@ -1,3 +1,3 @@
+ Lucky::HTMLPage.configure do |settings|
+-  settings.render_component_comments = !Lucky::Env.production?
++  settings.render_component_comments = !LuckyEnv.production?
+ end
+diff --git a/config/i18n.cr b/config/i18n.cr
+new file mode 100644
+index 0000000..c1511a2
+--- /dev/null
++++ b/config/i18n.cr
+@@ -0,0 +1,19 @@
++I18n.config.loaders << I18n::Loader::YAML.new("config/locales")
++I18n.config.default_locale = :en
++I18n.init
++
++private struct I18nAdapter
++  include Rex::Adapter
++
++  def translate(text : String | Symbol, *args) : String
++    I18n.t(text, *args)
++  end
++
++  def localize(value, *args) : String
++    I18n.l(value, *args)
++  end
++end
++
++Rex.configure do |settings|
++  settings.adapter = I18nAdapter.new
++end
+diff --git a/config/locales/en.yml b/config/locales/en.yml
+new file mode 100644
+index 0000000..ec81823
+--- /dev/null
++++ b/config/locales/en.yml
+@@ -0,0 +1,96 @@
++en:
++  action:
++    misc:
++      dev_mode_skip_email: "Development mode: no need to check your mail."
++      token_generated: Copy the token now; it will only be shown once!
++      token_invalid: Invalid token
++    pipe:
++      authorization_failed: You are not allowed to perform this action
++      ip_address_changed: Your IP address has changed
++      login_timed_out: Your login timed out
++      not_logged_in: You are not logged in
++      not_logged_out: You are logged in
++    bearer_login:
++      create:
++        failure: Could not create bearer login
++        success: Bearer login created successfully
++      destroy:
++        failure: Could not delete bearer login
++        success: Bearer login deleted successfully
++    current_login:
++      create:
++        failure: Invalid email or password
++        success: You have logged in successfully
++      destroy:
++        failure: Something went wrong
++        success: You have logged out successfully
++    current_user:
++      create:
++        failure: Could not create your account
++        success: Check your email for further instructions
++      update:
++        failure: Could not update your account
++        success: Account updated successfully
++        success_confirm: Check '%{email}' for further instructions
++    email_confirmation:
++      create:
++        failure: Email confirmation request failed
++        success: Check your email for further instructions
++      edit:
++        failure: Could not update email
++        success: Email updated successfully
++    login:
++      destroy:
++        failure: Could not revoke login
++        success: Login revoked successfully
++    password_reset:
++      create:
++        failure: Password reset request failed
++        success: Check your email for further instructions
++      update:
++        failure: Could not update password
++        success: Password updated successfully
++    user:
++      create:
++        failure: Could not add user
++        success: User added successfully
++      destroy:
++        failure: Could not delete user
++        success: User deleted successfully
++      update:
++        failure: Could not update user
++        success: User updated successfully
++  operation:
++    error:
++      active_at_required: Active time is required
++      bearer_login_notify_required: Bearer login notification was not set
++      bearer_scopes_empty: Scopes cannot be empty
++      bearer_scopes_invalid: One or more scopes are not valid
++      bearer_scopes_required: Scopes is required
++      email_invalid: Email format is not valid
++      email_not_found: Email does not exist
++      email_required: Email is required
++      email_exists: Email is already taken
++      inactive_at_earlier: Inactive time cannot be earlier than active time
++      ip_address_required: IP address could not be determined
++      login_failed: Email or password is incorrect
++      login_notify_required: Login notification was not set
++      name_required: Name is required
++      name_exists: Name is taken
++      password_length_invalid: Password must be between %{min} and %{max} characters long
++      password_notify_required: Password notification was not set
++      password_required: Password is required
++      password_lowercase_required: Password must contain a lowercase letter
++      password_number_required: Password must contain a number
++      password_special_char_required: Password must contain a special character
++      password_uppercase_required: Password must contain an uppercase letter
++      self_delete_forbidden: You are not allowed to delete yourself
++      token_required: Token is required
++      user_id_required: User ID is required
++      user_not_found: User does not exist
++#   page:
++#     user:
++#       new:
++#         main_title: Add user
++#       show:
++#         main_title: User \#%{user_id}
+diff --git a/config/log.cr b/config/log.cr
+index c5951fe..60d14f1 100644
+--- a/config/log.cr
++++ b/config/log.cr
+@@ -1,6 +1,6 @@
+ require "file_utils"
+ 
+-if Lucky::Env.test?
++if LuckyEnv.test?
+   # Logs to `tmp/test.log` so you can see what's happening without having
+   # a bunch of log output in your spec results.
+   FileUtils.mkdir_p("tmp")
+@@ -8,7 +8,7 @@ if Lucky::Env.test?
+   backend = Log::IOBackend.new(File.new("tmp/test.log", mode: "w"))
+   backend.formatter = Lucky::PrettyLogFormatter.proc
+   Log.dexter.configure(:debug, backend)
+-elsif Lucky::Env.production?
++elsif LuckyEnv.production?
+   # Lucky uses JSON in production so logs can be searched more easily
+   #
+   # If you want logs like in develpoment use 'Lucky::PrettyLogFormatter.proc'.
+diff --git a/config/server.cr b/config/server.cr
+index 58e3e97..201e7ef 100644
+--- a/config/server.cr
++++ b/config/server.cr
+@@ -3,7 +3,7 @@
+ # Look at config/route_helper.cr if you want to change the domain used when
+ # generating links with `Action.url`.
+ Lucky::Server.configure do |settings|
+-  # if Lucky::Env.production?
++  # if LuckyEnv.production?
+     settings.secret_key_base = secret_key_from_env
+     settings.host = ENV["SERVER_HOST"]
+     settings.port = ENV["SERVER_PORT"].to_i
+@@ -28,11 +28,17 @@ Lucky::ForceSSLHandler.configure do |settings|
+   # To force SSL in production, uncomment the lines below.
+   # This will cause http requests to be redirected to https:
+   #
+-  #    settings.enabled = Lucky::Env.production?
++  #    settings.enabled = LuckyEnv.production?
+   #    settings.strict_transport_security = {max_age: 1.year, include_subdomains: true}
+   settings.enabled = Bool.adapter.parse!(ENV["SSL_ENABLED"])
+ end
+ 
++Lucky::RequestIdHandler.configure do |settings|
++  settings.set_request_id = ->(context : HTTP::Server::Context) {
++    UUID.random.to_s
++  }
++end
++
+ private def secret_key_from_env
+   ENV["SECRET_KEY_BASE"]? || raise_missing_secret_key
+ end
+diff --git a/config/shield.cr b/config/shield.cr
+index cb54a9a..77b7f50 100644
+--- a/config/shield.cr
++++ b/config/shield.cr
+@@ -1,17 +1,19 @@
+ Shield.configure do |settings|
+-  settings.bearer_login_expiry = Time::Span.new(
+-    seconds: ENV["BEARER_LOGIN_EXPIRY"].to_i
+-  )
++  settings.bearer_login_expiry = ENV["BEARER_LOGIN_EXPIRY"]?.try do |expiry|
++    Time::Span.new(seconds: expiry.to_i)
++  end
+ 
+   settings.email_confirmation_expiry = Time::Span.new(
+     seconds: ENV["EMAIL_CONFIRMATION_EXPIRY"].to_i
+   )
+ 
+-  settings.login_expiry = Time::Span.new(seconds: ENV["LOGIN_EXPIRY"].to_i)
++  settings.login_expiry = ENV["LOGIN_EXPIRY"]?.try do |expiry|
++    Time::Span.new(seconds: expiry.to_i)
++  end
+ 
+-  settings.login_idle_timeout = Time::Span.new(
+-    seconds: ENV["LOGIN_IDLE_TIMEOUT"].to_i
+-  )
++  settings.login_idle_timeout = ENV["LOGIN_IDLE_TIMEOUT"]?.try do |timeout|
++    Time::Span.new(seconds: timeout.to_i)
++  end
+ 
+   settings.password_min_length = ENV["PASSWORD_MIN_LENGTH"].to_i
+ 
+diff --git a/package.json b/package.json
+index 4cc92c5..f5acd7b 100644
+--- a/package.json
++++ b/package.json
+@@ -8,9 +8,9 @@
+   },
+   "scripts": {
+     "heroku-postbuild": "yarn prod",
+-    "dev": "mix",
+-    "watch": "mix watch",
+-    "prod": "mix --production"
++    "dev": "yarn run mix",
++    "watch": "yarn run mix watch",
++    "prod": "yarn run mix --production"
+   },
+   "devDependencies": {
+     "@babel/compat-data": "^7.9.0",
+diff --git a/sample.env.yml b/sample.env.yml
+index 5fadcb7..16838c9 100644
+--- a/sample.env.yml
++++ b/sample.env.yml
+@@ -27,6 +27,7 @@ favicon_url: /favicon.ico
+ 
+ date_format: '%d %B, %Y'
+ time_format: '%l:%M %P'
++timezone: UTC
+ 
+ server:
+   host: "0.0.0.0"
 diff --git a/shard.yml b/shard.yml
-index 69bdc03..38b0dcf 100644
+index 38b0dcf..31f46b0 100644
 --- a/shard.yml
 +++ b/shard.yml
-@@ -30,7 +30,7 @@ dependencies:
+@@ -13,12 +13,12 @@ targets:
+ crystal: ~> 1.0
+ 
+ dependencies:
+-  # annotation:
+-  #   github: grottopress/annotation.cr
+-  #   version: ~> 0.5.0
+   lucky:
+     github: luckyframework/lucky
+-    version: ~> 0.28.0
++    version: ~> 0.29.0
++  lucky_env:
++    github: luckyframework/lucky_env
++    version: ~> 0.1.4
+   carbon:
+     github: luckyframework/carbon
+     version: ~> 0.2.0
+@@ -28,9 +28,15 @@ dependencies:
+   envy:
+     github: GrottoPress/envy
      version: ~> 0.3.0
++  i18n:
++    github: crystal-i18n/i18n
++    version: ~> 0.2.1
    shield:
      github: GrottoPress/shield
--    version: ~> 0.11.0
-+    version: ~> 0.12.0
+-    version: ~> 0.12.0
++    version: ~> 0.13.0
++  unslash:
++    github: GrottoPress/unslash
++    version: ~> 0.1.0
  
  development_dependencies:
    # ameba:
+diff --git a/src/actions/errors/show.cr b/src/actions/errors/show.cr
+index deab419..51dfa41 100644
+--- a/src/actions/errors/show.cr
++++ b/src/actions/errors/show.cr
+@@ -50,7 +50,11 @@ class Errors::Show < Lucky::ErrorAction
+ 
+   private def error_html(message : String, status : Int)
+     context.response.status_code = status
+-    html Errors::ShowPage, message: message, status: status
++
++    html_with_status Errors::ShowPage,
++      status,
++      message: message,
++      status_code: status
+   end
+ 
+   private def error_json(
+diff --git a/src/app.cr b/src/app.cr
+index 7e2209c..d31e5b9 100644
+--- a/src/app.cr
++++ b/src/app.cr
+@@ -6,11 +6,13 @@
+ # {% end %}
+ 
+ require "envy"
++require "lucky_env"
+ require "lucky"
+ require "carbon"
+ require "carbon_sendgrid_adapter"
+-# require "annotation"
+ require "shield"
++require "unslash"
++require "i18n"
+ 
+ require "./app_settings"
+ require "../config/charms"
+@@ -35,8 +37,6 @@ require "./components/base_component"
+ require "./components/**"
+ require "./pages/mixins/**"
+ require "./pages/**"
+-require "./handlers/base_handler"
+-require "./handlers/**"
+ require "../config/env"
+ require "../config/**"
+ require "../db/migrations/**"
+diff --git a/src/app_server.cr b/src/app_server.cr
+index d32d5bf..2e26ffa 100644
+--- a/src/app_server.cr
++++ b/src/app_server.cr
+@@ -3,11 +3,12 @@ class AppServer < Lucky::BaseAppServer
+   # https://luckyframework.org/guides/http-and-routing/http-handlers
+   def middleware : Array(HTTP::Handler)
+     [
++      Lucky::RequestIdHandler.new,
+       Lucky::ForceSSLHandler.new,
+       Lucky::HttpMethodOverrideHandler.new,
+       Lucky::LogHandler.new,
+       Lucky::ErrorHandler.new(action: Errors::Show),
+-      UnslashPathHandler.new,
++      Unslash::Handler.new(308, safe: false),
+       Lucky::RouteHandler.new,
+       Lucky::StaticCompressionHandler.new(
+         "./public",
+@@ -18,14 +19,4 @@ class AppServer < Lucky::BaseAppServer
+       Lucky::RouteNotFoundHandler.new,
+     ] of HTTP::Handler
+   end
+-
+-  # def protocol
+-  #   "http"
+-  # end
+-
+-  # def listen
+-  #   # Learn about bind_tcp: https://tinyurl.com/bind-tcp-docs
+-  #   server.bind_tcp(host, port, reuse_port: false)
+-  #   server.listen
+-  # end
+ end
+diff --git a/src/app_settings.cr b/src/app_settings.cr
+index f5fdecf..693543d 100644
+--- a/src/app_settings.cr
++++ b/src/app_settings.cr
+@@ -1,4 +1,4 @@
+-struct App
++module App
+   Habitat.create do
+     setting date_format : String
+     setting domain : String
+@@ -9,5 +9,6 @@ struct App
+     setting make_first_user_admin : Bool
+     setting name : String
+     setting time_format : String
++    setting timezone : String?
+   end
+ end
+diff --git a/src/handlers/base_handler.cr b/src/handlers/base_handler.cr
+deleted file mode 100644
+index e3d334a..0000000
+--- a/src/handlers/base_handler.cr
++++ /dev/null
+@@ -1,3 +0,0 @@
+-abstract class BaseHandler
+-  include HTTP::Handler
+-end
+diff --git a/src/handlers/unslash_path_handler.cr b/src/handlers/unslash_path_handler.cr
+deleted file mode 100644
+index 6acb897..0000000
+--- a/src/handlers/unslash_path_handler.cr
++++ /dev/null
+@@ -1,11 +0,0 @@
+-class UnslashPathHandler < BaseHandler
+-  def call(context : HTTP::Server::Context) : Nil
+-    if (path = context.request.path) != "/" && path.ends_with?("/")
+-      context.request.path = path.rchop("/")
+-      context.response.headers.add("Location", context.request.resource)
+-      context.response.status_code = 301
+-    else
+-      call_next(context)
+-    end
+-  end
+-end
+diff --git a/src/operations/register_current_user.cr b/src/operations/register_current_user.cr
+index 63a412b..429b3ab 100644
+--- a/src/operations/register_current_user.cr
++++ b/src/operations/register_current_user.cr
+@@ -4,7 +4,7 @@ class RegisterCurrentUser < User::SaveOperation
+   before_save do
+     validate_required first_name, last_name
+     validate_name first_name, last_name
+-    validate_not_pwned(password) if Lucky::Env.production?
++    validate_not_pwned(password) if LuckyEnv.production?
+ 
+     set_level
+   end
+diff --git a/src/operations/register_user.cr b/src/operations/register_user.cr
+index dd1652c..864aeee 100644
+--- a/src/operations/register_user.cr
++++ b/src/operations/register_user.cr
+@@ -4,6 +4,6 @@ class RegisterUser < User::SaveOperation
+   before_save do
+     validate_required first_name, last_name, level
+     validate_name first_name, last_name
+-    validate_not_pwned(password) if Lucky::Env.production?
++    validate_not_pwned(password) if LuckyEnv.production?
+   end
+ end
+diff --git a/src/operations/update_current_user.cr b/src/operations/update_current_user.cr
+index 28867f1..a76de46 100644
+--- a/src/operations/update_current_user.cr
++++ b/src/operations/update_current_user.cr
+@@ -4,6 +4,6 @@ class UpdateCurrentUser < User::SaveOperation
+   before_save do
+     validate_required first_name, last_name
+     validate_name first_name, last_name
+-    validate_not_pwned(password) if Lucky::Env.production?
++    validate_not_pwned(password) if LuckyEnv.production?
+   end
+ end
+diff --git a/src/operations/update_user.cr b/src/operations/update_user.cr
+index de76eef..9b17bf1 100644
+--- a/src/operations/update_user.cr
++++ b/src/operations/update_user.cr
+@@ -4,7 +4,7 @@ class UpdateUser < User::SaveOperation
+   before_save do
+     validate_required first_name, last_name, level
+     validate_name first_name, last_name
+-    validate_not_pwned(password) if Lucky::Env.production?
++    validate_not_pwned(password) if LuckyEnv.production?
+ 
+     reset_level
+   end
+diff --git a/src/pages/auth_layout.cr b/src/pages/auth_layout.cr
+index a9dfb5f..90c4025 100644
+--- a/src/pages/auth_layout.cr
++++ b/src/pages/auth_layout.cr
+@@ -1,4 +1,4 @@
+-abstract class AuthLayout
++abstract struct AuthLayout
+   include Lucky::HTMLPage
+ 
+   # The default page title. It is passed to `Shared::LayoutHead`.
+diff --git a/src/pages/bearer_logins/index_page.cr b/src/pages/bearer_logins/index_page.cr
+index 4bd5bf1..a030b5f 100644
+--- a/src/pages/bearer_logins/index_page.cr
++++ b/src/pages/bearer_logins/index_page.cr
+@@ -1,4 +1,4 @@
+-class BearerLogins::IndexPage < MainLayout
++struct BearerLogins::IndexPage < MainLayout
+   needs bearer_logins : Array(BearerLogin)
+   needs pages : Lucky::Paginator
+ 
+diff --git a/src/pages/bearer_logins/new_page.cr b/src/pages/bearer_logins/new_page.cr
+index 2833dd7..b10bd77 100644
+--- a/src/pages/bearer_logins/new_page.cr
++++ b/src/pages/bearer_logins/new_page.cr
+@@ -1,4 +1,4 @@
+-class BearerLogins::NewPage < MainLayout
++struct BearerLogins::NewPage < MainLayout
+   needs operation : CreateBearerLogin
+ 
+   include PageParamKey
+diff --git a/src/pages/bearer_logins/show_page.cr b/src/pages/bearer_logins/show_page.cr
+index 01e2bbc..6d956a5 100644
+--- a/src/pages/bearer_logins/show_page.cr
++++ b/src/pages/bearer_logins/show_page.cr
+@@ -1,6 +1,6 @@
+-class BearerLogins::ShowPage < MainLayout
++struct BearerLogins::ShowPage < MainLayout
+   needs bearer_login : BearerLogin
+-  needs operation : CreateBearerLogin
++  needs token : String
+ 
+   def page_title
+     bearer_login.name
+@@ -10,7 +10,7 @@ class BearerLogins::ShowPage < MainLayout
+     h1 bearer_login.name
+ 
+     para "Copy token below:"
+-    pre BearerToken.new(operation, bearer_login).to_s
++    pre token
+ 
+     para do
+       link "[=] list all", to: Index
+diff --git a/src/pages/current_login/new_page.cr b/src/pages/current_login/new_page.cr
+index 792fe8c..82a27fe 100644
+--- a/src/pages/current_login/new_page.cr
++++ b/src/pages/current_login/new_page.cr
+@@ -1,4 +1,4 @@
+-class CurrentLogin::NewPage < AuthLayout
++struct CurrentLogin::NewPage < AuthLayout
+   needs operation : LogUserIn
+ 
+   def page_title
+diff --git a/src/pages/current_user/edit_page.cr b/src/pages/current_user/edit_page.cr
+index 89c4ed5..584a601 100644
+--- a/src/pages/current_user/edit_page.cr
++++ b/src/pages/current_user/edit_page.cr
+@@ -1,4 +1,4 @@
+-class CurrentUser::EditPage < MainLayout
++struct CurrentUser::EditPage < MainLayout
+   needs operation : UpdateCurrentUser
+ 
+   def page_title
+diff --git a/src/pages/current_user/new_page.cr b/src/pages/current_user/new_page.cr
+index 708a9ed..a0dc310 100644
+--- a/src/pages/current_user/new_page.cr
++++ b/src/pages/current_user/new_page.cr
+@@ -1,4 +1,4 @@
+-class CurrentUser::NewPage < AuthLayout
++struct CurrentUser::NewPage < AuthLayout
+   needs operation : RegisterCurrentUser
+ 
+   include PageParamKey
+diff --git a/src/pages/current_user/show_page.cr b/src/pages/current_user/show_page.cr
+index 56eb915..cabaa4b 100644
+--- a/src/pages/current_user/show_page.cr
++++ b/src/pages/current_user/show_page.cr
+@@ -1,4 +1,4 @@
+-class CurrentUser::ShowPage < MainLayout
++struct CurrentUser::ShowPage < MainLayout
+   needs user : User
+ 
+   def page_title
+diff --git a/src/pages/email_confirmations/new_page.cr b/src/pages/email_confirmations/new_page.cr
+index 48f5c00..5c20685 100644
+--- a/src/pages/email_confirmations/new_page.cr
++++ b/src/pages/email_confirmations/new_page.cr
+@@ -1,4 +1,4 @@
+-class EmailConfirmations::NewPage < AuthLayout
++struct EmailConfirmations::NewPage < AuthLayout
+   needs operation : StartEmailConfirmation
+ 
+   def page_title
+diff --git a/src/pages/errors/show_page.cr b/src/pages/errors/show_page.cr
+index 19da999..d8b9f5b 100644
+--- a/src/pages/errors/show_page.cr
++++ b/src/pages/errors/show_page.cr
+@@ -1,8 +1,8 @@
+-class Errors::ShowPage
++struct Errors::ShowPage
+   include Lucky::HTMLPage
+ 
+   needs message : String
+-  needs status : Int32
++  needs status_code : Int32
+ 
+   def render
+     html_doctype
+@@ -17,7 +17,7 @@ class Errors::ShowPage
+ 
+       body do
+         div class: "container" do
+-          h2 status, class: "status-code"
++          h2 status_code, class: "status-code"
+           h1 message, class: "message"
+ 
+           ul class: "helpful-links" do
+diff --git a/src/pages/home/index_page.cr b/src/pages/home/index_page.cr
+index 65bf485..dffe9e3 100644
+--- a/src/pages/home/index_page.cr
++++ b/src/pages/home/index_page.cr
+@@ -1,4 +1,4 @@
+-class Home::IndexPage < MainLayout
++struct Home::IndexPage < MainLayout
+   def page_title
+     ""
+   end
+diff --git a/src/pages/logins/index_page.cr b/src/pages/logins/index_page.cr
+index 8b60f0f..3532561 100644
+--- a/src/pages/logins/index_page.cr
++++ b/src/pages/logins/index_page.cr
+@@ -1,4 +1,4 @@
+-class Logins::IndexPage < MainLayout
++struct Logins::IndexPage < MainLayout
+   needs logins : Array(Login)
+   needs pages : Lucky::Paginator
+ 
+diff --git a/src/pages/main_layout.cr b/src/pages/main_layout.cr
+index a3f69ee..ac101b1 100644
+--- a/src/pages/main_layout.cr
++++ b/src/pages/main_layout.cr
+@@ -1,4 +1,4 @@
+-abstract class MainLayout
++abstract struct MainLayout
+   include Lucky::HTMLPage
+ 
+   # The default page title. It is passed to `Shared::LayoutHead`.
+diff --git a/src/pages/password_resets/edit_page.cr b/src/pages/password_resets/edit_page.cr
+index 7e4eb22..63c06ee 100644
+--- a/src/pages/password_resets/edit_page.cr
++++ b/src/pages/password_resets/edit_page.cr
+@@ -1,4 +1,4 @@
+-class PasswordResets::EditPage < AuthLayout
++struct PasswordResets::EditPage < AuthLayout
+   needs operation : ResetPassword
+ 
+   def page_title
+diff --git a/src/pages/password_resets/new_page.cr b/src/pages/password_resets/new_page.cr
+index 7314cb5..2f64ca3 100644
+--- a/src/pages/password_resets/new_page.cr
++++ b/src/pages/password_resets/new_page.cr
+@@ -1,4 +1,4 @@
+-class PasswordResets::NewPage < AuthLayout
++struct PasswordResets::NewPage < AuthLayout
+   needs operation : StartPasswordReset
+ 
+   def page_title
+diff --git a/src/pages/users/edit_page.cr b/src/pages/users/edit_page.cr
+index a214ca5..2b51629 100644
+--- a/src/pages/users/edit_page.cr
++++ b/src/pages/users/edit_page.cr
+@@ -1,4 +1,4 @@
+-class Users::EditPage < MainLayout
++struct Users::EditPage < MainLayout
+   needs operation : UpdateUser
+ 
+   def page_title
+diff --git a/src/pages/users/index_page.cr b/src/pages/users/index_page.cr
+index 25e4479..613b364 100644
+--- a/src/pages/users/index_page.cr
++++ b/src/pages/users/index_page.cr
+@@ -1,4 +1,4 @@
+-class Users::IndexPage < MainLayout
++struct Users::IndexPage < MainLayout
+   needs users : Array(User)
+   needs pages : Lucky::Paginator
+ 
+diff --git a/src/pages/users/show_page.cr b/src/pages/users/show_page.cr
+index a38ab5a..6e27f6a 100644
+--- a/src/pages/users/show_page.cr
++++ b/src/pages/users/show_page.cr
+@@ -1,4 +1,4 @@
+-class Users::ShowPage < MainLayout
++struct Users::ShowPage < MainLayout
+   needs user : User
+ 
+   def page_title
+diff --git a/src/serializers/base_serializer.cr b/src/serializers/base_serializer.cr
+index 3ad0a66..79a422b 100644
+--- a/src/serializers/base_serializer.cr
++++ b/src/serializers/base_serializer.cr
+@@ -1,7 +1,3 @@
+-abstract class BaseSerializer < Lucky::Serializer
+-  def self.for_collection(collection : Enumerable, *args, **named_args)
+-    collection.map do |object|
+-      new(object, *args, **named_args)
+-    end
+-  end
++abstract class BaseSerializer
++  include Lucille::Serializer
+ end
+diff --git a/src/start_server.cr b/src/start_server.cr
+index 9b59488..5e83f9c 100644
+--- a/src/start_server.cr
++++ b/src/start_server.cr
+@@ -2,7 +2,7 @@ require "./app"
+ 
+ Habitat.raise_if_missing_settings!
+ 
+-if Lucky::Env.development?
++if LuckyEnv.development?
+   Avram::Migrator::Runner.new.ensure_migrated!
+   Avram::SchemaEnforcer.ensure_correct_column_mappings!
+ end

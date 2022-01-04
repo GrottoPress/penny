@@ -1,4 +1,4 @@
-struct App
+module App
   Habitat.create do
     setting date_format : String
     setting domain : String
@@ -9,5 +9,6 @@ struct App
     setting make_first_user_admin : Bool
     setting name : String
     setting time_format : String
+    setting timezone : String?
   end
 end

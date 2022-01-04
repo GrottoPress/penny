@@ -3,7 +3,7 @@
 # Look at config/route_helper.cr if you want to change the domain used when
 # generating links with `Action.url`.
 Lucky::Server.configure do |settings|
-  # if Lucky::Env.production?
+  # if LuckyEnv.production?
     settings.secret_key_base = secret_key_from_env
     settings.host = ENV["SERVER_HOST"]
     settings.port = ENV["SERVER_PORT"].to_i
@@ -28,9 +28,15 @@ Lucky::ForceSSLHandler.configure do |settings|
   # To force SSL in production, uncomment the lines below.
   # This will cause http requests to be redirected to https:
   #
-  #    settings.enabled = Lucky::Env.production?
+  #    settings.enabled = LuckyEnv.production?
   #    settings.strict_transport_security = {max_age: 1.year, include_subdomains: true}
   settings.enabled = Bool.adapter.parse!(ENV["SSL_ENABLED"])
+end
+
+Lucky::RequestIdHandler.configure do |settings|
+  settings.set_request_id = ->(context : HTTP::Server::Context) {
+    UUID.random.to_s
+  }
 end
 
 private def secret_key_from_env

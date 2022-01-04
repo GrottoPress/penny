@@ -5,7 +5,7 @@ private class DevDeliverLaterStrategy < Carbon::DeliverLaterStrategy
 end
 
 BaseEmail.configure do |settings|
-  if Lucky::Env.production?
+  if LuckyEnv.production?
     # If you don't need to send emails, set the adapter to DevAdapter instead:
     #
     #   settings.adapter = Carbon::DevAdapter.new
