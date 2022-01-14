@@ -1,3 +1,3 @@
-abstract class BaseSerializer
+abstract struct BaseSerializer
   include Lucille::Serializer
 end
