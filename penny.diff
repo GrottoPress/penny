@@ -7,7 +7,7 @@ index d50e124..426c7bc 100644
        fail-fast: false
        matrix:
 -        crystal: [1.0.0, 1.1.1, 1.2.2]
-+        crystal: [1.0.0, 1.1.1, 1.2.2, 1.3.0]
++        crystal: [1.0.0, 1.1.1, 1.2.2, 1.3.1]
          experimental: [false]
          include:
            - crystal: 1.0.0
