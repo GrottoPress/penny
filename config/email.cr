@@ -1,8 +1,4 @@
-private class DevDeliverLaterStrategy < Carbon::DeliverLaterStrategy
-  def run(email, &block)
-    block.call
-  end
-end
+require "lucille/spec"
 
 BaseEmail.configure do |settings|
   if LuckyEnv.production?
