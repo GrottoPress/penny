@@ -6,7 +6,7 @@ class PasswordResetRequestEmail < BaseEmail
   end
 
   private def receiver
-    @password_reset.user!
+    @password_reset.user
   end
 
   private def heading
@@ -15,7 +15,7 @@ class PasswordResetRequestEmail < BaseEmail
 
   private def text_message : String
     <<-TEXT
-    Hi #{@password_reset.user!.first_name},
+    Hi #{@password_reset.user.first_name},
 
     You (or someone else) recently requested to reset the password for your #{App.settings.name} account.
 

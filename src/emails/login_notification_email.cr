@@ -5,7 +5,7 @@ class LoginNotificationEmail < BaseEmail
   header "Reply-To", App.settings.email_reply_to
 
   private def receiver
-    @login.user!
+    @login.user
   end
 
   private def heading
@@ -14,7 +14,7 @@ class LoginNotificationEmail < BaseEmail
 
   private def text_message : String
     <<-TEXT
-    Hi #{@login.user!.first_name},
+    Hi #{@login.user.first_name},
 
     This is to let you know that your #{App.settings.name} account has just been
     accessed.

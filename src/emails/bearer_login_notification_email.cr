@@ -5,7 +5,7 @@ class BearerLoginNotificationEmail < BaseEmail
   header "Reply-To", App.settings.email_reply_to
 
   private def receiver
-    @bearer_login.user!
+    @bearer_login.user
   end
 
   private def heading
@@ -14,7 +14,7 @@ class BearerLoginNotificationEmail < BaseEmail
 
   private def text_message : String
     <<-TEXT
-    Hi #{@bearer_login.user!.first_name},
+    Hi #{@bearer_login.user.first_name},
 
     This is to let you know that a new bearer login token was created for your
     #{App.settings.name} account.
