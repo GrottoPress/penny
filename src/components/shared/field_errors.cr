@@ -5,12 +5,8 @@ class Shared::FieldErrors(T) < BaseComponent
   def render
     unless attribute.valid?
       span class: "error" do
-        text "#{label_text} #{attribute.errors.first}"
+        text attribute.errors.first
       end
     end
-  end
-
-  def label_text : String
-    Wordsmith::Inflector.humanize(attribute.name.to_s)
   end
 end
