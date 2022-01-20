@@ -9,7 +9,7 @@ class UserFactory < Avram::Factory
 
   private def set_defaults
     email "user@domain.tld"
-    level User::Level.new(:author)
+    level UserLevel.new(:author)
     password "password12U~password"
   end
 end

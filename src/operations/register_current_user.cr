@@ -13,9 +13,9 @@ class RegisterCurrentUser < User::SaveOperation
 
   private def set_level
     if !App.settings.make_first_user_admin || UserQuery.new.first?
-      level.value = User::Level.new(:author)
+      level.value = UserLevel.new(:author)
     else
-      level.value = User::Level.new(:admin)
+      level.value = UserLevel.new(:admin)
     end
   end
 end

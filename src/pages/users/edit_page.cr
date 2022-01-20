@@ -81,6 +81,6 @@ struct Users::EditPage < MainLayout
   end
 
   private def options_for_levels
-    User::Level.raw.names.map { |name| {name, User::Level.new(name)} }
+    UserLevel.raw.names.map { |name| {name, UserLevel.new(name)} }
   end
 end

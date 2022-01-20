@@ -10,16 +10,10 @@ class User < BaseModel
 
   include Carbon::Emailable
 
-  __enum Level do
-    Admin
-    Editor
-    Author
-  end
-
   table :users do
     column first_name : String
     column last_name : String
-    column level : User::Level
+    column level : UserLevel
   end
 
   def full_name : String
