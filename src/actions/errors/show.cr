@@ -6,6 +6,8 @@ class Errors::Show < Lucky::ErrorAction
   default_format :html
   dont_report [Lucky::RouteNotFoundError]
 
+  disable_cookies
+
   def render(error : Lucky::RouteNotFoundError)
     if html?
       error_html "Sorry, we couldn't find that page.", status: 404

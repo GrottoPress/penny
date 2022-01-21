@@ -5,6 +5,8 @@ abstract class ApiAction < Lucky::Action
 
   route_prefix "/api/v0"
 
+  disable_cookies
+
   def authorize?(user : User)  : Bool
     user.level.admin?
   end
