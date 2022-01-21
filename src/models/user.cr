@@ -17,7 +17,7 @@ class User < BaseModel
   end
 
   def full_name : String
-    "#{first_name} #{last_name}"
+    Rex.t(:"model.user.full_name", first_name: first_name, last_name: last_name)
   end
 
   def emailable : Carbon::Address

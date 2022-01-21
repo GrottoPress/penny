@@ -60,6 +60,9 @@ en:
       update:
         failure: Could not update user
         success: User updated successfully
+  model:
+    user:
+      full_name: '%{first_name} %{last_name}'
   operation:
     error:
       active_at_required: Active time is required

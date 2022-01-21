@@ -18,7 +18,7 @@ See `penny.diff` for changes.
 
 ### Development
 
-Run tests with `docker-compose run --rm spec`, or `crystal spec`.
+Run tests with `crystal spec`.
 
 ### Resources
 
