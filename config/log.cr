@@ -34,9 +34,10 @@ Lucky::ContinuedPipeLog.dexter.configure(:none)
 # Set the log to ':info' to log all queries
 Avram::QueryLog.dexter.configure(:none)
 
-# Skip logging static assets requests in development
+# Skip logging
 Lucky::LogHandler.configure do |settings|
-  settings.skip_if = ->(context : HTTP::Server::Context) {
-    {"password=", "token="}.any? &.in?(context.request.resource)
-  }
+  settings.skip_if = ->(context : HTTP::Server::Context) do
+    return false unless filters = ENV["SKIP_LOG_REGEX"]?
+    !!(filters =~ context.request.resource)
+  end
 end
