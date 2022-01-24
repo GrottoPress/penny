@@ -74,8 +74,12 @@ en:
       email_not_found: Email does not exist
       email_required: Email is required
       email_exists: Email is already taken
+      first_name_invalid: First name is not a valid name
+      first_name_required: First name is required
       inactive_at_earlier: Inactive time cannot be earlier than active time
       ip_address_required: IP address could not be determined
+      last_name_invalid: Last name is not a valid name
+      last_name_required: Last name is required
       login_failed: Email or password is incorrect
       login_notify_required: Login notification was not set
       name_required: Name is required

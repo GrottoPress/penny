@@ -33,7 +33,8 @@ dependencies:
     version: ~> 0.2.1
   shield:
     github: GrottoPress/shield
-    version: ~> 0.13.0
+    # version: ~> 0.13.0
+    branch: master
   unslash:
     github: GrottoPress/unslash
     version: ~> 0.1.0
