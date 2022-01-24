@@ -3,11 +3,11 @@ class UpdateUser < User::SaveOperation
 
   before_save do
     validate_required level
-    validate_not_pwned(password) if LuckyEnv.production?
 
     reset_level
   end
 
+  include ValidateNotPwned
   include SaveUserName
 
   # Ensure current admin cannot change their own level,

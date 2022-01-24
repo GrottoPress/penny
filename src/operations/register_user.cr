@@ -3,8 +3,8 @@ class RegisterUser < User::SaveOperation
 
   before_save do
     validate_required level
-    validate_not_pwned(password) if LuckyEnv.production?
   end
 
+  include ValidateNotPwned
   include SaveUserName
 end

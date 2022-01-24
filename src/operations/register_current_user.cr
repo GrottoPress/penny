@@ -3,11 +3,10 @@ class RegisterCurrentUser < User::SaveOperation
 
   before_save do
     set_level
-
-    validate_not_pwned(password) if LuckyEnv.production?
   end
 
   include SaveUserName
+  include ValidateNotPwned
   include Shield::SendWelcomeEmail
 
   private def set_level
