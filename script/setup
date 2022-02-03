@@ -6,7 +6,6 @@ set -o pipefail
 
 source script/helpers/text_helpers
 
-
 notice "Running System Check"
 ./script/system_check
 print_done
@@ -22,9 +21,9 @@ print_done
 notice "Installing shards"
 shards install | indent
 
-if [ ! -f ".env.yml" -a ! -f ".env.dev.yml" ]; then
-  notice "No .env found. Creating one."
-  touch .env.dev.yml
+if [ ! -f ".env.yml" ]; then
+  notice "No .env.yml found. Creating one."
+  touch .env.yml
   print_done
 fi
 
