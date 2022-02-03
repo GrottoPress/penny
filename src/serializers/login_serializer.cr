@@ -5,6 +5,7 @@ struct LoginSerializer < BaseSerializer
   def render
     {
       id: @login.id,
+      user_id: @login.user_id,
       ip_address: @login.ip_address,
       active_at: @login.active_at.to_unix,
       inactive_at: @login.inactive_at.try &.to_unix
