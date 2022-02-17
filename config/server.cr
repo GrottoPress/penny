@@ -34,6 +34,7 @@ Lucky::ForceSSLHandler.configure do |settings|
 end
 
 Lucky::RequestIdHandler.configure do |settings|
+  # ameba:disable Lint/UnusedArgument
   settings.set_request_id = ->(context : HTTP::Server::Context) {
     UUID.random.to_s
   }

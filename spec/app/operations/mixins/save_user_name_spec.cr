@@ -23,7 +23,7 @@ describe SaveUserName do
     )) do |_, user|
       user.should be_a(User)
 
-      user.try do |user|
+      user.try do |user| # ameba:disable Lint/ShadowingOuterLocalVar
         user.first_name.should eq(first_name)
         user.last_name.should eq(last_name)
       end

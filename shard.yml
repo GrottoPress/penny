@@ -40,9 +40,9 @@ dependencies:
     version: ~> 0.1.0
 
 development_dependencies:
-  # ameba:
-  #   github: veelenga/ameba
-  #   version: ~> 0.14.0
+  ameba:
+    github: crystal-ameba/ameba
+    version: ~> 0.14.3
   lucky_flow:
     github: luckyframework/lucky_flow
     version: ~> 0.7.3

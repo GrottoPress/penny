@@ -62,14 +62,14 @@ struct CurrentUser::EditPage < MainLayout
   end
 
   private def bearer_login_notify_label_text
-    label_text = "Send me an email whenever I create a new bearer login"
+    "Send me an email whenever I create a new bearer login"
   end
 
   private def login_notify_label_text
-    label_text = "Send me an email whenever my account is accessed"
+    "Send me an email whenever my account is accessed"
   end
 
   private def password_notify_label_text
-    label_text = "Send me an email whenever my password changes"
+    "Send me an email whenever my password changes"
   end
 end

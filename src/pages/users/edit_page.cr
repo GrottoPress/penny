@@ -69,15 +69,15 @@ struct Users::EditPage < MainLayout
   end
 
   private def bearer_login_notify_label_text
-    label_text = "Send user an email whenever they create a bearer login"
+    "Send user an email whenever they create a bearer login"
   end
 
   private def login_notify_label_text
-    label_text = "Send user an email whenever their account is accessed"
+    "Send user an email whenever their account is accessed"
   end
 
   private def password_notify_label_text
-    label_text = "Send user an email whenever their password changes"
+    "Send user an email whenever their password changes"
   end
 
   private def options_for_levels
