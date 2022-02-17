@@ -39,6 +39,8 @@ en:
       update:
         failure: Could not update email
         success: Email updated successfully
+      verify:
+        success: Email confirmation verified successfully
     login:
       destroy:
         failure: Could not revoke login
@@ -50,6 +52,8 @@ en:
       update:
         failure: Could not update password
         success: Password updated successfully
+      verify:
+        success: Password reset verified successfully
     user:
       create:
         failure: Could not add user
