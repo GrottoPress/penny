@@ -1,7 +1,7 @@
 require "./server"
 
 Lucky::Session.configure do |settings|
-  settings.key = "_session"
+  settings.key = "_app-session" # <= Change to unique key
 end
 
 Lucky::CookieJar.configure do |settings|
