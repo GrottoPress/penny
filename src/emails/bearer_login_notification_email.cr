@@ -21,9 +21,10 @@ class BearerLoginNotificationEmail < BaseEmail
 
     =====
     Date: #{@bearer_login.active_at.to_s(date_time_format)}
+    Name: #{@bearer_login.name}
     =====
 
-    If you did not log in yourself, let us know immediately in your reply
+    If you did not authorize this, let us know immediately in your reply
     to this message. Otherwise, you may safely ignore this email.
 
     Regards,
