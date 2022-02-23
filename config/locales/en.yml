@@ -11,9 +11,6 @@ en:
       not_logged_in: You are not logged in
       not_logged_out: You are logged in
     bearer_login:
-      create:
-        failure: Could not create bearer login
-        success: Bearer login created successfully
       destroy:
         failure: Could not delete bearer login
         success: Bearer login deleted successfully
@@ -32,6 +29,18 @@ en:
         failure: Could not update your account
         success: Account updated successfully
         success_confirm: Check '%{email}' for further instructions
+
+      bearer_login:
+        create:
+          failure: Could not create bearer login
+          success: Copy the token now; it will only be shown once!
+        destroy:
+          failure: Could not delete bearer logins
+          success: Bearer logins deleted successfully
+      login:
+        destroy:
+          failure: Could not log you out on all devices
+          success: You have been logged out on all devices
     email_confirmation:
       create:
         failure: Email confirmation request failed
@@ -64,6 +73,15 @@ en:
       update:
         failure: Could not update user
         success: User updated successfully
+
+      bearer_login:
+        destroy:
+          failure: Could not delete bearer logins
+          success: Bearer logins deleted successfully
+      login:
+        destroy:
+          failure: Could not log user out on all devices
+          success: User logged out on all devices successfully
   model:
     user:
       full_name: '%{first_name} %{last_name}'
