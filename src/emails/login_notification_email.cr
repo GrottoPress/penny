@@ -24,8 +24,8 @@ class LoginNotificationEmail < BaseEmail
     IP Address: #{@login.ip_address}
     =====
 
-    If you did not log in yourself, let us know immediately in your reply
-    to this message. Otherwise, you may safely ignore this email.
+    If this was not you, let us know immediately in your reply to this message.
+    Otherwise, you may safely ignore this email.
 
     Regards,
     #{App.settings.name}.
