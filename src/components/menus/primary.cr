@@ -5,11 +5,9 @@ class Menus::Primary < BaseComponent
       text " | "
       link "Account", to: CurrentUser::Show
       text " | "
-      link "Users", to: Users::Index
+      link "Logins", to: CurrentUser::Logins::Index
       text " | "
-      link "Logins", to: Logins::Index
-      text " | "
-      link "Bearer logins", to: BearerLogins::Index
+      link "Bearer logins", to: CurrentUser::BearerLogins::Index
     end
   end
 end

@@ -4,7 +4,7 @@ class LogUserInFlow < BaseFlow
   end
 
   def submit_login_details
-    fill_form LogUserIn,
+    fill_form StartCurrentLogin,
       email: "user@example.tld",
       password: "passwo)rdA1passw8d*hgh"
 

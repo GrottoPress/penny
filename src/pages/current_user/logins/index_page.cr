@@ -1,13 +1,13 @@
-struct Logins::IndexPage < MainLayout
+struct CurrentUser::Logins::IndexPage < MainLayout
   needs logins : Array(Login)
   needs pages : Lucky::Paginator
 
   def page_title
-    "Active logins"
+    "Your active logins"
   end
 
   def content
-    h1 "Active Logins"
+    h1 "Your Active Logins"
 
     if logins.empty?
       para do
@@ -21,12 +21,14 @@ struct Logins::IndexPage < MainLayout
             text " | "
             text login.active_at.to_s(App.settings.time_format)
             text " | "
-            text login.user.full_name
-            text " | "
             text login.ip_address
             text " | "
-            link "[-] log out", to: Destroy.with(login.id)
+            link "[x] log out", to: ::Logins::Destroy.with(login_id: login.id)
           end
+        end
+
+        para do
+          link "[x] log out everywhere", to: Destroy
         end
       end
 

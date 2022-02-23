@@ -15,7 +15,7 @@ struct BearerLogins::ShowPage < MainLayout
     para do
       link "[=] list all", to: Index
       text " | "
-      link "[+] add new", to: New
+      link "[+] add new", to: CurrentUser::BearerLogins::New
     end
   end
 end

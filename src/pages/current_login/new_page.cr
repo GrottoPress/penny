@@ -1,5 +1,5 @@
 struct CurrentLogin::NewPage < AuthLayout
-  needs operation : LogUserIn
+  needs operation : StartCurrentLogin
 
   def page_title
     "Log in"

@@ -1,7 +1,7 @@
-class BearerLogins::New < BrowserAction
-  include Shield::BearerLogins::New
+class CurrentUser::BearerLogins::New < BrowserAction
+  include Shield::CurrentUser::BearerLogins::New
 
-  get "/bearer-logins/new" do
+  get "/account/bearer-logins/new" do
     operation = CreateBearerLogin.new(
       user: user,
       allowed_scopes: BearerScope.action_scopes.map(&.to_s)

@@ -1,17 +1,17 @@
-struct BearerLogins::IndexPage < MainLayout
+struct CurrentUser::BearerLogins::IndexPage < MainLayout
   needs bearer_logins : Array(BearerLogin)
   needs pages : Lucky::Paginator
 
   def page_title
-    "Bearer logins"
+    "Your active bearer logins"
   end
 
   def content
-    h1 "Bearer Logins"
+    h1 "Your Active Bearer Logins"
 
     if bearer_logins.empty?
       para do
-        text "No bearer logins"
+        text "No active bearer logins"
       end
     else
       ul do
@@ -21,19 +21,25 @@ struct BearerLogins::IndexPage < MainLayout
             text " | "
             text bearer_login.active_at.to_s(App.settings.time_format)
             text " | "
-            text bearer_login.user.full_name
-            text " | "
             text bearer_login.name
             text " | "
-            link "[-] delete", to: Destroy.with(bearer_login.id)
-            br
-            text bearer_login.scopes.join(", ")
+
+            link "[x] revoke",
+              to: ::BearerLogins::Destroy.with(bearer_login_id: bearer_login.id)
           end
+        end
+
+        para do
+          link "[x] revoke all", to: Destroy
         end
       end
 
       if pages.total > 1
         mount Lucky::Paginator::SimpleNav, pages
+      end
+
+      para do
+        link "[+] add new", to: New
       end
     end
   end

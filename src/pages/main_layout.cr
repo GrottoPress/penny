@@ -16,7 +16,12 @@ abstract struct MainLayout
       mount Shared::LayoutHead, page_title: page_title
 
       body do
-        mount Menus::Primary
+        if current_user?.try(&.level.admin?)
+          mount Menus::AdminPrimary
+        else
+          mount Menus::Primary
+        end
+
         mount Shared::FlashMessages, flash: context.flash
         content
       end

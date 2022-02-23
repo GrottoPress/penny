@@ -1,4 +1,4 @@
-struct BearerLogins::NewPage < MainLayout
+struct CurrentUser::BearerLogins::NewPage < MainLayout
   needs operation : CreateBearerLogin
 
   include PageParamKey
