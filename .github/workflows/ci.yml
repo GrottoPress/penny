@@ -95,6 +95,7 @@ jobs:
           SEND_GRID_KEY: unused
           SERVER_HOST: "0.0.0.0"
           SERVER_PORT: "5000"
+          SESSION_KEY: _app-session
           SKIP_LOAD_ENV: "true"
           SKIP_LOG_REGEX: /password|secret|token/i
           SSL_ENABLED: "false"
