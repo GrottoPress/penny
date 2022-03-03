@@ -20,7 +20,7 @@ struct CurrentLogin::NewPage < AuthLayout
       end
 
       para do
-        link "Don't have an account?", to: EmailConfirmations::New
+        link "Don't have an account?", to: ::EmailConfirmations::New
         text " | "
         link "Lost your password?", to: PasswordResets::New
       end

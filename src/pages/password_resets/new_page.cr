@@ -16,7 +16,7 @@ struct PasswordResets::NewPage < AuthLayout
       para do
         link "Remembered your password?", to: CurrentLogin::New
         text " | "
-        link "Don't have an account?", to: EmailConfirmations::New
+        link "Don't have an account?", to: ::EmailConfirmations::New
       end
 
       para do

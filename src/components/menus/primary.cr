@@ -8,6 +8,8 @@ class Menus::Primary < BaseComponent
       link "Logins", to: CurrentUser::Logins::Index
       text " | "
       link "Bearer logins", to: CurrentUser::BearerLogins::Index
+      text " | "
+      link "Email confirmations", to: CurrentUser::EmailConfirmations::Index
     end
   end
 end
