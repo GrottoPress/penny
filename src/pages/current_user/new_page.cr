@@ -61,7 +61,7 @@ struct CurrentUser::NewPage < AuthLayout
       para do
         link "Have an account?", to: CurrentLogin::New
         text " | "
-        link "Lost your password?", to: PasswordResets::New
+        link "Lost your password?", to: ::PasswordResets::New
       end
 
       para do

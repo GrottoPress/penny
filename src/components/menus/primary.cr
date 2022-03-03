@@ -10,6 +10,8 @@ class Menus::Primary < BaseComponent
       link "Bearer logins", to: CurrentUser::BearerLogins::Index
       text " | "
       link "Email confirmations", to: CurrentUser::EmailConfirmations::Index
+      text " | "
+      link "Password resets", to: CurrentUser::PasswordResets::Index
     end
   end
 end
