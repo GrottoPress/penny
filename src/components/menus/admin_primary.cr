@@ -10,6 +10,8 @@ class Menus::AdminPrimary < BaseComponent
       link "Logins", to: Logins::Index
       text " | "
       link "Bearer logins", to: BearerLogins::Index
+      text " | "
+      link "Email confirmations", to: EmailConfirmations::Index
     end
   end
 end
