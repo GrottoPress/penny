@@ -12,6 +12,8 @@ class Menus::AdminPrimary < BaseComponent
       link "Bearer logins", to: BearerLogins::Index
       text " | "
       link "Email confirmations", to: EmailConfirmations::Index
+      text " | "
+      link "Password resets", to: PasswordResets::Index
     end
   end
 end
