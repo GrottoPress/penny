@@ -65,14 +65,10 @@ class Errors::Show < Lucky::ErrorAction
     details = nil,
     param = nil
   )
-    json({
-      status: "error",
-      data: {error: ErrorSerializer.new(
-        message: message,
-        details: details,
-        param: param
-      )}
-    }, status: status)
+    json(
+      ErrorResponse.new(error_message: message, details: details, param: param),
+      status: status
+    )
   end
 
   private def report(error : Exception) : Nil
