@@ -16,6 +16,7 @@ struct BearerLoginSerializer < SuccessSerializer
       inactive_at: bearer_login.inactive_at.try &.to_unix,
       name: bearer_login.name,
       scopes: bearer_login.scopes,
+      status: bearer_login.status.to_s,
     }
   end
 
