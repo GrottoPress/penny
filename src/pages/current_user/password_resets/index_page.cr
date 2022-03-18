@@ -3,15 +3,15 @@ struct CurrentUser::PasswordResets::IndexPage < MainLayout
   needs pages : Lucky::Paginator
 
   def page_title
-    "Your active password resets"
+    Rex.t(:"page.current_user.password_reset.index.page_title")
   end
 
   def content
-    h1 "Your Active Password Resets"
+    h1 Rex.t(:"page.current_user.password_reset.index.main_title")
 
     if password_resets.empty?
       para do
-        text "No active password resets"
+        text Rex.t(:"page.current_user.password_reset.index.none_found")
       end
     else
       ul do
@@ -24,14 +24,14 @@ struct CurrentUser::PasswordResets::IndexPage < MainLayout
             text password_reset.ip_address
             text " | "
 
-            link "[x] deactivate", to: ::PasswordResets::Destroy.with(
+            link "[x] #{deactivate_text}", to: ::PasswordResets::Destroy.with(
               password_reset_id: password_reset.id
             )
           end
         end
 
         para do
-          link "[x] deactivate all", to: Destroy
+          link "[x] #{deactivate_all_text}", to: Destroy
         end
       end
 

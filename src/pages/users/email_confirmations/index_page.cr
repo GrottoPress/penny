@@ -4,15 +4,17 @@ struct Users::EmailConfirmations::IndexPage < MainLayout
   needs pages : Lucky::Paginator
 
   def page_title
-    "Email confirmations for #{user.full_name}"
+    Rex.t(:"page.user.email_confirmation.index.page_title",
+      full_name: user.full_name)
   end
 
   def content
-    h1 "Email Confirmations for #{user.full_name}"
+    h1 Rex.t(:"page.user.email_confirmation.index.main_title",
+      full_name: user.full_name)
 
     if email_confirmations.empty?
       para do
-        text "No email confirmations"
+        text Rex.t(:"page.user.email_confirmation.index.none_found")
       end
     else
       ul do
@@ -25,7 +27,7 @@ struct Users::EmailConfirmations::IndexPage < MainLayout
             text email_confirmation.ip_address
             text " | "
 
-            link "[x] deactivate",
+            link "[x] #{deactivate_text}",
               to: ::EmailConfirmations::Destroy.with(
                 email_confirmation_id: email_confirmation.id
               )
@@ -33,7 +35,7 @@ struct Users::EmailConfirmations::IndexPage < MainLayout
         end
 
         para do
-          link "[x] deactivate all", to: Destroy.with(user_id: user.id)
+          link "[x] #{deactivate_all_text}", to: Destroy.with(user_id: user.id)
         end
       end
 

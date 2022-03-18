@@ -9,7 +9,7 @@ struct Errors::ShowPage
     html lang: "en" do
       head do
         utf8_charset
-        title "Something went wrong"
+        title Rex.t(:"page.error.show.page_title")
         load_lato_font
         normalize_styles
         error_page_styles
@@ -18,11 +18,14 @@ struct Errors::ShowPage
       body do
         div class: "container" do
           h2 status_code, class: "status-code"
-          h1 message, class: "message"
+
+          h1 Rex.t(:"page.error.show.main_title", message: message),
+            class: "message"
 
           ul class: "helpful-links" do
             li do
-              a "Try heading back to home", href: "/", class: "helpful-link"
+              a Rex.t(:"page.error.show.link.home"),
+                href: "/", class: "helpful-link"
             end
           end
         end

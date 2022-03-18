@@ -3,15 +3,15 @@ struct Users::IndexPage < MainLayout
   needs pages : Lucky::Paginator
 
   def page_title
-    "Users"
+    Rex.t(:"page.user.index.page_title")
   end
 
   def content
-    h1 "Users"
+    h1 Rex.t(:"page.user.index.main_title")
 
     if users.empty?
       para do
-        text "No users"
+        text Rex.t(:"page.user.index.none_found")
       end
     else
       ul do
@@ -19,7 +19,7 @@ struct Users::IndexPage < MainLayout
           li do
             text user.full_name
             text " | "
-            link "[e] edit", to: Edit.with(user.id)
+            link "[e] #{edit_text}", to: Edit.with(user.id)
           end
         end
       end

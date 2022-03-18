@@ -2,11 +2,11 @@ struct PasswordResets::NewPage < AuthLayout
   needs operation : StartPasswordReset
 
   def page_title
-    "Password reset"
+    Rex.t(:"page.password_reset.new.page_title")
   end
 
   def content
-    h1 "Password Reset"
+    h1 Rex.t(:"page.password_reset.new.main_title")
 
     form_for Create do
       para do
@@ -14,13 +14,14 @@ struct PasswordResets::NewPage < AuthLayout
       end
 
       para do
-        link "Remembered your password?", to: CurrentLogin::New
+        link remembered_password_text, to: CurrentLogin::New
         text " | "
-        link "Don't have an account?", to: ::EmailConfirmations::New
+        link no_account_text, to: ::EmailConfirmations::New
       end
 
       para do
-        button "Send email", role: "submit"
+        button Rex.t(:"page.password_reset.new.form.submit.label"),
+          role: "submit"
       end
     end
   end

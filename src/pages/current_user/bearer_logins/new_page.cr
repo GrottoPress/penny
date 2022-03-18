@@ -4,11 +4,11 @@ struct CurrentUser::BearerLogins::NewPage < MainLayout
   include PageParamKey
 
   def page_title
-    "New bearer login"
+    Rex.t(:"page.current_user.bearer_login.new.page_title")
   end
 
   def content
-    h1 "Add new bearer login"
+    h1 Rex.t(:"page.current_user.bearer_login.new.main_title")
 
     form_for Create do
       para do
@@ -16,7 +16,8 @@ struct CurrentUser::BearerLogins::NewPage < MainLayout
       end
 
       para do
-        label "Scopes", for: "#{param_key}_scopes"
+        label Rex.t(:"page.current_user.bearer_login.new.form.scopes.label"),
+          for: "#{param_key}_scopes"
 
         select_tag id: "#{param_key}_scopes",
           name: "#{param_key}:scopes[]",
@@ -36,12 +37,13 @@ struct CurrentUser::BearerLogins::NewPage < MainLayout
       # end
 
       para do
-        button "Add bearer login", role: "submit"
+        button Rex.t(:"page.current_user.bearer_login.new.form.submit.label"),
+          role: "submit"
       end
     end
 
     para do
-      link "[=] list all", to: Index
+      link "[=] #{list_text}", to: Index
     end
   end
 

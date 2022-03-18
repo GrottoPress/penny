@@ -3,15 +3,15 @@ struct CurrentUser::BearerLogins::IndexPage < MainLayout
   needs pages : Lucky::Paginator
 
   def page_title
-    "Your active bearer logins"
+    Rex.t(:"page.current_user.bearer_login.index.page_title")
   end
 
   def content
-    h1 "Your Active Bearer Logins"
+    h1 Rex.t(:"page.current_user.bearer_login.index.main_title")
 
     if bearer_logins.empty?
       para do
-        text "No active bearer logins"
+        text Rex.t(:"page.current_user.bearer_login.index.none_found")
       end
     else
       ul do
@@ -24,13 +24,13 @@ struct CurrentUser::BearerLogins::IndexPage < MainLayout
             text bearer_login.name
             text " | "
 
-            link "[x] revoke",
+            link "[x] #{revoke_text}",
               to: ::BearerLogins::Destroy.with(bearer_login_id: bearer_login.id)
           end
         end
 
         para do
-          link "[x] revoke all", to: Destroy
+          link "[x] #{revoke_all_text}", to: Destroy
         end
       end
 
@@ -39,7 +39,7 @@ struct CurrentUser::BearerLogins::IndexPage < MainLayout
       end
 
       para do
-        link "[+] add new", to: New
+        link "[+] #{add_new_text}", to: New
       end
     end
   end

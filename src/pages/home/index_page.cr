@@ -4,14 +4,11 @@ struct Home::IndexPage < MainLayout
   end
 
   def content
-    h1 do
-      text "Hello "
-      em "Penny"
-    end
+    h1 Rex.t(:"page.home.index.main_title")
 
-    para "Penny is a rather quick way to get started with Lucky framework and Shield"
+    para Rex.t(:"page.home.index.main_description")
 
-    h2 "Resources"
+    h2 Rex.t(:"page.home.index.resources")
 
     ul do
       li do

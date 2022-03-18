@@ -1,19 +1,22 @@
 class Menus::AdminPrimary < BaseComponent
   def render
     para do
-      link "Home", to: Home::Index
+      link Rex.t(:"page.menu.home"), to: Home::Index
       text " | "
-      link "Account", to: CurrentUser::Show
+      link Rex.t(:"page.menu.account"), to: CurrentUser::Show
       text " | "
-      link "Users", to: Users::Index
+      link Rex.t(:"page.menu.users"), to: Users::Index
       text " | "
-      link "Logins", to: Logins::Index
+      link Rex.t(:"page.menu.logins"), to: Logins::Index
       text " | "
-      link "Bearer logins", to: BearerLogins::Index
+      link Rex.t(:"page.menu.bearer_logins"), to: BearerLogins::Index
       text " | "
-      link "Email confirmations", to: EmailConfirmations::Index
+
+      link Rex.t(:"page.menu.email_confirmations"),
+        to: EmailConfirmations::Index
+
       text " | "
-      link "Password resets", to: PasswordResets::Index
+      link Rex.t(:"page.menu.password_resets"), to: PasswordResets::Index
     end
   end
 end

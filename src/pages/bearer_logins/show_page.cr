@@ -3,19 +3,19 @@ struct BearerLogins::ShowPage < MainLayout
   needs token : String
 
   def page_title
-    bearer_login.name
+    Rex.t(:"page.bearer_login.show.page_title", name: bearer_login.name)
   end
 
   def content
-    h1 bearer_login.name
+    h1 Rex.t(:"page.bearer_login.show.main_title", name: bearer_login.name)
 
-    para "Copy token below:"
+    para Rex.t(:"page.bearer_login.show.copy_token")
     pre token
 
     para do
-      link "[=] list all", to: Index
+      link "[=] #{list_text}", to: Index
       text " | "
-      link "[+] add new", to: CurrentUser::BearerLogins::New
+      link "[+] #{add_new_text}", to: CurrentUser::BearerLogins::New
     end
   end
 end

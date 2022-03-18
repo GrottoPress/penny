@@ -2,11 +2,11 @@ struct CurrentLogin::NewPage < AuthLayout
   needs operation : StartCurrentLogin
 
   def page_title
-    "Log in"
+    Rex.t(:"page.current_login.new.page_title")
   end
 
   def content
-    h1 "Log In"
+    h1 Rex.t(:"page.current_login.new.main_title")
 
     form_for Create do
       para do
@@ -20,13 +20,15 @@ struct CurrentLogin::NewPage < AuthLayout
       end
 
       para do
-        link "Don't have an account?", to: ::EmailConfirmations::New
+        link lost_password_text, to: ::EmailConfirmations::New
         text " | "
-        link "Lost your password?", to: ::PasswordResets::New
+        link no_account_text, to: ::PasswordResets::New
       end
 
       para do
-        button "Log in", role: "submit", flow_id: "login-button"
+        button Rex.t(:"page.current_login.new.form.submit.label"),
+          role: "submit",
+          flow_id: "login-button"
       end
     end
   end

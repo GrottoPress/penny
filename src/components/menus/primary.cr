@@ -1,17 +1,25 @@
 class Menus::Primary < BaseComponent
   def render
     para do
-      link "Home", to: Home::Index
+      link Rex.t(:"page.menu.home"), to: Home::Index
       text " | "
-      link "Account", to: CurrentUser::Show
+      link Rex.t(:"page.menu.account"), to: CurrentUser::Show
       text " | "
-      link "Logins", to: CurrentUser::Logins::Index
+      link Rex.t(:"page.menu.logins"), to: CurrentUser::Logins::Index
       text " | "
-      link "Bearer logins", to: CurrentUser::BearerLogins::Index
+
+      link Rex.t(:"page.menu.bearer_logins"),
+        to: CurrentUser::BearerLogins::Index
+
       text " | "
-      link "Email confirmations", to: CurrentUser::EmailConfirmations::Index
+
+      link Rex.t(:"page.menu.email_confirmations"),
+        to: CurrentUser::EmailConfirmations::Index
+
       text " | "
-      link "Password resets", to: CurrentUser::PasswordResets::Index
+
+      link Rex.t(:"page.menu.password_resets"),
+        to: CurrentUser::PasswordResets::Index
     end
   end
 end

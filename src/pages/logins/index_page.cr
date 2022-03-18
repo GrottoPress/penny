@@ -3,15 +3,15 @@ struct Logins::IndexPage < MainLayout
   needs pages : Lucky::Paginator
 
   def page_title
-    "Active logins"
+    Rex.t(:"page.login.index.page_title")
   end
 
   def content
-    h1 "Active Logins"
+    h1 Rex.t(:"page.login.index.main_title")
 
     if logins.empty?
       para do
-        text "No active logins"
+        text Rex.t(:"page.login.index.none_found")
       end
     else
       ul do
@@ -25,7 +25,7 @@ struct Logins::IndexPage < MainLayout
             text " | "
             text login.ip_address
             text " | "
-            link "[-] log out", to: Destroy.with(login.id)
+            link "[-] #{log_out_text}", to: Destroy.with(login.id)
           end
         end
       end

@@ -138,9 +138,189 @@ en:
       token_required: Token is required
       user_id_required: User ID is required
       user_not_found: User does not exist
-#   page:
-#     user:
-#       new:
-#         main_title: Add user
-#       show:
-#         main_title: User \#%{user_id}
+  page:
+    misc:
+      page_title: My App
+    link:
+      add_new: add new
+      deactivate: deactivate
+      deactivate_all: deactivate all
+      delete: delete
+      edit: edit
+      have_account?: Have an account?
+      list: list all
+      log_out: log out
+      log_out_everywhere: log out everywhere
+      lost_password?: Lost your password?
+      no_account?: Don't have an account?
+      remembered_password?: Remembered your password?
+      revoke: revoke
+      revoke_all: revoke all
+    menu:
+      account: Account
+      bearer_logins: Bearer logins
+      email_confirmations: Email confirmations
+      home: Home
+      logins: Logins
+      password_resets: Password resets
+      users: Users
+    bearer_login:
+      index:
+        none_found: No bearer logins
+        main_title: Bearer Logins
+        page_title: Bearer logins
+      show:
+        copy_token: 'Copy token below:'
+        main_title: '%{name}'
+        page_title: '%{name}'
+    current_login:
+      new:
+        form:
+          submit:
+            label: Log in
+        page_title: Log in
+        main_title: Log In
+    current_user:
+      form:
+        bearer_login_notify:
+          label: Send me an email whenever I create a new bearer login
+        login_notify:
+          label: Send me an email whenever my account is accessed
+        password_notify:
+          label: Send me an email whenever my password changes
+
+      edit:
+        main_title: Edit Account
+        page_title: Edit account
+        form:
+          submit:
+            label: Update account
+      new:
+        main_title: Create Account
+        page_title: Create account
+        form:
+          email:
+            label: Email
+          submit:
+            label: Register
+      show:
+        hello: Hi, %{first_name}
+        main_title: User Account
+        page_title: User account
+
+      bearer_login:
+        index:
+          none_found: No active bearer logins
+          main_title: Your Active Bearer Logins
+          page_title: Your active bearer logins
+        new:
+          form:
+            scopes:
+              label: Scopes
+            submit:
+              label: Add bearer login
+          main_title: Add New Bearer Login
+          page_title: New bearer login
+      email_confirmation:
+        index:
+          none_found: No active email confirmations
+          main_title: Your Active Email Confirmations
+          page_title: Your active email confirmations
+      login:
+        index:
+          none_found: No active logins
+          main_title: Your Active Logins
+          page_title: Your active logins
+      password_reset:
+        index:
+          none_found: No active password resets
+          main_title: Your Active Password Resets
+          page_title: Your active password resets
+    email_confirmation:
+      index:
+        none_found: No active email confirmations
+        main_title: Active Email Confirmations
+        page_title: Active email confirmations
+      edit:
+        form:
+          submit:
+            label: Update password
+        main_title: Edit Password
+        page_title: Edit password
+      new:
+        form:
+          submit:
+            label: Send link
+        main_title: Email Confirmation
+        page_title: Email confirmation
+    error:
+      show:
+        link:
+          home: Try heading back to home
+        main_title: "%{message}"
+        page_title: Something went wrong
+    home:
+      index:
+        main_description: |
+          Penny is a rather quick way to get started with Lucky framework
+          and Shield
+        main_title: Hello Penny
+        resources: Resources
+    login:
+      index:
+        none_found: No active logins
+        main_title: Active Logins
+        page_title: Active logins
+    password_reset:
+      index:
+        none_found: No active password resets
+        main_title: Active Password Resets
+        page_title: Active password resets
+      new:
+        form:
+          submit:
+            label: Send link
+        main_title: Password Reset
+        page_title: Password reset
+    user:
+      form:
+        bearer_login_notify:
+          label: Send user an email whenever they create a bearer login
+        login_notify:
+          label: Send user an email whenever their account is accessed
+        password_notify:
+          label: Send user an email whenever their password changes
+      edit:
+        form:
+          submit:
+            label: Update user
+        main_title: Edit User
+        page_title: Edit user
+      index:
+        none_found: No users
+        main_title: Users
+        page_title: Users
+      show:
+        main_title: "%{full_name}"
+        page_title: "%{full_name}"
+
+      bearer_login:
+        index:
+          none_found: No bearer logins
+          main_title: Bearer Logins for %{full_name}
+          page_title: Bearer logins for %{full_name}
+      email_confirmation:
+        index:
+          none_found: No email confirmations
+          main_title: Email Confirmations for %{full_name}
+          page_title: Email confirmations for %{full_name}
+      login:
+        index:
+          none_found: No logins
+          main_title: Logins for %{full_name}
+          page_title: Logins for %{full_name}
+      password_reset:
+        index:
+          none_found: No password resets
+          main_title: Password Resets for %{full_name}
+          page_title: Password resets for %{full_name}

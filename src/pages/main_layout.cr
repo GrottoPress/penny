@@ -1,12 +1,13 @@
 abstract struct MainLayout
   include Lucky::HTMLPage
+  include LinkTextHelpers
 
   # The default page title. It is passed to `Shared::LayoutHead`.
   #
   # Add a `page_title` method to pages to override it. You can also remove
   # This method so every page is required to have its own page title.
   def page_title
-    "Penny"
+    Rex.t(:"page.misc.page_title")
   end
 
   def render

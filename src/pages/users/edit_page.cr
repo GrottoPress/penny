@@ -2,11 +2,11 @@ struct Users::EditPage < MainLayout
   needs operation : UpdateUser
 
   def page_title
-    "Edit user"
+    Rex.t(:"page.user.edit.page_title")
   end
 
   def content
-    h1 "Edit User"
+    h1 Rex.t(:"page.user.edit.main_title")
 
     form_for Update.with(user_id: operation.id.value.not_nil!) do
       para do
@@ -63,21 +63,21 @@ struct Users::EditPage < MainLayout
       end
 
       para do
-        button "Update user", role: "submit"
+        button Rex.t(:"page.user.edit.form.submit.label"), role: "submit"
       end
     end
   end
 
   private def bearer_login_notify_label_text
-    "Send user an email whenever they create a bearer login"
+    Rex.t(:"page.user.form.bearer_login_notify.label")
   end
 
   private def login_notify_label_text
-    "Send user an email whenever their account is accessed"
+    Rex.t(:"page.user.form.login_notify.label")
   end
 
   private def password_notify_label_text
-    "Send user an email whenever their password changes"
+    Rex.t(:"page.user.form.password_notify.label")
   end
 
   private def options_for_levels

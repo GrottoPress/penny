@@ -2,11 +2,11 @@ struct CurrentUser::EditPage < MainLayout
   needs operation : UpdateCurrentUser
 
   def page_title
-    "Edit account"
+    Rex.t(:"page.current_user.edit.page_title")
   end
 
   def content
-    h1 "Edit Account"
+    h1 Rex.t(:"page.current_user.edit.main_title")
 
     form_for Update do
       para do
@@ -52,24 +52,25 @@ struct CurrentUser::EditPage < MainLayout
       end
 
       para do
-        link "[x] log out", to: CurrentLogin::Destroy
+        link "[x] #{log_out_text}", to: CurrentLogin::Destroy
       end
 
       para do
-        button "Update account", role: "submit"
+        button Rex.t(:"page.current_user.edit.form.submit.label"),
+          role: "submit"
       end
     end
   end
 
   private def bearer_login_notify_label_text
-    "Send me an email whenever I create a new bearer login"
+    Rex.t(:"page.current_user.form.bearer_login_notify.label")
   end
 
   private def login_notify_label_text
-    "Send me an email whenever my account is accessed"
+    Rex.t(:"page.current_user.form.login_notify.label")
   end
 
   private def password_notify_label_text
-    "Send me an email whenever my password changes"
+    Rex.t(:"page.current_user.form.password_notify.label")
   end
 end

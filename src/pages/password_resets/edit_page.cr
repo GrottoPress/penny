@@ -2,11 +2,11 @@ struct PasswordResets::EditPage < AuthLayout
   needs operation : ResetPassword
 
   def page_title
-    "Edit password"
+    Rex.t(:"page.password_reset.edit.page_title")
   end
 
   def content
-    h1 "Edit Password"
+    h1 Rex.t(:"page.password_reset.edit.main_title")
 
     form_for Update do
       para do
@@ -16,7 +16,8 @@ struct PasswordResets::EditPage < AuthLayout
       end
 
       para do
-        button "Update password", role: "submit"
+        button Rex.t(:"page.password_reset.edit.form.submit.label"),
+          role: "submit"
       end
     end
   end
