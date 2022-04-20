@@ -37,7 +37,7 @@ Avram::QueryLog.dexter.configure(:none)
 # Skip logging
 Lucky::LogHandler.configure do |settings|
   settings.skip_if = ->(context : HTTP::Server::Context) do
-    return false unless filters = ENV["SKIP_LOG_REGEX"]?
-    !!(filters =~ context.request.resource)
+    return false unless filter = ENV["SKIP_LOG_REGEX"]?
+    !!(Regex.new(filter) =~ context.request.resource)
   end
 end
