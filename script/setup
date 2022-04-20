@@ -19,7 +19,7 @@ yarn dev | indent
 print_done
 
 notice "Installing shards"
-shards install | indent
+shards install --ignore-crystal-version | indent
 
 if [ ! -f ".env.yml" ]; then
   notice "No .env.yml found. Creating one."
