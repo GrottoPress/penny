@@ -1,5 +1,4 @@
 ENV["LUCKY_ENV"] = "test"
-ENV["DEV_PORT"] = "5001"
 
 require "spec"
 require "lucky_flow"
