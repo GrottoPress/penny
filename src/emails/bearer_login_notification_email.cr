@@ -9,27 +9,24 @@ class BearerLoginNotificationEmail < BaseEmail
   end
 
   private def heading
-    "New bearer login token created"
+    Rex.t(
+      :"email.bearer_login_notification.subject",
+      app_name: App.settings.name
+    )
   end
 
   private def text_message : String
-    <<-TEXT
-    Hi #{@bearer_login.user.first_name},
+    user = @bearer_login.user
 
-    This is to let you know that a new bearer login token was created for your
-    #{App.settings.name} account.
-
-    =====
-    Date: #{@bearer_login.active_at.to_s(date_time_format)}
-    Name: #{@bearer_login.name}
-    =====
-
-    If you did not authorize this, let us know immediately in your reply
-    to this message. Otherwise, you may safely ignore this email.
-
-    Regards,
-    #{App.settings.name}.
-    TEXT
+    Rex.t(
+      :"email.bearer_login_notification.body",
+      app_name: App.settings.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      full_name: user.full_name,
+      active_time: @bearer_login.active_at.to_s(date_time_format),
+      bearer_login_name: @bearer_login.name
+    )
   end
 
   private def date_time_format

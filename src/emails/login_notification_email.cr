@@ -9,27 +9,21 @@ class LoginNotificationEmail < BaseEmail
   end
 
   private def heading
-    "Successful login"
+    Rex.t(:"email.login_notification.subject", app_name: App.settings.name)
   end
 
   private def text_message : String
-    <<-TEXT
-    Hi #{@login.user.first_name},
+    user = @login.user
 
-    This is to let you know that your #{App.settings.name} account has just been
-    accessed.
-
-    =====
-    Date: #{@login.active_at.to_s(date_time_format)}
-    IP Address: #{@login.ip_address}
-    =====
-
-    If this was not you, let us know immediately in your reply to this message.
-    Otherwise, you may safely ignore this email.
-
-    Regards,
-    #{App.settings.name}.
-    TEXT
+    Rex.t(
+      :"email.login_notification.body",
+      app_name: App.settings.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      full_name: user.full_name,
+      login_time: @login.active_at.to_s(date_time_format),
+      ip_address: @login.ip_address
+    )
   end
 
   private def date_time_format

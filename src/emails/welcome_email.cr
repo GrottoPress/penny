@@ -9,23 +9,17 @@ class WelcomeEmail < BaseEmail
   end
 
   private def heading
-    "Welcome to #{App.settings.name}"
+    Rex.t(:"email.welcome.subject", app_name: App.settings.name)
   end
 
   private def text_message : String
-    <<-TEXT
-    Hi #{@user.first_name},
-
-    You have successfully completed your registration for your #{App.settings.name} account.
-
-    To access your account, log in via the following link:
-
-    #{CurrentLogin::New.url}
-
-    If you did not register this account, kindly reply to let us know.
-
-    Regards,
-    #{App.settings.name}.
-    TEXT
+    Rex.t(
+      :"email.welcome.subject",
+      app_name: App.settings.name,
+      first_name: @user.first_name,
+      last_name: @user.last_name,
+      full_name: @user.full_name,
+      login_url: CurrentLogin::New.url
+    )
   end
 end

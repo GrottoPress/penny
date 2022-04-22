@@ -10,25 +10,20 @@ class PasswordResetRequestEmail < BaseEmail
   end
 
   private def heading
-    "Reset your password"
+    Rex.t(:"email.password_reset_request.subject", app_name: App.settings.name)
   end
 
   private def text_message : String
-    <<-TEXT
-    Hi #{@password_reset.user.first_name},
+    user = @password_reset.user
 
-    You (or someone else) recently requested to reset the password for your #{App.settings.name} account.
-
-    To proceed with the password reset process, click the link below:
-
-    #{PasswordResetUrl.new(@operation, @password_reset)}
-
-    This password reset link will expire in #{Shield.settings.password_reset_expiry.total_minutes.to_i} minutes.
-
-    If you did not request a password reset, ignore this email.
-
-    Regards,
-    #{App.settings.name}.
-    TEXT
+    Rex.t(
+      :"email.password_reset_request.body",
+      app_name: App.settings.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      full_name: user.full_name,
+      link: PasswordResetUrl.new(@operation, @password_reset),
+      link_expiry: Shield.settings.password_reset_expiry.total_minutes.to_i
+    )
   end
 end

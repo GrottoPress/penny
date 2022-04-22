@@ -10,27 +10,18 @@ class EmailConfirmationRequestEmail < BaseEmail
   end
 
   private def heading
-    "Confirm your email"
+    Rex.t(
+      :"email.email_confirmation_request.subject",
+      app_name: App.settings.name
+    )
   end
 
   private def text_message : String
-    <<-TEXT
-    Hi,
-
-    You (or someone else) entered this email address while
-    registering for a new #{App.settings.name} account, or updating their email
-    address.
-
-    To proceed to confirm your email, click the link below:
-
-    #{EmailConfirmationUrl.new(@operation, @email_confirmation)}
-
-    This email confirmation link will expire in #{Shield.settings.email_confirmation_expiry.total_minutes.to_i} minutes.
-
-    If you did not initiate this request, ignore this email.
-
-    Regards,
-    #{App.settings.name}.
-    TEXT
+    Rex.t(
+      :"email.email_confirmation_request.body",
+      app_name: App.settings.name,
+      link: EmailConfirmationUrl.new(@operation, @email_confirmation),
+      link_expiry: Shield.settings.email_confirmation_expiry.total_minutes.to_i,
+    )
   end
 end

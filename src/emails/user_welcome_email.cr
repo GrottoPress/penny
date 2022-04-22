@@ -7,25 +7,14 @@ class UserWelcomeEmail < BaseEmail
   end
 
   private def heading
-    "Registration failed"
+    Rex.t(:"email.user_welcome.subject", app_name: App.settings.name)
   end
 
   private def text_message : String
-    <<-TEXT
-    Hi,
-
-    You (or someone else) entered this email address while trying to
-    register for a new #{App.settings.name} account.
-
-    The attempted action has failed, so there is nothing you should
-    worry about.
-
-    If you have lost your password, however, you may reset your password here:
-
-    #{PasswordResets::New.url}
-
-    Regards,
-    #{App.settings.name}.
-    TEXT
+    Rex.t(
+      :"email.user_welcome.body",
+      app_name: App.settings.name,
+      password_reset_url: PasswordResets::New.url
+    )
   end
 end

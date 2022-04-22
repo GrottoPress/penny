@@ -9,19 +9,19 @@ class PasswordChangeNotificationEmail < BaseEmail
   end
 
   private def heading
-    "Your password has changed"
+    Rex.t(
+      :"email.password_change_notification.subject",
+      app_name: App.settings.name
+    )
   end
 
   private def text_message : String
-    <<-TEXT
-    Hi #{@user.first_name},
-
-    This is to let you know that the password for your #{App.settings.name} account has just been changed.
-
-    If you did not authorize this change, let us know immediately in your reply to this message. Otherwise, you may safely ignore this email.
-
-    Regards,
-    #{App.settings.name}.
-    TEXT
+    Rex.t(
+      :"email.password_change_notification.body",
+      app_name: App.settings.name,
+      first_name: @user.first_name,
+      last_name: @user.last_name,
+      full_name: @user.full_name
+    )
   end
 end
