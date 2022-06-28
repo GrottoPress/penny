@@ -1,3916 +1,712 @@
-diff --git a/.editorconfig b/.editorconfig
-index d7c66bc..7eef262 100644
---- a/.editorconfig
-+++ b/.editorconfig
-@@ -8,6 +8,8 @@ indent_style = space
- indent_size = 2
- trim_trailing_whitespace = true
- 
-+[*.{diff,md}]
-+trim_trailing_whitespace = false
-+
- [*.md]
- indent_size = 4
--trim_trailing_whitespace = false
 diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index 3d060db..5e6d266 100644
+index 5e6d266..31576d5 100644
 --- a/.github/workflows/ci.yml
 +++ b/.github/workflows/ci.yml
-@@ -12,15 +12,31 @@ on:
-   # schedule:
-   #   - cron: '0 6 * * 6'
- jobs:
-+  checks:
-+    strategy:
-+      fail-fast: false
-+      matrix:
-+        crystal: [latest]
-+    runs-on: ubuntu-latest
-+    continue-on-error: false
-+    steps:
-+      - name: Download source
-+        uses: actions/checkout@v2
-+      - name: Install Crystal
-+        uses: crystal-lang/install-crystal@v1
-+        with:
-+          crystal: ${{ matrix.crystal }}
-+      - name: Install shards
-+        run: shards install
-+      - name: Lint code
-+        run: ./bin/ameba
-   specs:
+@@ -16,7 +16,7 @@ jobs:
      strategy:
        fail-fast: false
        matrix:
--        crystal: [1.0.0, 1.1.1, 1.2.2]
-+        crystal: [1.0.0, latest]
-         experimental: [false]
-         include:
--          - crystal: 1.0.0
--            experimental: true
-           - crystal: nightly
-             experimental: true
+-        crystal: [latest]
++        crystal: [1.3.2]
      runs-on: ubuntu-latest
-@@ -29,7 +45,7 @@ jobs:
-       - name: Download source
-         uses: actions/checkout@v2
-       - name: Install Crystal
--        uses: oprypin/install-crystal@v1
-+        uses: crystal-lang/install-crystal@v1
-         with:
-           crystal: ${{ matrix.crystal }}
-       - name: Cache shards
-@@ -50,12 +66,39 @@ jobs:
-           "ALTER USER postgres WITH PASSWORD 'password';"
-       - name: Run tests
-         env:
--          HOST: localhost
--          NAME: app_development
--          PASSWORD: password
--          PORT: "5432"
--          USERNAME: postgres
-+          APP_NAME: penny
-+          ASSETS_HOST: ""
-+          BASE_URI: http://localhost:5000
-+          BEARER_LOGIN_EXPIRY: "7776000" # 3 months
-+          DATE_FORMAT: '%d %B, %Y'
-+          EMAIL_FROM: noreply@my-app.tld
-+          EMAIL_REPLY_TO: support@my-app.tld
-+          GZIP_ENABLED: "false"
-+          DATABASE_HOST: localhost
-+          DATABASE_NAME: app_development
-+          DATABASE_PASSWORD: password
-+          DATABASE_PORT: "5432"
-+          DATABASE_USERNAME: postgres
-+          EMAIL_CONFIRMATION_EXPIRY: "3600" # 1 hour
-+          FAVICON_URL: /favicon.ico
-+          LOGIN_EXPIRY: "86400" # 1 day
-+          LOGIN_IDLE_TIMEOUT: "1800" # 30 minutes
-+          LOGO_URL: /logo.png
-+          MAKE_FIRST_USER_ADMIN: "true"
-+          PASSWORD_MIN_LENGTH: "4"
-+          PASSWORD_REQUIRE_LOWERCASE: "false"
-+          PASSWORD_REQUIRE_NUMBER: "false"
-+          PASSWORD_REQUIRE_SPECIAL_CHAR: "false"
-+          PASSWORD_REQUIRE_UPPERCASE: "false"
-+          PASSWORD_RESET_EXPIRY: "1800" # 30 minutes
-+          SECRET_KEY_BASE: XeqAgSy5QQ+dWe8ruOBUMrz9XPbPZ7chPVtz2ecDGss=
-+          SEND_GRID_KEY: unused
-           SERVER_HOST: "0.0.0.0"
-           SERVER_PORT: "5000"
-+          SESSION_KEY: _app-session
-           SKIP_LOAD_ENV: "true"
-+          SKIP_LOG_REGEX: /password|secret|token/i
-+          SSL_ENABLED: "false"
-+          TIME_FORMAT: '%l:%M %P'
-+          TIMEZONE: UTC
-         run: crystal spec --error-on-warnings spec/app
-diff --git a/README.md b/README.md
-index 6a68f00..1a45b34 100644
---- a/README.md
-+++ b/README.md
-@@ -18,7 +18,7 @@ See `penny.diff` for changes.
- 
- ### Development
- 
--Run tests with `docker-compose run --rm spec`, or `crystal spec`.
-+Run tests with `crystal spec`.
- 
- ### Resources
- 
-diff --git a/config/email.cr b/config/email.cr
-index 1535058..7cf8ff1 100644
---- a/config/email.cr
-+++ b/config/email.cr
-@@ -1,8 +1,4 @@
--private class DevDeliverLaterStrategy < Carbon::DeliverLaterStrategy
--  def run(email, &block)
--    block.call
--  end
--end
-+require "lucille/spec"
- 
- BaseEmail.configure do |settings|
-   if LuckyEnv.production?
-@@ -23,6 +19,8 @@ private def send_grid_key
- end
- 
- private def raise_missing_key_message
--  puts "Missing SEND_GRID_KEY. Set the SEND_GRID_KEY env variable to 'unused' if not sending emails, or set the SEND_GRID_KEY ENV var.".colorize.red
-+  puts "Missing SEND_GRID_KEY. Set the SEND_GRID_KEY env variable to 'unused' \
-+    if not sending emails, or set the SEND_GRID_KEY ENV var.".colorize.red
-+
-   exit(1)
- end
+     continue-on-error: false
+     steps:
 diff --git a/config/locales/en.yml b/config/locales/en.yml
-index ec81823..7390f15 100644
+index 7390f15..7991a3b 100644
 --- a/config/locales/en.yml
 +++ b/config/locales/en.yml
-@@ -2,7 +2,6 @@ en:
-   action:
-     misc:
-       dev_mode_skip_email: "Development mode: no need to check your mail."
--      token_generated: Copy the token now; it will only be shown once!
-       token_invalid: Invalid token
-     pipe:
-       authorization_failed: You are not allowed to perform this action
-@@ -11,9 +10,6 @@ en:
-       not_logged_in: You are not logged in
-       not_logged_out: You are logged in
-     bearer_login:
--      create:
--        failure: Could not create bearer login
--        success: Bearer login created successfully
-       destroy:
-         failure: Could not delete bearer login
-         success: Bearer login deleted successfully
-@@ -32,13 +28,38 @@ en:
-         failure: Could not update your account
-         success: Account updated successfully
-         success_confirm: Check '%{email}' for further instructions
+@@ -103,6 +103,164 @@ en:
+         destroy:
+           failure: Could not deactivate password resets
+           success: Password resets deactivated successfully
++  email:
++    bearer_login_notification:
++      body: |
++        Hi %{first_name},
 +
-+      bearer_login:
-+        create:
-+          failure: Could not create bearer login
-+          success: Copy the token now; it will only be shown once!
-+        destroy:
-+          failure: Could not delete bearer logins
-+          success: Bearer logins deleted successfully
-+      email_confirmation:
-+        destroy:
-+          failure: Could not deactivate your email confirmations
-+          success: Your email confirmations have been deactivated
-+      login:
-+        destroy:
-+          failure: Could not log you out on all devices
-+          success: You have been logged out on all devices
-+      password_reset:
-+        destroy:
-+          failure: Could not deactivate your password resets
-+          success: Your password resets have been deactivated
-     email_confirmation:
-       create:
-         failure: Email confirmation request failed
-         success: Check your email for further instructions
--      edit:
-+      destroy:
-+        failure: Could not deactivate email confirmations
-+        success: Email confirmations deactivated successfully
-+      update:
-         failure: Could not update email
-         success: Email updated successfully
-+      verify:
-+        success: Email confirmation verified successfully
-     login:
-       destroy:
-         failure: Could not revoke login
-@@ -47,9 +68,14 @@ en:
-       create:
-         failure: Password reset request failed
-         success: Check your email for further instructions
-+      destroy:
-+        failure: Could not deactivate password resets
-+        success: Password resets deactivated successfully
-       update:
-         failure: Could not update password
-         success: Password updated successfully
-+      verify:
-+        success: Password reset verified successfully
++        This is to let you know that a new bearer login token was created for
++        your %{app_name} account.
++
++        =====
++        Date: %{active_time}
++        Name: %{bearer_login_name}
++        =====
++
++        If you did not authorize this, let us know immediately in your reply to
++        this message. Otherwise, you may safely ignore this email.
++
++        Regards,
++        %{app_name}.
++      subject: New bearer login token created
++    email_confirmation_request:
++      body: |
++        Hi,
++
++        You (or someone else) entered this email address while registering for
++        a new %{app_name} account, or updating their email address.
++
++        To proceed to confirm your email, click the link below:
++
++        %{link}
++
++        This email confirmation link will expire in %{link_expiry} minutes.
++
++        If you did not initiate this request, ignore this email.
++
++        Regards,
++        %{app_name}.
++      subject: Confirm your email
++    guest_password_reset_request:
++      body: |
++        Hi,
++
++        You (or someone else) entered this email address while trying to change
++        the password of a %{app_name} account.
++
++        However, this email address is not in our database. Therefore, the
++        attempted password change has failed.
++
++        If you are a %{app_name} user and were expecting this email,
++        you may try again using the email address you gave when you registered
++        your account.
++
++        If you are not a %{app_name} user, ignore this email.
++
++        Regards,
++        %{app_name}.
++      subject: Password reset failed
++    login_notification:
++      body: |
++        Hi %{first_name},
++
++        This is to let you know that your %{app_name} account has just been
++        accessed.
++
++        =====
++        Date: %{login_time}
++        IP Address: %{ip_address}
++        =====
++
++        If this was not you, let us know immediately in your reply to this
++        message. Otherwise, you may safely ignore this email.
++
++        Regards,
++        %{app_name}.
++      subject: Successful login
++    password_change_notification:
++      body: |
++        Hi %{first_name},
++
++        This is to let you know that the password for your %{app_name}
++        account has just been changed.
++
++        If you did not authorize this change, let us know immediately in your
++        reply to this message. Otherwise, you may safely ignore this email.
++
++        Regards,
++        %{app_name}.
++      subject: Your password has changed
++    password_reset_request:
++      body: |
++        Hi %{first_name},
++
++        You (or someone else) recently requested to reset the password for your
++        %{app_name} account.
++
++        To proceed with the password reset process, click the link below:
++
++        %{link}
++
++        This password reset link will expire in %{link_expiry} minutes.
++
++        If you did not request a password reset, ignore this email.
++
++        Regards,
++        %{app_name}.
++      subject: Reset your password
++    user_email_confirmation_request:
++      body: |
++        Hi,
++
++        You (or someone else) entered this email address while trying to
++        register for a new %{app_name} account, or update the email of
++        an existing user.
++
++        The attempted action has failed, so there is nothing you should
++        worry about.
++
++        If you have lost your password, however, you may reset your password
++        here:
++
++        %{password_reset_url}
++
++        Regards,
++        %{app_name}.
++      subject: Email confirmation failed
++    user_welcome:
++      body: |
++        Hi,
++
++        You (or someone else) entered this email address while trying to
++        register for a new %{app_name} account.
++
++        The attempted action has failed, so there is nothing you should
++        worry about.
++
++        If you have lost your password, however, you may reset your password
++        here:
++
++        %{password_reset_url}
++
++        Regards,
++        %{app_name}.
++      subject: Registration failed
++    welcome:
++      body: |
++        Hi %{first_name},
++
++        You have successfully completed your registration for your
++        %{app_name} account.
++
++        To access your account, log in via the following link:
++
++        %{login_url}
++
++        If you did not register this account, kindly reply to let us know.
++
++        Regards,
++        %{app_name}.
++      subject: Welcome to %{app_name}
+   model:
      user:
-       create:
-         failure: Could not add user
-@@ -60,6 +86,26 @@ en:
-       update:
-         failure: Could not update user
-         success: User updated successfully
-+
-+      bearer_login:
-+        destroy:
-+          failure: Could not delete bearer logins
-+          success: Bearer logins deleted successfully
-+      email_confirmation:
-+        destroy:
-+          failure: Could not deactivate email confirmations
-+          success: Email confirmations deactivated successfully
-+      login:
-+        destroy:
-+          failure: Could not log user out on all devices
-+          success: User logged out on all devices successfully
-+      password_reset:
-+        destroy:
-+          failure: Could not deactivate password resets
-+          success: Password resets deactivated successfully
-+  model:
-+    user:
-+      full_name: '%{first_name} %{last_name}'
-   operation:
-     error:
-       active_at_required: Active time is required
-@@ -71,8 +117,12 @@ en:
-       email_not_found: Email does not exist
-       email_required: Email is required
-       email_exists: Email is already taken
-+      first_name_invalid: First name is not a valid name
-+      first_name_required: First name is required
-       inactive_at_earlier: Inactive time cannot be earlier than active time
-       ip_address_required: IP address could not be determined
-+      last_name_invalid: Last name is not a valid name
-+      last_name_required: Last name is required
-       login_failed: Email or password is incorrect
-       login_notify_required: Login notification was not set
-       name_required: Name is required
-@@ -88,9 +138,189 @@ en:
-       token_required: Token is required
-       user_id_required: User ID is required
-       user_not_found: User does not exist
--#   page:
--#     user:
--#       new:
--#         main_title: Add user
--#       show:
--#         main_title: User \#%{user_id}
-+  page:
-+    misc:
-+      page_title: My App
-+    link:
-+      add_new: add new
-+      deactivate: deactivate
-+      deactivate_all: deactivate all
-+      delete: delete
-+      edit: edit
-+      have_account?: Have an account?
-+      list: list all
-+      log_out: log out
-+      log_out_everywhere: log out everywhere
-+      lost_password?: Lost your password?
-+      no_account?: Don't have an account?
-+      remembered_password?: Remembered your password?
-+      revoke: revoke
-+      revoke_all: revoke all
-+    menu:
-+      account: Account
-+      bearer_logins: Bearer logins
-+      email_confirmations: Email confirmations
-+      home: Home
-+      logins: Logins
-+      password_resets: Password resets
-+      users: Users
-+    bearer_login:
-+      index:
-+        none_found: No bearer logins
-+        main_title: Bearer Logins
-+        page_title: Bearer logins
-+      show:
-+        copy_token: 'Copy token below:'
-+        main_title: '%{name}'
-+        page_title: '%{name}'
-+    current_login:
-+      new:
-+        form:
-+          submit:
-+            label: Log in
-+        page_title: Log in
-+        main_title: Log In
-+    current_user:
-+      form:
-+        bearer_login_notify:
-+          label: Send me an email whenever I create a new bearer login
-+        login_notify:
-+          label: Send me an email whenever my account is accessed
-+        password_notify:
-+          label: Send me an email whenever my password changes
-+
-+      edit:
-+        main_title: Edit Account
-+        page_title: Edit account
-+        form:
-+          submit:
-+            label: Update account
-+      new:
-+        main_title: Create Account
-+        page_title: Create account
-+        form:
-+          email:
-+            label: Email
-+          submit:
-+            label: Register
-+      show:
-+        hello: Hi, %{first_name}
-+        main_title: User Account
-+        page_title: User account
-+
-+      bearer_login:
-+        index:
-+          none_found: No active bearer logins
-+          main_title: Your Active Bearer Logins
-+          page_title: Your active bearer logins
-+        new:
-+          form:
-+            scopes:
-+              label: Scopes
-+            submit:
-+              label: Add bearer login
-+          main_title: Add New Bearer Login
-+          page_title: New bearer login
-+      email_confirmation:
-+        index:
-+          none_found: No active email confirmations
-+          main_title: Your Active Email Confirmations
-+          page_title: Your active email confirmations
-+      login:
-+        index:
-+          none_found: No active logins
-+          main_title: Your Active Logins
-+          page_title: Your active logins
-+      password_reset:
-+        index:
-+          none_found: No active password resets
-+          main_title: Your Active Password Resets
-+          page_title: Your active password resets
-+    email_confirmation:
-+      index:
-+        none_found: No active email confirmations
-+        main_title: Active Email Confirmations
-+        page_title: Active email confirmations
-+      edit:
-+        form:
-+          submit:
-+            label: Update password
-+        main_title: Edit Password
-+        page_title: Edit password
-+      new:
-+        form:
-+          submit:
-+            label: Send link
-+        main_title: Email Confirmation
-+        page_title: Email confirmation
-+    error:
-+      show:
-+        link:
-+          home: Try heading back to home
-+        main_title: "%{message}"
-+        page_title: Something went wrong
-+    home:
-+      index:
-+        main_description: |
-+          Penny is a rather quick way to get started with Lucky framework
-+          and Shield
-+        main_title: Hello Penny
-+        resources: Resources
-+    login:
-+      index:
-+        none_found: No active logins
-+        main_title: Active Logins
-+        page_title: Active logins
-+    password_reset:
-+      index:
-+        none_found: No active password resets
-+        main_title: Active Password Resets
-+        page_title: Active password resets
-+      new:
-+        form:
-+          submit:
-+            label: Send link
-+        main_title: Password Reset
-+        page_title: Password reset
-+    user:
-+      form:
-+        bearer_login_notify:
-+          label: Send user an email whenever they create a bearer login
-+        login_notify:
-+          label: Send user an email whenever their account is accessed
-+        password_notify:
-+          label: Send user an email whenever their password changes
-+      edit:
-+        form:
-+          submit:
-+            label: Update user
-+        main_title: Edit User
-+        page_title: Edit user
-+      index:
-+        none_found: No users
-+        main_title: Users
-+        page_title: Users
-+      show:
-+        main_title: "%{full_name}"
-+        page_title: "%{full_name}"
-+
-+      bearer_login:
-+        index:
-+          none_found: No bearer logins
-+          main_title: Bearer Logins for %{full_name}
-+          page_title: Bearer logins for %{full_name}
-+      email_confirmation:
-+        index:
-+          none_found: No email confirmations
-+          main_title: Email Confirmations for %{full_name}
-+          page_title: Email confirmations for %{full_name}
-+      login:
-+        index:
-+          none_found: No logins
-+          main_title: Logins for %{full_name}
-+          page_title: Logins for %{full_name}
-+      password_reset:
-+        index:
-+          none_found: No password resets
-+          main_title: Password Resets for %{full_name}
-+          page_title: Password resets for %{full_name}
+       full_name: '%{first_name} %{last_name}'
 diff --git a/config/log.cr b/config/log.cr
-index 60d14f1..7301051 100644
+index 7301051..0a2a38a 100644
 --- a/config/log.cr
 +++ b/config/log.cr
-@@ -12,7 +12,7 @@ elsif LuckyEnv.production?
-   # Lucky uses JSON in production so logs can be searched more easily
-   #
-   # If you want logs like in develpoment use 'Lucky::PrettyLogFormatter.proc'.
--  backend = Log::IOBackend.new(File.new("log/app.log", mode: "w"))
-+  backend = Log::IOBackend.new(File.new("log/app.log", mode: "w", perm: 0o640))
-   backend.formatter = Dexter::JSONLogFormatter.proc
-   Log.dexter.configure(:info, backend)
- else
-@@ -34,9 +34,10 @@ Lucky::ContinuedPipeLog.dexter.configure(:none)
- # Set the log to ':info' to log all queries
- Avram::QueryLog.dexter.configure(:none)
- 
--# Skip logging static assets requests in development
-+# Skip logging
+@@ -37,7 +37,7 @@ Avram::QueryLog.dexter.configure(:none)
+ # Skip logging
  Lucky::LogHandler.configure do |settings|
--  settings.skip_if = ->(context : HTTP::Server::Context) {
--    {"password=", "token="}.any? &.in?(context.request.resource)
--  }
-+  settings.skip_if = ->(context : HTTP::Server::Context) do
-+    return false unless filters = ENV["SKIP_LOG_REGEX"]?
-+    !!(filters =~ context.request.resource)
-+  end
+   settings.skip_if = ->(context : HTTP::Server::Context) do
+-    return false unless filters = ENV["SKIP_LOG_REGEX"]?
+-    !!(filters =~ context.request.resource)
++    return false unless filter = ENV["SKIP_LOG_REGEX"]?
++    !!(Regex.new(filter) =~ context.request.resource)
+   end
  end
-diff --git a/config/server.cr b/config/server.cr
-index 201e7ef..92fbfb4 100644
---- a/config/server.cr
-+++ b/config/server.cr
-@@ -34,6 +34,7 @@ Lucky::ForceSSLHandler.configure do |settings|
- end
- 
- Lucky::RequestIdHandler.configure do |settings|
-+  # ameba:disable Lint/UnusedArgument
-   settings.set_request_id = ->(context : HTTP::Server::Context) {
-     UUID.random.to_s
-   }
-diff --git a/db/migrations/20220303164733_add_email_confirmations_success.cr b/db/migrations/20220303164733_add_email_confirmations_success.cr
-new file mode 100644
-index 0000000..86a4917
---- /dev/null
-+++ b/db/migrations/20220303164733_add_email_confirmations_success.cr
-@@ -0,0 +1,13 @@
-+class AddEmailConfirmationsSuccess::V20220303164733 < Avram::Migrator::Migration::V1
-+  def migrate
-+    alter :email_confirmations do
-+      add success : Bool, fill_existing_with: false
-+    end
-+  end
-+
-+  def rollback
-+    alter :email_confirmations do
-+      remove :success
-+    end
-+  end
-+end
-diff --git a/db/migrations/20220303164810_add_password_resets_success.cr b/db/migrations/20220303164810_add_password_resets_success.cr
-new file mode 100644
-index 0000000..200e48e
---- /dev/null
-+++ b/db/migrations/20220303164810_add_password_resets_success.cr
-@@ -0,0 +1,13 @@
-+class AddPasswordResetsSuccess::V20220303164810 < Avram::Migrator::Migration::V1
-+  def migrate
-+    alter :password_resets do
-+      add success : Bool, fill_existing_with: false
-+    end
-+  end
-+
-+  def rollback
-+    alter :password_resets do
-+      remove :success
-+    end
-+  end
-+end
-diff --git a/sample.env.yml b/sample.env.yml
-index 16838c9..47315ca 100644
---- a/sample.env.yml
-+++ b/sample.env.yml
-@@ -46,7 +46,7 @@ database:
-   port: "5432"
-   username: postgres
- 
--session_key: _app_session
-+session_key: _app-session
- 
- send_grid_key: unused
- email_from: noreply@my-app.tld
-@@ -65,3 +65,5 @@ password:
-   require_number: "false"
-   require_special_char: "false"
-   require_uppercase: "false"
-+
-+skip_log_regex: /password|secret|token/i
 diff --git a/script/setup b/script/setup
-index 1009896..a7533ce 100755
+index a7533ce..b3fc9d5 100755
 --- a/script/setup
 +++ b/script/setup
-@@ -6,7 +6,6 @@ set -o pipefail
- 
- source script/helpers/text_helpers
- 
--
- notice "Running System Check"
- ./script/system_check
+@@ -19,7 +19,7 @@ yarn dev | indent
  print_done
-@@ -22,9 +21,9 @@ print_done
- notice "Installing shards"
- shards install | indent
  
--if [ ! -f ".env.yml" -a ! -f ".env.dev.yml" ]; then
--  notice "No .env found. Creating one."
--  touch .env.dev.yml
-+if [ ! -f ".env.yml" ]; then
-+  notice "No .env.yml found. Creating one."
-+  touch .env.yml
-   print_done
+ notice "Installing shards"
+-shards install | indent
++shards install --ignore-crystal-version | indent
+ 
+ if [ ! -f ".env.yml" ]; then
+   notice "No .env.yml found. Creating one."
+diff --git a/script/system_check b/script/system_check
+index 94238a6..14af31e 100755
+--- a/script/system_check
++++ b/script/system_check
+@@ -4,7 +4,7 @@ source script/helpers/text_helpers
+ source script/helpers/function_helpers
+ 
+ # Use this script to check the system for required tools and process that your app needs.
+-# A few helper functions are provided to make writing bash a little easier. See the 
++# A few helper functions are provided to make writing bash a little easier. See the
+ # script/helpers/function_helpers file for more examples.
+ #
+ # A few examples you might use here:
+@@ -17,11 +17,6 @@ if command_not_found "yarn"; then
+   print_error "Yarn is not installed\n  See https://yarnpkg.com/lang/en/docs/install/ for install instructions."
  fi
  
+-# Only if this isn't CI
+-if [ -z "$CI" ]; then
+-  lucky ensure_process_runner_installed
+-fi
+-
+ if command_not_found "createdb"; then
+   MSG="Please install the postgres CLI tools, then try again."
+   if is_mac; then
 diff --git a/shard.yml b/shard.yml
-index 31f46b0..8bda51e 100644
+index 8bda51e..77448a9 100644
 --- a/shard.yml
 +++ b/shard.yml
-@@ -33,15 +33,15 @@ dependencies:
+@@ -15,7 +15,7 @@ crystal: ~> 1.0
+ dependencies:
+   lucky:
+     github: luckyframework/lucky
+-    version: ~> 0.29.0
++    version: ~> 0.30.0
+   lucky_env:
+     github: luckyframework/lucky_env
+     version: ~> 0.1.4
+@@ -33,7 +33,7 @@ dependencies:
      version: ~> 0.2.1
    shield:
      github: GrottoPress/shield
--    version: ~> 0.13.0
-+    version: ~> 0.14.0
+-    version: ~> 0.14.0
++    version: ~> 0.15.0
    unslash:
      github: GrottoPress/unslash
      version: ~> 0.1.0
- 
- development_dependencies:
--  # ameba:
--  #   github: veelenga/ameba
--  #   version: ~> 0.14.0
-+  ameba:
-+    github: crystal-ameba/ameba
-+    version: ~> 0.14.3
-   lucky_flow:
-     github: luckyframework/lucky_flow
-     version: ~> 0.7.3
-diff --git a/spec/app/app_spec.cr b/spec/app/app_spec.cr
-deleted file mode 100644
-index 00c6fe7..0000000
---- a/spec/app/app_spec.cr
-+++ /dev/null
-@@ -1,7 +0,0 @@
--require "../spec_helper"
--
--describe App do
--  it "works" do
--    true.should be_false
--  end
--end
-diff --git a/spec/app/operations/mixins/save_user_name_spec.cr b/spec/app/operations/mixins/save_user_name_spec.cr
-new file mode 100644
-index 0000000..621e416
---- /dev/null
-+++ b/spec/app/operations/mixins/save_user_name_spec.cr
-@@ -0,0 +1,60 @@
-+require "../../../spec_helper"
-+
-+private class SaveUser < User::SaveOperation
-+  permit_columns :first_name, :last_name
-+
-+  before_save do
-+    email.value = "user@example.com"
-+    password_digest.value = "a1b2c3"
-+    level.value = UserLevel.new(:author)
-+  end
-+
-+  include SaveUserName
-+end
-+
-+describe SaveUserName do
-+  it "saves first and last names" do
-+    first_name = "Kofi"
-+    last_name = "Amoako"
-+
-+    SaveUser.create(params(
-+      first_name: first_name,
-+      last_name: last_name
-+    )) do |_, user|
-+      user.should be_a(User)
-+
-+      user.try do |user| # ameba:disable Lint/ShadowingOuterLocalVar
-+        user.first_name.should eq(first_name)
-+        user.last_name.should eq(last_name)
-+      end
-+    end
-+  end
-+
-+  it "requires first name" do
-+    SaveUser.create(params(last_name: "Nkrumah")) do |operation, _|
-+      operation.saved?.should be_false
-+      operation.first_name.should have_error("is required")
-+    end
-+  end
-+
-+  it "requires last name" do
-+    SaveUser.create(params(first_name: "Kwame")) do |operation, _|
-+      operation.saved?.should be_false
-+      operation.last_name.should have_error("is required")
-+    end
-+  end
-+
-+  it "requires valid first name format" do
-+    SaveUser.create(params(first_name: "K/L")) do |operation, _|
-+      operation.saved?.should be_false
-+      operation.first_name.should have_error("not a valid")
-+    end
-+  end
-+
-+  it "requires valid last name format" do
-+    SaveUser.create(params(last_name: "K/L")) do |operation, _|
-+      operation.saved?.should be_false
-+      operation.last_name.should have_error("not a valid")
-+    end
-+  end
-+end
-diff --git a/spec/setup/clean_database.cr b/spec/setup/clean_database.cr
-deleted file mode 100644
-index a1bc631..0000000
---- a/spec/setup/clean_database.cr
-+++ /dev/null
-@@ -1,3 +0,0 @@
--Spec.before_each do
--  AppDatabase.truncate
--end
-diff --git a/spec/setup/setup_database.cr b/spec/setup/database.cr
-similarity index 75%
-rename from spec/setup/setup_database.cr
-rename to spec/setup/database.cr
-index fca5460..eac522f 100644
---- a/spec/setup/setup_database.cr
+diff --git a/spec/setup/database.cr b/spec/setup/database.cr
+index eac522f..fca5460 100644
+--- a/spec/setup/database.cr
 +++ b/spec/setup/database.cr
-@@ -3,3 +3,5 @@ unless Bool.adapter.parse(ENV["SKIP_CREATE_DB"]?.to_s).value
+@@ -3,5 +3,3 @@ unless Bool.adapter.parse(ENV["SKIP_CREATE_DB"]?.to_s).value
  end
  
  Db::Migrate.new(quiet: true).call
-+
-+Spec.before_each { AppDatabase.truncate }
-diff --git a/spec/setup/email.cr b/spec/setup/email.cr
-new file mode 100644
-index 0000000..f6a1fcc
---- /dev/null
-+++ b/spec/setup/email.cr
-@@ -0,0 +1 @@
-+Spec.before_each { Carbon::DevAdapter.reset }
-diff --git a/spec/setup/configure_lucky_flow.cr b/spec/setup/flow.cr
-similarity index 100%
-rename from spec/setup/configure_lucky_flow.cr
-rename to spec/setup/flow.cr
-diff --git a/spec/setup/reset_emails.cr b/spec/setup/reset_emails.cr
-deleted file mode 100644
-index 140ab41..0000000
---- a/spec/setup/reset_emails.cr
-+++ /dev/null
-@@ -1,3 +0,0 @@
--Spec.before_each do
--  Carbon::DevAdapter.reset
--end
-diff --git a/spec/setup/start_app_server.cr b/spec/setup/server.cr
-similarity index 73%
-rename from spec/setup/start_app_server.cr
-rename to spec/setup/server.cr
-index ff0bfee..aa673e3 100644
---- a/spec/setup/start_app_server.cr
-+++ b/spec/setup/server.cr
-@@ -1,8 +1,6 @@
- app_server = AppServer.new
- 
--spawn do
--  app_server.listen
--end
-+spawn { app_server.listen }
- 
- Spec.after_suite do
-   LuckyFlow.shutdown
+-
+-Spec.before_each { AppDatabase.truncate }
 diff --git a/spec/spec_helper.cr b/spec/spec_helper.cr
-index 1aeb822..77b0103 100644
+index 77b0103..31992e5 100644
 --- a/spec/spec_helper.cr
 +++ b/spec/spec_helper.cr
-@@ -3,6 +3,7 @@ ENV["DEV_PORT"] = "5001"
+@@ -1,5 +1,4 @@
+ ENV["LUCKY_ENV"] = "test"
+-ENV["DEV_PORT"] = "5001"
  
  require "spec"
  require "lucky_flow"
-+
- require "../src/app"
- require "./support/flows/base_flow"
- require "./support/**"
-diff --git a/spec/support/factories/email_confirmation_factory.cr b/spec/support/factories/email_confirmation_factory.cr
-index 91b1b0a..f342533 100644
---- a/spec/support/factories/email_confirmation_factory.cr
-+++ b/spec/support/factories/email_confirmation_factory.cr
-@@ -8,9 +8,10 @@ class EmailConfirmationFactory < Avram::Factory
-   end
+@@ -21,6 +20,8 @@ include Carbon::Expectations
+ include Lucky::RequestExpectations
+ include LuckyFlow::Expectations
  
-   private def set_defaults
-+    active_at Time.utc
-     email "user@example.tld"
-     ip_address "1.2.3.4"
--    active_at Time.utc
-+    success true
-     token "123abcdefghijklmnopqrst"
-   end
- end
-diff --git a/spec/support/factories/password_reset_factory.cr b/spec/support/factories/password_reset_factory.cr
-index f74a5ef..da3cad9 100644
---- a/spec/support/factories/password_reset_factory.cr
-+++ b/spec/support/factories/password_reset_factory.cr
-@@ -8,8 +8,9 @@ class PasswordResetFactory < Avram::Factory
-   end
- 
-   private def set_defaults
--    ip_address "1.2.3.4"
-     active_at Time.utc
-+    ip_address "1.2.3.4"
-+    success true
-     token "123abcdefghijklmnopqrst"
-   end
- end
-diff --git a/spec/support/factories/user_factory.cr b/spec/support/factories/user_factory.cr
-index 491da9d..f4336d7 100644
---- a/spec/support/factories/user_factory.cr
-+++ b/spec/support/factories/user_factory.cr
-@@ -8,8 +8,10 @@ class UserFactory < Avram::Factory
-   end
- 
-   private def set_defaults
-+    first_name "Mary"
-+    last_name "Smith"
-     email "user@domain.tld"
--    level User::Level.new(:author)
-+    level UserLevel.new(:author)
-     password "password12U~password"
-   end
- end
-diff --git a/spec/support/factories/user_options_factory.cr b/spec/support/factories/user_options_factory.cr
-index 07fbfe9..16f7fc3 100644
---- a/spec/support/factories/user_options_factory.cr
-+++ b/spec/support/factories/user_options_factory.cr
-@@ -4,6 +4,7 @@ class UserOptionsFactory < Avram::Factory
-   end
- 
-   private def set_defaults
-+    bearer_login_notify true
-     login_notify true
-     password_notify true
-   end
-diff --git a/spec/support/flows/log_user_in_flow.cr b/spec/support/flows/log_user_in_flow.cr
-index a2f5f31..810d95f 100644
---- a/spec/support/flows/log_user_in_flow.cr
-+++ b/spec/support/flows/log_user_in_flow.cr
-@@ -4,7 +4,7 @@ class LogUserInFlow < BaseFlow
-   end
- 
-   def submit_login_details
--    fill_form LogUserIn,
-+    fill_form StartCurrentLogin,
-       email: "user@example.tld",
-       password: "passwo)rdA1passw8d*hgh"
- 
-diff --git a/src/actions/api/bearer_logins/create.cr b/src/actions/api/bearer_logins/create.cr
-deleted file mode 100644
-index cfaec89..0000000
---- a/src/actions/api/bearer_logins/create.cr
-+++ /dev/null
-@@ -1,7 +0,0 @@
--class Api::BearerLogins::Create < ApiAction
--  include Shield::Api::BearerLogins::Create
--
--  post "/bearer-logins" do
--    run_operation
--  end
--end
-diff --git a/src/actions/api/bearer_logins/index.cr b/src/actions/api/bearer_logins/index.cr
-index 4374853..890b4bf 100644
---- a/src/actions/api/bearer_logins/index.cr
-+++ b/src/actions/api/bearer_logins/index.cr
-@@ -4,15 +4,6 @@ class Api::BearerLogins::Index < ApiAction
-   param page : Int32 = 1
- 
-   get "/bearer-logins" do
--    json({
--      status: "success",
--      data: {
--        bearer_logins: BearerLoginSerializer.for_collection(bearer_logins)
--      },
--      pages: {
--        current: page,
--        total: pages.total
--      }
--    })
-+    json BearerLoginSerializer.new(bearer_logins: bearer_logins, pages: pages)
-   end
- end
-diff --git a/src/actions/api/current_user/bearer_logins/create.cr b/src/actions/api/current_user/bearer_logins/create.cr
-new file mode 100644
-index 0000000..ad6529f
---- /dev/null
-+++ b/src/actions/api/current_user/bearer_logins/create.cr
-@@ -0,0 +1,7 @@
-+class Api::CurrentUser::BearerLogins::Create < ApiAction
-+  include Shield::Api::CurrentUser::BearerLogins::Create
-+
-+  post "/account/bearer-logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/current_user/bearer_logins/destroy.cr b/src/actions/api/current_user/bearer_logins/destroy.cr
-new file mode 100644
-index 0000000..33f92c0
---- /dev/null
-+++ b/src/actions/api/current_user/bearer_logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::CurrentUser::BearerLogins::Destroy < ApiAction
-+  include Shield::Api::CurrentUser::BearerLogins::Destroy
-+
-+  delete "/account/bearer-logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/current_user/bearer_logins/index.cr b/src/actions/api/current_user/bearer_logins/index.cr
-new file mode 100644
-index 0000000..ebf261c
---- /dev/null
-+++ b/src/actions/api/current_user/bearer_logins/index.cr
-@@ -0,0 +1,9 @@
-+class Api::CurrentUser::BearerLogins::Index < ApiAction
-+  include Shield::Api::CurrentUser::BearerLogins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/bearer-logins" do
-+    json BearerLoginSerializer.new(bearer_logins: bearer_logins, pages: pages)
-+  end
-+end
-diff --git a/src/actions/api/current_user/email_confirmations/destroy.cr b/src/actions/api/current_user/email_confirmations/destroy.cr
-new file mode 100644
-index 0000000..550cd21
---- /dev/null
-+++ b/src/actions/api/current_user/email_confirmations/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::CurrentUser::EmailConfirmations::Destroy < ApiAction
-+  include Shield::Api::CurrentUser::EmailConfirmations::Destroy
-+
-+  delete "/account/email-confirmations" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/current_user/email_confirmations/index.cr b/src/actions/api/current_user/email_confirmations/index.cr
-new file mode 100644
-index 0000000..9573be5
---- /dev/null
-+++ b/src/actions/api/current_user/email_confirmations/index.cr
-@@ -0,0 +1,12 @@
-+class Api::CurrentUser::EmailConfirmations::Index < ApiAction
-+  include Shield::Api::CurrentUser::EmailConfirmations::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/email-confirmations" do
-+    json EmailConfirmationSerializer.new(
-+      email_confirmations: email_confirmations,
-+      pages: pages
-+    )
-+  end
-+end
-diff --git a/src/actions/api/current_user/logins/destroy.cr b/src/actions/api/current_user/logins/destroy.cr
-new file mode 100644
-index 0000000..eafe4d1
---- /dev/null
-+++ b/src/actions/api/current_user/logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::CurrentUser::Logins::Destroy < ApiAction
-+  include Shield::Api::CurrentUser::Logins::Destroy
-+
-+  delete "/account/logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/current_user/logins/index.cr b/src/actions/api/current_user/logins/index.cr
-new file mode 100644
-index 0000000..33fee13
---- /dev/null
-+++ b/src/actions/api/current_user/logins/index.cr
-@@ -0,0 +1,9 @@
-+class Api::CurrentUser::Logins::Index < ApiAction
-+  include Shield::Api::CurrentUser::Logins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/logins" do
-+    json LoginSerializer.new(logins: logins, pages: pages)
-+  end
-+end
-diff --git a/src/actions/api/current_user/password_resets/destroy.cr b/src/actions/api/current_user/password_resets/destroy.cr
-new file mode 100644
-index 0000000..6535ff4
---- /dev/null
-+++ b/src/actions/api/current_user/password_resets/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::CurrentUser::PasswordResets::Destroy < ApiAction
-+  include Shield::Api::CurrentUser::PasswordResets::Destroy
-+
-+  delete "/account/password-resets" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/current_user/password_resets/index.cr b/src/actions/api/current_user/password_resets/index.cr
-new file mode 100644
-index 0000000..9a79195
---- /dev/null
-+++ b/src/actions/api/current_user/password_resets/index.cr
-@@ -0,0 +1,12 @@
-+class Api::CurrentUser::PasswordResets::Index < ApiAction
-+  include Shield::Api::CurrentUser::PasswordResets::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/password-resets" do
-+    json PasswordResetSerializer.new(
-+      password_resets: password_resets,
-+      pages: pages
-+    )
-+  end
-+end
-diff --git a/src/actions/api/current_user/show.cr b/src/actions/api/current_user/show.cr
-index 9a5adea..64f00e9 100644
---- a/src/actions/api/current_user/show.cr
-+++ b/src/actions/api/current_user/show.cr
-@@ -2,9 +2,6 @@ class Api::CurrentUser::Show < ApiAction
-   include Shield::Api::EmailConfirmationCurrentUser::Show
- 
-   get "/account" do
--    json({
--      status: "success",
--      data: {user: UserSerializer.new(user)}
--    })
-+    json UserSerializer.new(user: user)
-   end
- end
-diff --git a/src/actions/api/email_confirmations/destroy.cr b/src/actions/api/email_confirmations/destroy.cr
-new file mode 100644
-index 0000000..e1d34cf
---- /dev/null
-+++ b/src/actions/api/email_confirmations/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::EmailConfirmations::Destroy < ApiAction
-+  include Shield::Api::EmailConfirmations::Destroy
-+
-+  delete "/email-confirmations/:email_confirmation_id" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/email_confirmations/edit.cr b/src/actions/api/email_confirmations/edit.cr
-deleted file mode 100644
-index 5ab1a64..0000000
---- a/src/actions/api/email_confirmations/edit.cr
-+++ /dev/null
-@@ -1,7 +0,0 @@
--class Api::EmailConfirmations::Edit < ApiAction
--  include Shield::Api::EmailConfirmations::Edit
--
--  patch "/email-confirmations" do
--    run_operation
--  end
--end
-diff --git a/src/actions/api/email_confirmations/index.cr b/src/actions/api/email_confirmations/index.cr
-new file mode 100644
-index 0000000..c552e09
---- /dev/null
-+++ b/src/actions/api/email_confirmations/index.cr
-@@ -0,0 +1,12 @@
-+class Api::EmailConfirmations::Index < ApiAction
-+  include Shield::Api::EmailConfirmations::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/email-confirmations" do
-+    json EmailConfirmationSerializer.new(
-+      email_confirmations: email_confirmations,
-+      pages: pages
-+    )
-+  end
-+end
-diff --git a/src/actions/api/email_confirmations/update.cr b/src/actions/api/email_confirmations/update.cr
-new file mode 100644
-index 0000000..953b8d3
---- /dev/null
-+++ b/src/actions/api/email_confirmations/update.cr
-@@ -0,0 +1,9 @@
-+class Api::EmailConfirmations::Update < ApiAction
-+  include Shield::Api::EmailConfirmations::Update
-+
-+  skip :pin_email_confirmation_to_ip_address
-+
-+  patch "/email-confirmations" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/email_confirmations/verify.cr b/src/actions/api/email_confirmations/verify.cr
-new file mode 100644
-index 0000000..9214c6d
---- /dev/null
-+++ b/src/actions/api/email_confirmations/verify.cr
-@@ -0,0 +1,9 @@
-+class Api::EmailConfirmations::Verify < ApiAction
-+  include Shield::Api::EmailConfirmations::Verify
-+
-+  skip :pin_email_confirmation_to_ip_address
-+
-+  post "/email-confirmations/verify" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/logins/index.cr b/src/actions/api/logins/index.cr
-index 447041c..7bdb30a 100644
---- a/src/actions/api/logins/index.cr
-+++ b/src/actions/api/logins/index.cr
-@@ -4,13 +4,6 @@ class Api::Logins::Index < ApiAction
-   param page : Int32 = 1
- 
-   get "/logins" do
--    json({
--      status: "success",
--      data: {logins: LoginSerializer.for_collection(logins)},
--      pages: {
--        current: page,
--        total: pages.total
--      }
--    })
-+    json LoginSerializer.new(logins: logins, pages: pages)
-   end
- end
-diff --git a/src/actions/api/password_resets/destroy.cr b/src/actions/api/password_resets/destroy.cr
-new file mode 100644
-index 0000000..47ceac3
---- /dev/null
-+++ b/src/actions/api/password_resets/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::PasswordResets::Destroy < ApiAction
-+  include Shield::Api::PasswordResets::Destroy
-+
-+  delete "/password-resets/:password_reset_id" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/password_resets/index.cr b/src/actions/api/password_resets/index.cr
-new file mode 100644
-index 0000000..7acdee4
---- /dev/null
-+++ b/src/actions/api/password_resets/index.cr
-@@ -0,0 +1,12 @@
-+class Api::PasswordResets::Index < ApiAction
-+  include Shield::Api::PasswordResets::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/password-resets" do
-+    json PasswordResetSerializer.new(
-+      password_resets: password_resets,
-+      pages: pages
-+    )
-+  end
-+end
-diff --git a/src/actions/api/password_resets/update.cr b/src/actions/api/password_resets/update.cr
-index 196a5bb..01be54c 100644
---- a/src/actions/api/password_resets/update.cr
-+++ b/src/actions/api/password_resets/update.cr
-@@ -1,6 +1,8 @@
- class Api::PasswordResets::Update < ApiAction
-   include Shield::Api::PasswordResets::Update
- 
-+  skip :pin_password_reset_to_ip_address
-+
-   patch "/password-resets" do
-     run_operation
-   end
-diff --git a/src/actions/api/password_resets/verify.cr b/src/actions/api/password_resets/verify.cr
-new file mode 100644
-index 0000000..a9a4d87
---- /dev/null
-+++ b/src/actions/api/password_resets/verify.cr
-@@ -0,0 +1,9 @@
-+class Api::PasswordResets::Verify < ApiAction
-+  include Shield::Api::PasswordResets::Verify
-+
-+  skip :pin_password_reset_to_ip_address
-+
-+  post "/password-resets/verify" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/users/bearer_logins/destroy.cr b/src/actions/api/users/bearer_logins/destroy.cr
-new file mode 100644
-index 0000000..65a22ba
---- /dev/null
-+++ b/src/actions/api/users/bearer_logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::Users::BearerLogins::Destroy < ApiAction
-+  include Shield::Api::Users::BearerLogins::Destroy
-+
-+  delete "/users/:user_id/bearer-logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/users/bearer_logins/index.cr b/src/actions/api/users/bearer_logins/index.cr
-new file mode 100644
-index 0000000..c489f60
---- /dev/null
-+++ b/src/actions/api/users/bearer_logins/index.cr
-@@ -0,0 +1,13 @@
-+class Api::Users::BearerLogins::Index < ApiAction
-+  include Shield::Api::Users::BearerLogins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/bearer-logins" do
-+    json BearerLoginSerializer.new(
-+      bearer_logins: bearer_logins,
-+      user: user,
-+      pages: pages
-+    )
-+  end
-+end
-diff --git a/src/actions/api/users/email_confirmations/destroy.cr b/src/actions/api/users/email_confirmations/destroy.cr
-new file mode 100644
-index 0000000..8e2594c
---- /dev/null
-+++ b/src/actions/api/users/email_confirmations/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::Users::EmailConfirmations::Destroy < ApiAction
-+  include Shield::Api::Users::EmailConfirmations::Destroy
-+
-+  delete "/users/:user_id/email-confirmations" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/users/email_confirmations/index.cr b/src/actions/api/users/email_confirmations/index.cr
-new file mode 100644
-index 0000000..7f3b9a7
---- /dev/null
-+++ b/src/actions/api/users/email_confirmations/index.cr
-@@ -0,0 +1,13 @@
-+class Api::Users::EmailConfirmations::Index < ApiAction
-+  include Shield::Api::Users::EmailConfirmations::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/email-confirmations" do
-+    json EmailConfirmationSerializer.new(
-+      email_confirmations: email_confirmations,
-+      user: user,
-+      pages: pages
-+    )
-+  end
-+end
-diff --git a/src/actions/api/users/index.cr b/src/actions/api/users/index.cr
-index 0d4e4ab..41539a9 100644
---- a/src/actions/api/users/index.cr
-+++ b/src/actions/api/users/index.cr
-@@ -4,13 +4,6 @@ class Api::Users::Index < ApiAction
-   param page : Int32 = 1
- 
-   get "/users" do
--    json({
--      status: "success",
--      data: {users: UserSerializer.for_collection(users)},
--      pages: {
--        current: page,
--        total: pages.total
--      }
--    })
-+    json UserSerializer.new(users: users, pages: pages)
-   end
- end
-diff --git a/src/actions/api/users/logins/destroy.cr b/src/actions/api/users/logins/destroy.cr
-new file mode 100644
-index 0000000..c8994bc
---- /dev/null
-+++ b/src/actions/api/users/logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::Users::Logins::Destroy < ApiAction
-+  include Shield::Api::Users::Logins::Destroy
-+
-+  delete "/users/:user_id/logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/users/logins/index.cr b/src/actions/api/users/logins/index.cr
-new file mode 100644
-index 0000000..19c85f4
---- /dev/null
-+++ b/src/actions/api/users/logins/index.cr
-@@ -0,0 +1,9 @@
-+class Api::Users::Logins::Index < ApiAction
-+  include Shield::Api::Users::Logins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/logins" do
-+    json LoginSerializer.new(logins: logins, user: user, pages: pages)
-+  end
-+end
-diff --git a/src/actions/api/users/password_resets/destroy.cr b/src/actions/api/users/password_resets/destroy.cr
-new file mode 100644
-index 0000000..99cab90
---- /dev/null
-+++ b/src/actions/api/users/password_resets/destroy.cr
-@@ -0,0 +1,7 @@
-+class Api::Users::PasswordResets::Destroy < ApiAction
-+  include Shield::Api::Users::PasswordResets::Destroy
-+
-+  delete "/users/:user_id/password-resets" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/users/password_resets/index.cr b/src/actions/api/users/password_resets/index.cr
-new file mode 100644
-index 0000000..dd6a445
---- /dev/null
-+++ b/src/actions/api/users/password_resets/index.cr
-@@ -0,0 +1,13 @@
-+class Api::Users::PasswordResets::Index < ApiAction
-+  include Shield::Api::Users::PasswordResets::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/password-resets" do
-+    json PasswordResetSerializer.new(
-+      password_resets: password_resets,
-+      user: user,
-+      pages: pages
-+    )
-+  end
-+end
-diff --git a/src/actions/api/users/show.cr b/src/actions/api/users/show.cr
-index 97a38b3..d3775fb 100644
---- a/src/actions/api/users/show.cr
-+++ b/src/actions/api/users/show.cr
-@@ -2,9 +2,6 @@ class Api::Users::Show < ApiAction
-   include Shield::Api::Users::Show
- 
-   get "/users/:user_id" do
--    json({
--      status: "success",
--      data: {user: UserSerializer.new(user)}
--    })
-+    json UserSerializer.new(user: user)
-   end
- end
-diff --git a/src/actions/api_action.cr b/src/actions/api_action.cr
-index 027b148..d10019a 100644
---- a/src/actions/api_action.cr
-+++ b/src/actions/api_action.cr
-@@ -5,6 +5,8 @@ abstract class ApiAction < Lucky::Action
- 
-   route_prefix "/api/v0"
- 
-+  disable_cookies
-+
-   def authorize?(user : User)  : Bool
-     user.level.admin?
-   end
-diff --git a/src/actions/bearer_logins/create.cr b/src/actions/bearer_logins/create.cr
-deleted file mode 100644
-index 0a094ea..0000000
---- a/src/actions/bearer_logins/create.cr
-+++ /dev/null
-@@ -1,7 +0,0 @@
--class BearerLogins::Create < BrowserAction
--  include Shield::BearerLogins::Create
--
--  post "/bearer-logins" do
--    run_operation
--  end
--end
-diff --git a/src/actions/bearer_logins/show.cr b/src/actions/bearer_logins/show.cr
-new file mode 100644
-index 0000000..cff88c4
---- /dev/null
-+++ b/src/actions/bearer_logins/show.cr
-@@ -0,0 +1,9 @@
-+class BearerLogins::Show < BrowserAction
-+  include Shield::BearerLogins::Show
-+
-+  param page : Int32 = 1
-+
-+  get "/bearer-logins/:bearer_login_id" do
-+    html ShowPage, bearer_login: bearer_login, token: token
-+  end
-+end
-diff --git a/src/actions/current_login/new.cr b/src/actions/current_login/new.cr
-index 1616545..a9c67da 100644
---- a/src/actions/current_login/new.cr
-+++ b/src/actions/current_login/new.cr
-@@ -2,7 +2,7 @@ class CurrentLogin::New < BrowserAction
-   include Shield::CurrentLogin::New
- 
-   get "/login" do
--    operation = LogUserIn.new(remote_ip: remote_ip?, session: session)
-+    operation = StartCurrentLogin.new(remote_ip: remote_ip?, session: session)
-     html NewPage, operation: operation
-   end
- end
-diff --git a/src/actions/current_user/bearer_logins/create.cr b/src/actions/current_user/bearer_logins/create.cr
-new file mode 100644
-index 0000000..475ad33
---- /dev/null
-+++ b/src/actions/current_user/bearer_logins/create.cr
-@@ -0,0 +1,7 @@
-+class CurrentUser::BearerLogins::Create < BrowserAction
-+  include Shield::CurrentUser::BearerLogins::Create
-+
-+  post "/account/bearer-logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/current_user/bearer_logins/destroy.cr b/src/actions/current_user/bearer_logins/destroy.cr
-new file mode 100644
-index 0000000..96c96d3
---- /dev/null
-+++ b/src/actions/current_user/bearer_logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class CurrentUser::BearerLogins::Destroy < BrowserAction
-+  include Shield::CurrentUser::BearerLogins::Destroy
-+
-+  delete "/account/bearer-logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/current_user/bearer_logins/index.cr b/src/actions/current_user/bearer_logins/index.cr
-new file mode 100644
-index 0000000..b7d2c72
---- /dev/null
-+++ b/src/actions/current_user/bearer_logins/index.cr
-@@ -0,0 +1,9 @@
-+class CurrentUser::BearerLogins::Index < BrowserAction
-+  include Shield::CurrentUser::BearerLogins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/bearer-logins" do
-+    html IndexPage, bearer_logins: bearer_logins, pages: pages
-+  end
-+end
-diff --git a/src/actions/bearer_logins/new.cr b/src/actions/current_user/bearer_logins/new.cr
-similarity index 55%
-rename from src/actions/bearer_logins/new.cr
-rename to src/actions/current_user/bearer_logins/new.cr
-index 056b3d5..e8efafe 100644
---- a/src/actions/bearer_logins/new.cr
-+++ b/src/actions/current_user/bearer_logins/new.cr
-@@ -1,7 +1,7 @@
--class BearerLogins::New < BrowserAction
--  include Shield::BearerLogins::New
-+class CurrentUser::BearerLogins::New < BrowserAction
-+  include Shield::CurrentUser::BearerLogins::New
- 
--  get "/bearer-logins/new" do
-+  get "/account/bearer-logins/new" do
-     operation = CreateBearerLogin.new(
-       user: user,
-       allowed_scopes: BearerScope.action_scopes.map(&.to_s)
-diff --git a/src/actions/current_user/email_confirmations/destroy.cr b/src/actions/current_user/email_confirmations/destroy.cr
-new file mode 100644
-index 0000000..180fb52
---- /dev/null
-+++ b/src/actions/current_user/email_confirmations/destroy.cr
-@@ -0,0 +1,7 @@
-+class CurrentUser::EmailConfirmations::Destroy < BrowserAction
-+  include Shield::CurrentUser::EmailConfirmations::Destroy
-+
-+  delete "/account/email-confirmations" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/current_user/email_confirmations/index.cr b/src/actions/current_user/email_confirmations/index.cr
-new file mode 100644
-index 0000000..beb7921
---- /dev/null
-+++ b/src/actions/current_user/email_confirmations/index.cr
-@@ -0,0 +1,9 @@
-+class CurrentUser::EmailConfirmations::Index < BrowserAction
-+  include Shield::CurrentUser::EmailConfirmations::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/email-confirmations" do
-+    html IndexPage, email_confirmations: email_confirmations, pages: pages
-+  end
-+end
-diff --git a/src/actions/current_user/logins/destroy.cr b/src/actions/current_user/logins/destroy.cr
-new file mode 100644
-index 0000000..62d0b80
---- /dev/null
-+++ b/src/actions/current_user/logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class CurrentUser::Logins::Destroy < BrowserAction
-+  include Shield::CurrentUser::Logins::Destroy
-+
-+  delete "/account/logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/current_user/logins/index.cr b/src/actions/current_user/logins/index.cr
-new file mode 100644
-index 0000000..6c7de34
---- /dev/null
-+++ b/src/actions/current_user/logins/index.cr
-@@ -0,0 +1,9 @@
-+class CurrentUser::Logins::Index < BrowserAction
-+  include Shield::CurrentUser::Logins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/logins" do
-+    html IndexPage, logins: logins, pages: pages
-+  end
-+end
-diff --git a/src/actions/current_user/password_resets/destroy.cr b/src/actions/current_user/password_resets/destroy.cr
-new file mode 100644
-index 0000000..a4cab18
---- /dev/null
-+++ b/src/actions/current_user/password_resets/destroy.cr
-@@ -0,0 +1,7 @@
-+class CurrentUser::PasswordResets::Destroy < BrowserAction
-+  include Shield::CurrentUser::PasswordResets::Destroy
-+
-+  delete "/account/password-resets" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/current_user/password_resets/index.cr b/src/actions/current_user/password_resets/index.cr
-new file mode 100644
-index 0000000..8213f79
---- /dev/null
-+++ b/src/actions/current_user/password_resets/index.cr
-@@ -0,0 +1,9 @@
-+class CurrentUser::PasswordResets::Index < BrowserAction
-+  include Shield::CurrentUser::PasswordResets::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/account/password-resets" do
-+    html IndexPage, password_resets: password_resets, pages: pages
-+  end
-+end
-diff --git a/src/actions/email_confirmations/destroy.cr b/src/actions/email_confirmations/destroy.cr
-new file mode 100644
-index 0000000..adbaa5c
---- /dev/null
-+++ b/src/actions/email_confirmations/destroy.cr
-@@ -0,0 +1,7 @@
-+class EmailConfirmations::Destroy < BrowserAction
-+  include Shield::EmailConfirmations::Destroy
-+
-+  delete "/email-confirmations/:email_confirmation_id" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/email_confirmations/edit.cr b/src/actions/email_confirmations/edit.cr
-deleted file mode 100644
-index 9301302..0000000
---- a/src/actions/email_confirmations/edit.cr
-+++ /dev/null
-@@ -1,9 +0,0 @@
--class EmailConfirmations::Edit < BrowserAction
--  include Shield::EmailConfirmations::Edit
--
--  skip :pin_email_confirmation_to_ip_address
--
--  get "/email-confirmations/edit" do
--    run_operation
--  end
--end
-diff --git a/src/actions/email_confirmations/index.cr b/src/actions/email_confirmations/index.cr
-new file mode 100644
-index 0000000..507016f
---- /dev/null
-+++ b/src/actions/email_confirmations/index.cr
-@@ -0,0 +1,9 @@
-+class EmailConfirmations::Index < BrowserAction
-+  include Shield::EmailConfirmations::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/email-confirmations" do
-+    html IndexPage, email_confirmations: email_confirmations, pages: pages
-+  end
-+end
-diff --git a/src/actions/email_confirmations/show.cr b/src/actions/email_confirmations/show.cr
-index 1702c80..dee5e89 100644
---- a/src/actions/email_confirmations/show.cr
-+++ b/src/actions/email_confirmations/show.cr
-@@ -1,9 +1,7 @@
- class EmailConfirmations::Show < BrowserAction
-   include Shield::EmailConfirmations::Show
- 
--  param token : String
--
--  get "/email-confirmations" do
-+  get "/email-confirmations/:token" do
-     run_operation
-   end
- end
-diff --git a/src/actions/email_confirmations/update.cr b/src/actions/email_confirmations/update.cr
-new file mode 100644
-index 0000000..2bfc3fd
---- /dev/null
-+++ b/src/actions/email_confirmations/update.cr
-@@ -0,0 +1,9 @@
-+class EmailConfirmations::Update < BrowserAction
-+  include Shield::EmailConfirmations::Update
-+
-+  skip :pin_email_confirmation_to_ip_address
-+
-+  get "/email-confirmations/update" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/errors/show.cr b/src/actions/errors/show.cr
-index 51dfa41..f48fd70 100644
---- a/src/actions/errors/show.cr
-+++ b/src/actions/errors/show.cr
-@@ -6,6 +6,8 @@ class Errors::Show < Lucky::ErrorAction
-   default_format :html
-   dont_report [Lucky::RouteNotFoundError]
- 
-+  disable_cookies
-+
-   def render(error : Lucky::RouteNotFoundError)
-     if html?
-       error_html "Sorry, we couldn't find that page.", status: 404
-@@ -63,14 +65,14 @@ class Errors::Show < Lucky::ErrorAction
-     details = nil,
-     param = nil
-   )
--    json({
--      status: "error",
--      data: {error: ErrorSerializer.new(
--        message: message,
-+    json(
-+      ErrorSerializer.new(
-+        error_message: message,
-         details: details,
-         param: param
--      )}
--    }, status: status)
-+      ),
-+      status: status
-+    )
-   end
- 
-   private def report(error : Exception) : Nil
-diff --git a/src/actions/password_resets/destroy.cr b/src/actions/password_resets/destroy.cr
-new file mode 100644
-index 0000000..e1055db
---- /dev/null
-+++ b/src/actions/password_resets/destroy.cr
-@@ -0,0 +1,7 @@
-+class PasswordResets::Destroy < BrowserAction
-+  include Shield::PasswordResets::Destroy
-+
-+  delete "/password-resets/:password_reset_id" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/password_resets/edit.cr b/src/actions/password_resets/edit.cr
-index 864ed82..bb29fa6 100644
---- a/src/actions/password_resets/edit.cr
-+++ b/src/actions/password_resets/edit.cr
-@@ -1,6 +1,8 @@
- class PasswordResets::Edit < BrowserAction
-   include Shield::PasswordResets::Edit
- 
-+  skip :pin_password_reset_to_ip_address
-+
-   get "/password-resets/edit" do
-     run_operation
-   end
-diff --git a/src/actions/password_resets/index.cr b/src/actions/password_resets/index.cr
-new file mode 100644
-index 0000000..ffcddcd
---- /dev/null
-+++ b/src/actions/password_resets/index.cr
-@@ -0,0 +1,9 @@
-+class PasswordResets::Index < BrowserAction
-+  include Shield::PasswordResets::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/password-resets" do
-+    html IndexPage, password_resets: password_resets, pages: pages
-+  end
-+end
-diff --git a/src/actions/password_resets/show.cr b/src/actions/password_resets/show.cr
-index 321b877..cf3e234 100644
---- a/src/actions/password_resets/show.cr
-+++ b/src/actions/password_resets/show.cr
-@@ -1,9 +1,7 @@
- class PasswordResets::Show < BrowserAction
-   include Shield::PasswordResets::Show
- 
--  param token : String
--
--  get "/password-resets" do
-+  get "/password-resets/:token" do
-     run_operation
-   end
- end
-diff --git a/src/actions/password_resets/update.cr b/src/actions/password_resets/update.cr
-index 3610510..2e613f5 100644
---- a/src/actions/password_resets/update.cr
-+++ b/src/actions/password_resets/update.cr
-@@ -1,6 +1,8 @@
- class PasswordResets::Update < BrowserAction
-   include Shield::PasswordResets::Update
- 
-+  skip :pin_password_reset_to_ip_address
-+
-   patch "/password-resets" do
-     run_operation
-   end
-diff --git a/src/actions/users/bearer_logins/destroy.cr b/src/actions/users/bearer_logins/destroy.cr
-new file mode 100644
-index 0000000..c78e9c5
---- /dev/null
-+++ b/src/actions/users/bearer_logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Users::BearerLogins::Destroy < BrowserAction
-+  include Shield::Users::BearerLogins::Destroy
-+
-+  delete "/users/:user_id/bearer-logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/users/bearer_logins/index.cr b/src/actions/users/bearer_logins/index.cr
-new file mode 100644
-index 0000000..f02489e
---- /dev/null
-+++ b/src/actions/users/bearer_logins/index.cr
-@@ -0,0 +1,9 @@
-+class Users::BearerLogins::Index < BrowserAction
-+  include Shield::Users::BearerLogins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/bearer-logins" do
-+    html IndexPage, bearer_logins: bearer_logins, user: user, pages: pages
-+  end
-+end
-diff --git a/src/actions/users/email_confirmations/destroy.cr b/src/actions/users/email_confirmations/destroy.cr
-new file mode 100644
-index 0000000..ae2651f
---- /dev/null
-+++ b/src/actions/users/email_confirmations/destroy.cr
-@@ -0,0 +1,7 @@
-+class Users::EmailConfirmations::Destroy < BrowserAction
-+  include Shield::Users::EmailConfirmations::Destroy
-+
-+  delete "/users/:user_id/email-confirmations" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/users/email_confirmations/index.cr b/src/actions/users/email_confirmations/index.cr
-new file mode 100644
-index 0000000..822e869
---- /dev/null
-+++ b/src/actions/users/email_confirmations/index.cr
-@@ -0,0 +1,9 @@
-+class Users::EmailConfirmations::Index < BrowserAction
-+  include Shield::Users::EmailConfirmations::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/email-confirmations" do
-+    html IndexPage, email_confirmations: email_confirmations, user: user, pages: pages
-+  end
-+end
-diff --git a/src/actions/users/logins/destroy.cr b/src/actions/users/logins/destroy.cr
-new file mode 100644
-index 0000000..b5584df
---- /dev/null
-+++ b/src/actions/users/logins/destroy.cr
-@@ -0,0 +1,7 @@
-+class Users::Logins::Destroy < BrowserAction
-+  include Shield::Users::Logins::Destroy
-+
-+  delete "/users/:user_id/logins" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/users/logins/index.cr b/src/actions/users/logins/index.cr
-new file mode 100644
-index 0000000..c32391c
---- /dev/null
-+++ b/src/actions/users/logins/index.cr
-@@ -0,0 +1,9 @@
-+class Users::Logins::Index < BrowserAction
-+  include Shield::Users::Logins::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/logins" do
-+    html IndexPage, logins: logins, user: user, pages: pages
-+  end
-+end
-diff --git a/src/actions/users/password_resets/destroy.cr b/src/actions/users/password_resets/destroy.cr
-new file mode 100644
-index 0000000..dff07b8
---- /dev/null
-+++ b/src/actions/users/password_resets/destroy.cr
-@@ -0,0 +1,7 @@
-+class Users::PasswordResets::Destroy < BrowserAction
-+  include Shield::Users::PasswordResets::Destroy
-+
-+  delete "/users/:user_id/password-resets" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/users/password_resets/index.cr b/src/actions/users/password_resets/index.cr
-new file mode 100644
-index 0000000..4363128
---- /dev/null
-+++ b/src/actions/users/password_resets/index.cr
-@@ -0,0 +1,9 @@
-+class Users::PasswordResets::Index < BrowserAction
-+  include Shield::Users::PasswordResets::Index
-+
-+  param page : Int32 = 1
-+
-+  get "/users/:user_id/password-resets" do
-+    html IndexPage, password_resets: password_resets, user: user, pages: pages
-+  end
-+end
-diff --git a/src/app.cr b/src/app.cr
-index d31e5b9..5fc2488 100644
---- a/src/app.cr
-+++ b/src/app.cr
-@@ -28,6 +28,7 @@ require "./queries/**"
- require "./operations/mixins/**"
- require "./operations/**"
- require "./serializers/base_serializer"
-+require "./serializers/success_serializer"
- require "./serializers/**"
- require "./emails/base_email"
- require "./emails/**"
-@@ -37,6 +38,10 @@ require "./components/base_component"
- require "./components/**"
- require "./pages/mixins/**"
- require "./pages/**"
-+require "./utilities/mixins/**"
-+require "./utilities/**"
-+require "./handlers/base_handler"
-+require "./handlers/**"
- require "../config/env"
- require "../config/**"
- require "../db/migrations/**"
-diff --git a/src/app_server.cr b/src/app_server.cr
-index 2e26ffa..0f7a582 100644
---- a/src/app_server.cr
-+++ b/src/app_server.cr
-@@ -8,6 +8,7 @@ class AppServer < Lucky::BaseAppServer
-       Lucky::HttpMethodOverrideHandler.new,
-       Lucky::LogHandler.new,
-       Lucky::ErrorHandler.new(action: Errors::Show),
-+      CorsHandler.new,
-       Unslash::Handler.new(308, safe: false),
-       Lucky::RouteHandler.new,
-       Lucky::StaticCompressionHandler.new(
-diff --git a/src/components/menus/admin_primary.cr b/src/components/menus/admin_primary.cr
-new file mode 100644
-index 0000000..5bddc18
---- /dev/null
-+++ b/src/components/menus/admin_primary.cr
-@@ -0,0 +1,22 @@
-+class Menus::AdminPrimary < BaseComponent
-+  def render
-+    para do
-+      link Rex.t(:"page.menu.home"), to: Home::Index
-+      text " | "
-+      link Rex.t(:"page.menu.account"), to: CurrentUser::Show
-+      text " | "
-+      link Rex.t(:"page.menu.users"), to: Users::Index
-+      text " | "
-+      link Rex.t(:"page.menu.logins"), to: Logins::Index
-+      text " | "
-+      link Rex.t(:"page.menu.bearer_logins"), to: BearerLogins::Index
-+      text " | "
-+
-+      link Rex.t(:"page.menu.email_confirmations"),
-+        to: EmailConfirmations::Index
-+
-+      text " | "
-+      link Rex.t(:"page.menu.password_resets"), to: PasswordResets::Index
-+    end
-+  end
-+end
-diff --git a/src/components/menus/primary.cr b/src/components/menus/primary.cr
-index 0eb97b4..0d33713 100644
---- a/src/components/menus/primary.cr
-+++ b/src/components/menus/primary.cr
-@@ -1,15 +1,25 @@
- class Menus::Primary < BaseComponent
-   def render
-     para do
--      link "Home", to: Home::Index
-+      link Rex.t(:"page.menu.home"), to: Home::Index
-       text " | "
--      link "Account", to: CurrentUser::Show
-+      link Rex.t(:"page.menu.account"), to: CurrentUser::Show
-       text " | "
--      link "Users", to: Users::Index
-+      link Rex.t(:"page.menu.logins"), to: CurrentUser::Logins::Index
-       text " | "
--      link "Logins", to: Logins::Index
-+
-+      link Rex.t(:"page.menu.bearer_logins"),
-+        to: CurrentUser::BearerLogins::Index
-+
-       text " | "
--      link "Bearer logins", to: BearerLogins::Index
-+
-+      link Rex.t(:"page.menu.email_confirmations"),
-+        to: CurrentUser::EmailConfirmations::Index
-+
-+      text " | "
-+
-+      link Rex.t(:"page.menu.password_resets"),
-+        to: CurrentUser::PasswordResets::Index
-     end
-   end
- end
-diff --git a/src/components/shared/field_errors.cr b/src/components/shared/field_errors.cr
-index 72c9835..2b4f971 100644
---- a/src/components/shared/field_errors.cr
-+++ b/src/components/shared/field_errors.cr
-@@ -5,12 +5,8 @@ class Shared::FieldErrors(T) < BaseComponent
-   def render
-     unless attribute.valid?
-       span class: "error" do
--        text "#{label_text} #{attribute.errors.first}"
-+        text attribute.errors.first
-       end
-     end
-   end
--
--  def label_text : String
--    Wordsmith::Inflector.humanize(attribute.name.to_s)
--  end
- end
++Avram::SpecHelper.use_transactional_specs(AppDatabase)
++
+ Avram::Migrator::Runner.new.ensure_migrated!
+ Avram::SchemaEnforcer.ensure_correct_column_mappings!
+ Habitat.raise_if_missing_settings!
 diff --git a/src/emails/bearer_login_notification_email.cr b/src/emails/bearer_login_notification_email.cr
-index b8c344c..fe11953 100644
+index fe11953..8fa6f24 100644
 --- a/src/emails/bearer_login_notification_email.cr
 +++ b/src/emails/bearer_login_notification_email.cr
-@@ -5,7 +5,7 @@ class BearerLoginNotificationEmail < BaseEmail
-   header "Reply-To", App.settings.email_reply_to
- 
-   private def receiver
--    @bearer_login.user!
-+    @bearer_login.user
+@@ -9,27 +9,24 @@ class BearerLoginNotificationEmail < BaseEmail
    end
  
    private def heading
-@@ -14,16 +14,17 @@ class BearerLoginNotificationEmail < BaseEmail
+-    "New bearer login token created"
++    Rex.t(
++      :"email.bearer_login_notification.subject",
++      app_name: App.settings.name
++    )
+   end
  
    private def text_message : String
-     <<-TEXT
--    Hi #{@bearer_login.user!.first_name},
-+    Hi #{@bearer_login.user.first_name},
+-    <<-TEXT
+-    Hi #{@bearer_login.user.first_name},
+-
+-    This is to let you know that a new bearer login token was created for your
+-    #{App.settings.name} account.
+-
+-    =====
+-    Date: #{@bearer_login.active_at.to_s(date_time_format)}
+-    Name: #{@bearer_login.name}
+-    =====
+-
+-    If you did not authorize this, let us know immediately in your reply
+-    to this message. Otherwise, you may safely ignore this email.
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    user = @bearer_login.user
++
++    Rex.t(
++      :"email.bearer_login_notification.body",
++      app_name: App.settings.name,
++      first_name: user.first_name,
++      last_name: user.last_name,
++      full_name: user.full_name,
++      active_time: @bearer_login.active_at.to_s(date_time_format),
++      bearer_login_name: @bearer_login.name
++    )
+   end
  
-     This is to let you know that a new bearer login token was created for your
-     #{App.settings.name} account.
+   private def date_time_format
+diff --git a/src/emails/email_confirmation_request_email.cr b/src/emails/email_confirmation_request_email.cr
+index c1c3a5e..b2861d0 100644
+--- a/src/emails/email_confirmation_request_email.cr
++++ b/src/emails/email_confirmation_request_email.cr
+@@ -10,27 +10,18 @@ class EmailConfirmationRequestEmail < BaseEmail
+   end
  
-     =====
-     Date: #{@bearer_login.active_at.to_s(date_time_format)}
-+    Name: #{@bearer_login.name}
-     =====
+   private def heading
+-    "Confirm your email"
++    Rex.t(
++      :"email.email_confirmation_request.subject",
++      app_name: App.settings.name
++    )
+   end
  
--    If you did not log in yourself, let us know immediately in your reply
-+    If you did not authorize this, let us know immediately in your reply
-     to this message. Otherwise, you may safely ignore this email.
+   private def text_message : String
+-    <<-TEXT
+-    Hi,
+-
+-    You (or someone else) entered this email address while
+-    registering for a new #{App.settings.name} account, or updating their email
+-    address.
+-
+-    To proceed to confirm your email, click the link below:
+-
+-    #{EmailConfirmationUrl.new(@operation, @email_confirmation)}
+-
+-    This email confirmation link will expire in #{Shield.settings.email_confirmation_expiry.total_minutes.to_i} minutes.
+-
+-    If you did not initiate this request, ignore this email.
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    Rex.t(
++      :"email.email_confirmation_request.body",
++      app_name: App.settings.name,
++      link: EmailConfirmationUrl.new(@operation, @email_confirmation),
++      link_expiry: Shield.settings.email_confirmation_expiry.total_minutes.to_i,
++    )
+   end
+ end
+diff --git a/src/emails/guest_password_reset_request_email.cr b/src/emails/guest_password_reset_request_email.cr
+index a342ab6..c2bc76c 100644
+--- a/src/emails/guest_password_reset_request_email.cr
++++ b/src/emails/guest_password_reset_request_email.cr
+@@ -7,23 +7,16 @@ class GuestPasswordResetRequestEmail < BaseEmail
+   end
  
-     Regards,
+   private def heading
+-    "Password reset failed"
++    Rex.t(
++      :"email.guest_password_reset_request.subject",
++      app_name: App.settings.name
++    )
+   end
+ 
+   private def text_message : String
+-    <<-TEXT
+-    Hi,
+-
+-    You (or someone else) entered this email address while trying to change the password of a #{App.settings.name} account.
+-
+-    However, this email address is not in our database. Therefore, the attempted password change has failed.
+-
+-    If you are a #{App.settings.name} user and were expecting this email, you may try again using the email address you gave when you registered your account.
+-
+-    If you are not a #{App.settings.name} user, ignore this email.
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    Rex.t(
++      :"email.guest_password_reset_request.body",
++      app_name: App.settings.name
++    )
+   end
+ end
 diff --git a/src/emails/login_notification_email.cr b/src/emails/login_notification_email.cr
-index c867ea1..c84e147 100644
+index c84e147..b5979b3 100644
 --- a/src/emails/login_notification_email.cr
 +++ b/src/emails/login_notification_email.cr
-@@ -1,11 +1,11 @@
- class LoginNotificationEmail < BaseEmail
--  def initialize(@operation : LogUserIn, @login : Login)
-+  def initialize(@operation : StartCurrentLogin, @login : Login)
-   end
- 
-   header "Reply-To", App.settings.email_reply_to
- 
-   private def receiver
--    @login.user!
-+    @login.user
+@@ -9,27 +9,21 @@ class LoginNotificationEmail < BaseEmail
    end
  
    private def heading
-@@ -14,7 +14,7 @@ class LoginNotificationEmail < BaseEmail
+-    "Successful login"
++    Rex.t(:"email.login_notification.subject", app_name: App.settings.name)
+   end
  
    private def text_message : String
-     <<-TEXT
--    Hi #{@login.user!.first_name},
-+    Hi #{@login.user.first_name},
+-    <<-TEXT
+-    Hi #{@login.user.first_name},
+-
+-    This is to let you know that your #{App.settings.name} account has just been
+-    accessed.
+-
+-    =====
+-    Date: #{@login.active_at.to_s(date_time_format)}
+-    IP Address: #{@login.ip_address}
+-    =====
+-
+-    If this was not you, let us know immediately in your reply to this message.
+-    Otherwise, you may safely ignore this email.
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    user = @login.user
++
++    Rex.t(
++      :"email.login_notification.body",
++      app_name: App.settings.name,
++      first_name: user.first_name,
++      last_name: user.last_name,
++      full_name: user.full_name,
++      login_time: @login.active_at.to_s(date_time_format),
++      ip_address: @login.ip_address
++    )
+   end
  
-     This is to let you know that your #{App.settings.name} account has just been
-     accessed.
-@@ -24,8 +24,8 @@ class LoginNotificationEmail < BaseEmail
-     IP Address: #{@login.ip_address}
-     =====
+   private def date_time_format
+diff --git a/src/emails/password_change_notification_email.cr b/src/emails/password_change_notification_email.cr
+index 295dfec..664c018 100644
+--- a/src/emails/password_change_notification_email.cr
++++ b/src/emails/password_change_notification_email.cr
+@@ -9,19 +9,19 @@ class PasswordChangeNotificationEmail < BaseEmail
+   end
  
--    If you did not log in yourself, let us know immediately in your reply
--    to this message. Otherwise, you may safely ignore this email.
-+    If this was not you, let us know immediately in your reply to this message.
-+    Otherwise, you may safely ignore this email.
+   private def heading
+-    "Your password has changed"
++    Rex.t(
++      :"email.password_change_notification.subject",
++      app_name: App.settings.name
++    )
+   end
  
-     Regards,
-     #{App.settings.name}.
+   private def text_message : String
+-    <<-TEXT
+-    Hi #{@user.first_name},
+-
+-    This is to let you know that the password for your #{App.settings.name} account has just been changed.
+-
+-    If you did not authorize this change, let us know immediately in your reply to this message. Otherwise, you may safely ignore this email.
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    Rex.t(
++      :"email.password_change_notification.body",
++      app_name: App.settings.name,
++      first_name: @user.first_name,
++      last_name: @user.last_name,
++      full_name: @user.full_name
++    )
+   end
+ end
 diff --git a/src/emails/password_reset_request_email.cr b/src/emails/password_reset_request_email.cr
-index 026abb6..ed2a0a8 100644
+index ed2a0a8..5e477f4 100644
 --- a/src/emails/password_reset_request_email.cr
 +++ b/src/emails/password_reset_request_email.cr
-@@ -6,7 +6,7 @@ class PasswordResetRequestEmail < BaseEmail
-   end
- 
-   private def receiver
--    @password_reset.user!
-+    @password_reset.user
+@@ -10,25 +10,20 @@ class PasswordResetRequestEmail < BaseEmail
    end
  
    private def heading
-@@ -15,7 +15,7 @@ class PasswordResetRequestEmail < BaseEmail
+-    "Reset your password"
++    Rex.t(:"email.password_reset_request.subject", app_name: App.settings.name)
+   end
  
    private def text_message : String
-     <<-TEXT
--    Hi #{@password_reset.user!.first_name},
-+    Hi #{@password_reset.user.first_name},
- 
-     You (or someone else) recently requested to reset the password for your #{App.settings.name} account.
- 
-diff --git a/src/handlers/base_handler.cr b/src/handlers/base_handler.cr
-new file mode 100644
-index 0000000..e3d334a
---- /dev/null
-+++ b/src/handlers/base_handler.cr
-@@ -0,0 +1,3 @@
-+abstract class BaseHandler
-+  include HTTP::Handler
-+end
-diff --git a/src/handlers/cors_handler.cr b/src/handlers/cors_handler.cr
-new file mode 100644
-index 0000000..3978fef
---- /dev/null
-+++ b/src/handlers/cors_handler.cr
-@@ -0,0 +1,41 @@
-+class CorsHandler < BaseHandler
-+  def call(context)
-+    set_generic_headers(context)
-+
-+    if context.request.method == "OPTIONS"
-+      set_options_headers(context)
-+    else
-+      call_next(context)
-+    end
-+  end
-+
-+  private def set_generic_headers(context)
-+    response = context.response
-+
-+    response.headers["Access-Control-Allow-Origin"] = "*"
-+    response.headers["Access-Control-Allow-Methods"] = allow_methods
-+    response.headers["Access-Control-Allow-Headers"] = allow_headers
-+  end
-+
-+  private def set_options_headers(context)
-+    response = context.response
-+
-+    response.status = HTTP::Status::NO_CONTENT
-+    response.headers["Access-Control-Max-Age"] = max_age
-+    response.headers["Content-Type"] = "text/plain"
-+    response.headers["Content-Length"] = "0"
-+  end
-+
-+  private def allow_methods
-+    "GET,POST,PATCH,DELETE,OPTIONS"
-+  end
-+
-+  private def allow_headers
-+    "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,\
-+      Content-Type,Range,Authorization"
-+  end
-+
-+  private def max_age
-+    "#{7.days.total_seconds.to_i}"
-+  end
-+end
-diff --git a/src/models/user.cr b/src/models/user.cr
-index 441a5a6..44075f1 100644
---- a/src/models/user.cr
-+++ b/src/models/user.cr
-@@ -10,20 +10,14 @@ class User < BaseModel
- 
-   include Carbon::Emailable
- 
--  __enum Level do
--    Admin
--    Editor
--    Author
--  end
+-    <<-TEXT
+-    Hi #{@password_reset.user.first_name},
 -
-   table :users do
-     column first_name : String
-     column last_name : String
--    column level : User::Level
-+    column level : UserLevel
+-    You (or someone else) recently requested to reset the password for your #{App.settings.name} account.
+-
+-    To proceed with the password reset process, click the link below:
+-
+-    #{PasswordResetUrl.new(@operation, @password_reset)}
+-
+-    This password reset link will expire in #{Shield.settings.password_reset_expiry.total_minutes.to_i} minutes.
+-
+-    If you did not request a password reset, ignore this email.
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    user = @password_reset.user
++
++    Rex.t(
++      :"email.password_reset_request.body",
++      app_name: App.settings.name,
++      first_name: user.first_name,
++      last_name: user.last_name,
++      full_name: user.full_name,
++      link: PasswordResetUrl.new(@operation, @password_reset),
++      link_expiry: Shield.settings.password_reset_expiry.total_minutes.to_i
++    )
+   end
+ end
+diff --git a/src/emails/user_email_confirmation_request_email.cr b/src/emails/user_email_confirmation_request_email.cr
+index a2db525..33d6b9e 100644
+--- a/src/emails/user_email_confirmation_request_email.cr
++++ b/src/emails/user_email_confirmation_request_email.cr
+@@ -7,26 +7,17 @@ class UserEmailConfirmationRequestEmail < BaseEmail
    end
  
-   def full_name : String
--    "#{first_name} #{last_name}"
-+    Rex.t(:"model.user.full_name", first_name: first_name, last_name: last_name)
+   private def heading
+-    "Email confirmation failed"
++    Rex.t(
++      :"email.user_email_confirmation_request.subject",
++      app_name: App.settings.name
++    )
    end
  
-   def emailable : Carbon::Address
-diff --git a/src/models/user_level.cr b/src/models/user_level.cr
-new file mode 100644
-index 0000000..4562e6b
---- /dev/null
-+++ b/src/models/user_level.cr
-@@ -0,0 +1,5 @@
-+__enum UserLevel do
-+  Admin
-+  Editor
-+  Author
-+end
-diff --git a/src/models/user_settings.cr b/src/models/user_settings.cr
-index e580ec6..cc88729 100644
---- a/src/models/user_settings.cr
-+++ b/src/models/user_settings.cr
-@@ -1,4 +1,4 @@
--# class UserSettings
-+# struct UserSettings
- #   include Shield::UserSettings
- #   include Shield::BearerLoginUserSettings
- #   include Shield::LoginUserSettings
-diff --git a/src/operations/mixins/save_user_name.cr b/src/operations/mixins/save_user_name.cr
-new file mode 100644
-index 0000000..014c508
---- /dev/null
-+++ b/src/operations/mixins/save_user_name.cr
-@@ -0,0 +1,31 @@
-+module SaveUserName
-+  macro included
-+    before_save do
-+      validate_first_name_required
-+      validate_last_name_required
-+
-+      validate_first_name_valid
-+      validate_last_name_valid
-+    end
-+
-+    private def validate_first_name_required
-+      validate_required first_name,
-+        message: Rex.t(:"operation.error.first_name_required")
-+    end
-+
-+    private def validate_last_name_required
-+      validate_required last_name,
-+        message: Rex.t(:"operation.error.last_name_required")
-+    end
-+
-+    private def validate_first_name_valid
-+      validate_name first_name,
-+        message: Rex.t(:"operation.error.first_name_invalid")
-+    end
-+
-+    private def validate_last_name_valid
-+      validate_name last_name,
-+        message: Rex.t(:"operation.error.last_name_invalid")
-+    end
-+  end
-+end
-diff --git a/src/operations/mixins/validate_not_pwned.cr b/src/operations/mixins/validate_not_pwned.cr
-new file mode 100644
-index 0000000..905bf6f
---- /dev/null
-+++ b/src/operations/mixins/validate_not_pwned.cr
-@@ -0,0 +1,12 @@
-+module ValidateNotPwned
-+  macro included
-+    before_save do
-+      validate_not_pwned
-+    end
-+
-+    private def validate_not_pwned
-+      return unless LuckyEnv.production? && password.changed?
-+      validate_not_pwned(password)
-+    end
-+  end
-+end
+   private def text_message : String
+-    <<-TEXT
+-    Hi,
+-
+-    You (or someone else) entered this email address while trying to
+-    register for a new #{App.settings.name} account, or update the email of
+-    an existing user.
+-
+-    The attempted action has failed, so there is nothing you should
+-    worry about.
+-
+-    If you have lost your password, however, you may reset your password here:
+-
+-    #{PasswordResets::New.url}
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    Rex.t(
++      :"email.user_email_confirmation_request.body",
++      app_name: App.settings.name,
++      password_reset_url: PasswordResets::New.url
++    )
+   end
+ end
+diff --git a/src/emails/user_welcome_email.cr b/src/emails/user_welcome_email.cr
+index e58fe70..781c5a8 100644
+--- a/src/emails/user_welcome_email.cr
++++ b/src/emails/user_welcome_email.cr
+@@ -7,25 +7,14 @@ class UserWelcomeEmail < BaseEmail
+   end
+ 
+   private def heading
+-    "Registration failed"
++    Rex.t(:"email.user_welcome.subject", app_name: App.settings.name)
+   end
+ 
+   private def text_message : String
+-    <<-TEXT
+-    Hi,
+-
+-    You (or someone else) entered this email address while trying to
+-    register for a new #{App.settings.name} account.
+-
+-    The attempted action has failed, so there is nothing you should
+-    worry about.
+-
+-    If you have lost your password, however, you may reset your password here:
+-
+-    #{PasswordResets::New.url}
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    Rex.t(
++      :"email.user_welcome.body",
++      app_name: App.settings.name,
++      password_reset_url: PasswordResets::New.url
++    )
+   end
+ end
+diff --git a/src/emails/welcome_email.cr b/src/emails/welcome_email.cr
+index b19e9ae..2412eb3 100644
+--- a/src/emails/welcome_email.cr
++++ b/src/emails/welcome_email.cr
+@@ -9,23 +9,17 @@ class WelcomeEmail < BaseEmail
+   end
+ 
+   private def heading
+-    "Welcome to #{App.settings.name}"
++    Rex.t(:"email.welcome.subject", app_name: App.settings.name)
+   end
+ 
+   private def text_message : String
+-    <<-TEXT
+-    Hi #{@user.first_name},
+-
+-    You have successfully completed your registration for your #{App.settings.name} account.
+-
+-    To access your account, log in via the following link:
+-
+-    #{CurrentLogin::New.url}
+-
+-    If you did not register this account, kindly reply to let us know.
+-
+-    Regards,
+-    #{App.settings.name}.
+-    TEXT
++    Rex.t(
++      :"email.welcome.subject",
++      app_name: App.settings.name,
++      first_name: @user.first_name,
++      last_name: @user.last_name,
++      full_name: @user.full_name,
++      login_url: CurrentLogin::New.url
++    )
+   end
+ end
 diff --git a/src/operations/register_current_user.cr b/src/operations/register_current_user.cr
-index 429b3ab..9300375 100644
+index 9300375..68ae042 100644
 --- a/src/operations/register_current_user.cr
 +++ b/src/operations/register_current_user.cr
-@@ -2,20 +2,18 @@ class RegisterCurrentUser < User::SaveOperation
-   permit_columns :first_name, :last_name
- 
-   before_save do
--    validate_required first_name, last_name
--    validate_name first_name, last_name
--    validate_not_pwned(password) if LuckyEnv.production?
--
-     set_level
-   end
- 
-+  include SaveUserName
-+  include ValidateNotPwned
+@@ -10,10 +10,10 @@ class RegisterCurrentUser < User::SaveOperation
    include Shield::SendWelcomeEmail
  
    private def set_level
-     if !App.settings.make_first_user_admin || UserQuery.new.first?
--      level.value = User::Level.new(:author)
+-    if !App.settings.make_first_user_admin || UserQuery.new.first?
+-      level.value = UserLevel.new(:author)
+-    else
++    if App.settings.make_first_user_admin && UserQuery.new.none?
+       level.value = UserLevel.new(:admin)
++    else
 +      level.value = UserLevel.new(:author)
-     else
--      level.value = User::Level.new(:admin)
-+      level.value = UserLevel.new(:admin)
      end
    end
  end
-diff --git a/src/operations/register_user.cr b/src/operations/register_user.cr
-index 864aeee..0d91f2d 100644
---- a/src/operations/register_user.cr
-+++ b/src/operations/register_user.cr
-@@ -2,8 +2,9 @@ class RegisterUser < User::SaveOperation
-   permit_columns :first_name, :last_name, :level
- 
-   before_save do
--    validate_required first_name, last_name, level
--    validate_name first_name, last_name
--    validate_not_pwned(password) if LuckyEnv.production?
-+    validate_required level
-   end
-+
-+  include ValidateNotPwned
-+  include SaveUserName
- end
-diff --git a/src/operations/update_current_user.cr b/src/operations/update_current_user.cr
-index a76de46..8834fe1 100644
---- a/src/operations/update_current_user.cr
-+++ b/src/operations/update_current_user.cr
-@@ -1,9 +1,6 @@
- class UpdateCurrentUser < User::SaveOperation
-   permit_columns :first_name, :last_name
- 
--  before_save do
--    validate_required first_name, last_name
--    validate_name first_name, last_name
--    validate_not_pwned(password) if LuckyEnv.production?
--  end
-+  include ValidateNotPwned
-+  include SaveUserName
- end
-diff --git a/src/operations/update_user.cr b/src/operations/update_user.cr
-index 9b17bf1..ca107ac 100644
---- a/src/operations/update_user.cr
-+++ b/src/operations/update_user.cr
-@@ -2,13 +2,14 @@ class UpdateUser < User::SaveOperation
-   permit_columns :first_name, :last_name, :level
- 
-   before_save do
--    validate_required first_name, last_name, level
--    validate_name first_name, last_name
--    validate_not_pwned(password) if LuckyEnv.production?
-+    validate_required level
- 
-     reset_level
-   end
- 
-+  include ValidateNotPwned
-+  include SaveUserName
-+
-   # Ensure current admin cannot change their own level,
-   # lest they get locked out
-   private def reset_level
-diff --git a/src/pages/auth_layout.cr b/src/pages/auth_layout.cr
-index 90c4025..4345334 100644
---- a/src/pages/auth_layout.cr
-+++ b/src/pages/auth_layout.cr
-@@ -1,12 +1,13 @@
- abstract struct AuthLayout
-   include Lucky::HTMLPage
-+  include LinkTextHelpers
- 
-   # The default page title. It is passed to `Shared::LayoutHead`.
-   #
-   # Add a `page_title` method to pages to override it. You can also remove
-   # This method so every page is required to have its own page title.
-   def page_title
--    "Penny"
-+    Rex.t(:"page.misc.page_title")
-   end
- 
-   def render
-diff --git a/src/pages/bearer_logins/index_page.cr b/src/pages/bearer_logins/index_page.cr
-index a030b5f..125b0cb 100644
---- a/src/pages/bearer_logins/index_page.cr
-+++ b/src/pages/bearer_logins/index_page.cr
-@@ -3,23 +3,29 @@ struct BearerLogins::IndexPage < MainLayout
-   needs pages : Lucky::Paginator
- 
-   def page_title
--    "Bearer logins"
-+    Rex.t(:"page.bearer_login.index.page_title")
-   end
- 
-   def content
--    h1 "Bearer Logins"
-+    h1 Rex.t(:"page.bearer_login.index.main_title")
- 
-     if bearer_logins.empty?
-       para do
--        text "No bearer logins"
-+        text Rex.t(:"page.bearer_login.index.none_found")
-       end
-     else
-       ul do
-         bearer_logins.each do |bearer_login|
-           li do
-+            text bearer_login.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text bearer_login.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text bearer_login.user.full_name
-+            text " | "
-             text bearer_login.name
-             text " | "
--            link "[-] delete", to: Destroy.with(bearer_login.id)
-+            link "[-] #{delete_text}", to: Destroy.with(bearer_login.id)
-             br
-             text bearer_login.scopes.join(", ")
-           end
-@@ -30,9 +36,5 @@ struct BearerLogins::IndexPage < MainLayout
-         mount Lucky::Paginator::SimpleNav, pages
-       end
-     end
--
--    para do
--      link "[+] add new", to: New
--    end
-   end
- end
-diff --git a/src/pages/bearer_logins/show_page.cr b/src/pages/bearer_logins/show_page.cr
-index 6d956a5..7d59a91 100644
---- a/src/pages/bearer_logins/show_page.cr
-+++ b/src/pages/bearer_logins/show_page.cr
-@@ -3,19 +3,19 @@ struct BearerLogins::ShowPage < MainLayout
-   needs token : String
- 
-   def page_title
--    bearer_login.name
-+    Rex.t(:"page.bearer_login.show.page_title", name: bearer_login.name)
-   end
- 
-   def content
--    h1 bearer_login.name
-+    h1 Rex.t(:"page.bearer_login.show.main_title", name: bearer_login.name)
- 
--    para "Copy token below:"
-+    para Rex.t(:"page.bearer_login.show.copy_token")
-     pre token
- 
-     para do
--      link "[=] list all", to: Index
-+      link "[=] #{list_text}", to: Index
-       text " | "
--      link "[+] add new", to: New
-+      link "[+] #{add_new_text}", to: CurrentUser::BearerLogins::New
-     end
-   end
- end
-diff --git a/src/pages/current_login/new_page.cr b/src/pages/current_login/new_page.cr
-index 82a27fe..cbd605b 100644
---- a/src/pages/current_login/new_page.cr
-+++ b/src/pages/current_login/new_page.cr
-@@ -1,12 +1,12 @@
- struct CurrentLogin::NewPage < AuthLayout
--  needs operation : LogUserIn
-+  needs operation : StartCurrentLogin
- 
-   def page_title
--    "Log in"
-+    Rex.t(:"page.current_login.new.page_title")
-   end
- 
-   def content
--    h1 "Log In"
-+    h1 Rex.t(:"page.current_login.new.main_title")
- 
-     form_for Create do
-       para do
-@@ -20,13 +20,15 @@ struct CurrentLogin::NewPage < AuthLayout
-       end
- 
-       para do
--        link "Don't have an account?", to: EmailConfirmations::New
-+        link lost_password_text, to: ::EmailConfirmations::New
-         text " | "
--        link "Lost your password?", to: PasswordResets::New
-+        link no_account_text, to: ::PasswordResets::New
-       end
- 
-       para do
--        button "Log in", role: "submit", flow_id: "login-button"
-+        button Rex.t(:"page.current_login.new.form.submit.label"),
-+          role: "submit",
-+          flow_id: "login-button"
-       end
-     end
-   end
-diff --git a/src/pages/current_user/bearer_logins/index_page.cr b/src/pages/current_user/bearer_logins/index_page.cr
-new file mode 100644
-index 0000000..92c733f
---- /dev/null
-+++ b/src/pages/current_user/bearer_logins/index_page.cr
-@@ -0,0 +1,46 @@
-+struct CurrentUser::BearerLogins::IndexPage < MainLayout
-+  needs bearer_logins : Array(BearerLogin)
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.current_user.bearer_login.index.page_title")
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.current_user.bearer_login.index.main_title")
-+
-+    if bearer_logins.empty?
-+      para do
-+        text Rex.t(:"page.current_user.bearer_login.index.none_found")
-+      end
-+    else
-+      ul do
-+        bearer_logins.each do |bearer_login|
-+          li do
-+            text bearer_login.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text bearer_login.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text bearer_login.name
-+            text " | "
-+
-+            link "[x] #{revoke_text}",
-+              to: ::BearerLogins::Destroy.with(bearer_login_id: bearer_login.id)
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{revoke_all_text}", to: Destroy
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+
-+      para do
-+        link "[+] #{add_new_text}", to: New
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/bearer_logins/new_page.cr b/src/pages/current_user/bearer_logins/new_page.cr
-similarity index 67%
-rename from src/pages/bearer_logins/new_page.cr
-rename to src/pages/current_user/bearer_logins/new_page.cr
-index b10bd77..dac0f81 100644
---- a/src/pages/bearer_logins/new_page.cr
-+++ b/src/pages/current_user/bearer_logins/new_page.cr
-@@ -1,14 +1,14 @@
--struct BearerLogins::NewPage < MainLayout
-+struct CurrentUser::BearerLogins::NewPage < MainLayout
-   needs operation : CreateBearerLogin
- 
-   include PageParamKey
- 
-   def page_title
--    "New bearer login"
-+    Rex.t(:"page.current_user.bearer_login.new.page_title")
-   end
- 
-   def content
--    h1 "Add new bearer login"
-+    h1 Rex.t(:"page.current_user.bearer_login.new.main_title")
- 
-     form_for Create do
-       para do
-@@ -16,7 +16,8 @@ struct BearerLogins::NewPage < MainLayout
-       end
- 
-       para do
--        label "Scopes", for: "#{param_key}_scopes"
-+        label Rex.t(:"page.current_user.bearer_login.new.form.scopes.label"),
-+          for: "#{param_key}_scopes"
- 
-         select_tag id: "#{param_key}_scopes",
-           name: "#{param_key}:scopes[]",
-@@ -36,12 +37,13 @@ struct BearerLogins::NewPage < MainLayout
-       # end
- 
-       para do
--        button "Add bearer login", role: "submit"
-+        button Rex.t(:"page.current_user.bearer_login.new.form.submit.label"),
-+          role: "submit"
-       end
-     end
- 
-     para do
--      link "[=] list all", to: Index
-+      link "[=] #{list_text}", to: Index
-     end
-   end
- 
-diff --git a/src/pages/current_user/edit_page.cr b/src/pages/current_user/edit_page.cr
-index 584a601..2c05295 100644
---- a/src/pages/current_user/edit_page.cr
-+++ b/src/pages/current_user/edit_page.cr
-@@ -2,11 +2,11 @@ struct CurrentUser::EditPage < MainLayout
-   needs operation : UpdateCurrentUser
- 
-   def page_title
--    "Edit account"
-+    Rex.t(:"page.current_user.edit.page_title")
-   end
- 
-   def content
--    h1 "Edit Account"
-+    h1 Rex.t(:"page.current_user.edit.main_title")
- 
-     form_for Update do
-       para do
-@@ -52,24 +52,25 @@ struct CurrentUser::EditPage < MainLayout
-       end
- 
-       para do
--        link "[x] log out", to: CurrentLogin::Destroy
-+        link "[x] #{log_out_text}", to: CurrentLogin::Destroy
-       end
- 
-       para do
--        button "Update account", role: "submit"
-+        button Rex.t(:"page.current_user.edit.form.submit.label"),
-+          role: "submit"
-       end
-     end
-   end
- 
-   private def bearer_login_notify_label_text
--    label_text = "Send me an email whenever I create a new bearer login"
-+    Rex.t(:"page.current_user.form.bearer_login_notify.label")
-   end
- 
-   private def login_notify_label_text
--    label_text = "Send me an email whenever my account is accessed"
-+    Rex.t(:"page.current_user.form.login_notify.label")
-   end
- 
-   private def password_notify_label_text
--    label_text = "Send me an email whenever my password changes"
-+    Rex.t(:"page.current_user.form.password_notify.label")
-   end
- end
-diff --git a/src/pages/current_user/email_confirmations/index_page.cr b/src/pages/current_user/email_confirmations/index_page.cr
-new file mode 100644
-index 0000000..a041105
---- /dev/null
-+++ b/src/pages/current_user/email_confirmations/index_page.cr
-@@ -0,0 +1,44 @@
-+struct CurrentUser::EmailConfirmations::IndexPage < MainLayout
-+  needs email_confirmations : Array(EmailConfirmation)
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.current_user.email_confirmation.index.page_title")
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.current_user.email_confirmation.index.main_title")
-+
-+    if email_confirmations.empty?
-+      para do
-+        text Rex.t(:"page.current_user.email_confirmation.index.none_found")
-+      end
-+    else
-+      ul do
-+        email_confirmations.each do |email_confirmation|
-+          li do
-+            text email_confirmation.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text email_confirmation.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text email_confirmation.ip_address
-+            text " | "
-+
-+            link "[x] #{deactivate_text}",
-+              to: ::EmailConfirmations::Destroy.with(
-+                email_confirmation_id: email_confirmation.id
-+              )
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{deactivate_all_text}", to: Destroy
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/current_user/logins/index_page.cr b/src/pages/current_user/logins/index_page.cr
-new file mode 100644
-index 0000000..635f789
---- /dev/null
-+++ b/src/pages/current_user/logins/index_page.cr
-@@ -0,0 +1,42 @@
-+struct CurrentUser::Logins::IndexPage < MainLayout
-+  needs logins : Array(Login)
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.current_user.login.index.page_title")
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.current_user.login.index.main_title")
-+
-+    if logins.empty?
-+      para do
-+        text Rex.t(:"page.current_user.login.index.none_found")
-+      end
-+    else
-+      ul do
-+        logins.each do |login|
-+          li do
-+            text login.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text login.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text login.ip_address
-+            text " | "
-+
-+            link "[x] #{log_out_text}",
-+              to: ::Logins::Destroy.with(login_id: login.id)
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{log_out_everywhere_text}", to: Destroy
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/current_user/new_page.cr b/src/pages/current_user/new_page.cr
-index a0dc310..cc855d8 100644
---- a/src/pages/current_user/new_page.cr
-+++ b/src/pages/current_user/new_page.cr
-@@ -4,15 +4,16 @@ struct CurrentUser::NewPage < AuthLayout
-   include PageParamKey
- 
-   def page_title
--    "Register account"
-+    Rex.t(:"page.current_user.new.page_title")
-   end
- 
-   def content
--    h1 "Register Account"
-+    h1 Rex.t(:"page.current_user.new.main_title")
- 
-     form_for Create do
-       para do
--        label "Email", for: "#{param_key}_email"
-+        label Rex.t(:"page.current_user.new.form.email.label"),
-+          for: "#{param_key}_email"
- 
-         input id: "#{param_key}_email",
-           type: "text",
-@@ -59,26 +60,26 @@ struct CurrentUser::NewPage < AuthLayout
-       end
- 
-       para do
--        link "Have an account?", to: CurrentLogin::New
-+        link have_account_text, to: CurrentLogin::New
-         text " | "
--        link "Lost your password?", to: PasswordResets::New
-+        link lost_password_text, to: ::PasswordResets::New
-       end
- 
-       para do
--        button "Register", role: "submit"
-+        button Rex.t(:"page.current_user.new.form.submit.label"), role: "submit"
-       end
-     end
-   end
- 
-   private def bearer_login_notify_label_text
--    label_text = "Send me an email whenever I create a bearer login"
-+    Rex.t(:"page.current_user.form.bearer_login_notify.label")
-   end
- 
-   private def login_notify_label_text
--    label_text = "Send me an email whenever my account is accessed"
-+    Rex.t(:"page.current_user.form.login_notify.label")
-   end
- 
-   private def password_notify_label_text
--    label_text = "Send me an email whenever my password changes"
-+    Rex.t(:"page.current_user.form.password_notify.label")
-   end
- end
-diff --git a/src/pages/current_user/password_resets/index_page.cr b/src/pages/current_user/password_resets/index_page.cr
-new file mode 100644
-index 0000000..bc17499
---- /dev/null
-+++ b/src/pages/current_user/password_resets/index_page.cr
-@@ -0,0 +1,43 @@
-+struct CurrentUser::PasswordResets::IndexPage < MainLayout
-+  needs password_resets : Array(PasswordReset)
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.current_user.password_reset.index.page_title")
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.current_user.password_reset.index.main_title")
-+
-+    if password_resets.empty?
-+      para do
-+        text Rex.t(:"page.current_user.password_reset.index.none_found")
-+      end
-+    else
-+      ul do
-+        password_resets.each do |password_reset|
-+          li do
-+            text password_reset.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text password_reset.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text password_reset.ip_address
-+            text " | "
-+
-+            link "[x] #{deactivate_text}", to: ::PasswordResets::Destroy.with(
-+              password_reset_id: password_reset.id
-+            )
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{deactivate_all_text}", to: Destroy
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/current_user/show_page.cr b/src/pages/current_user/show_page.cr
-index cabaa4b..aba34f5 100644
---- a/src/pages/current_user/show_page.cr
-+++ b/src/pages/current_user/show_page.cr
-@@ -2,18 +2,22 @@ struct CurrentUser::ShowPage < MainLayout
-   needs user : User
- 
-   def page_title
--    "User account"
-+    Rex.t(:"page.current_user.show.page_title")
-   end
- 
-   def content
--    h1 "User Account"
-+    h1 Rex.t(:"page.current_user.show.main_title")
- 
-     div do
--      text "Hi, #{user.first_name}!"
-+      text Rex.t(:"page.current_user.show.hello",
-+        first_name: user.first_name,
-+        last_name: user.last_name,
-+        full_name: user.full_name)
-+
-       text " | "
--      link "[e] edit", to: Edit
-+      link "[e] #{edit_text}", to: Edit
-       text " | "
--      link "[x] log out", to: CurrentLogin::Destroy
-+      link "[x] #{log_out_text}", to: CurrentLogin::Destroy
-     end
-   end
- end
-diff --git a/src/pages/email_confirmations/index_page.cr b/src/pages/email_confirmations/index_page.cr
-new file mode 100644
-index 0000000..794fe09
---- /dev/null
-+++ b/src/pages/email_confirmations/index_page.cr
-@@ -0,0 +1,38 @@
-+struct EmailConfirmations::IndexPage < MainLayout
-+  needs email_confirmations : Array(EmailConfirmation)
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.email_confirmation.index.page_title")
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.email_confirmation.index.main_title")
-+
-+    if email_confirmations.empty?
-+      para do
-+        text Rex.t(:"page.email_confirmation.index.none_found")
-+      end
-+    else
-+      ul do
-+        email_confirmations.each do |email_confirmation|
-+          li do
-+            text email_confirmation.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text email_confirmation.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text email_confirmation.ip_address
-+            text " | "
-+
-+            link "[-] #{deactivate_text}",
-+              to: Destroy.with(email_confirmation.id)
-+          end
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/email_confirmations/new_page.cr b/src/pages/email_confirmations/new_page.cr
-index 5c20685..5f2fa94 100644
---- a/src/pages/email_confirmations/new_page.cr
-+++ b/src/pages/email_confirmations/new_page.cr
-@@ -2,11 +2,11 @@ struct EmailConfirmations::NewPage < AuthLayout
-   needs operation : StartEmailConfirmation
- 
-   def page_title
--    "Email confirmation"
-+    Rex.t(:"page.email_confirmation.new.page_title")
-   end
- 
-   def content
--    h1 "Email Confirmation"
-+    h1 Rex.t(:"page.email_confirmation.new.main_title")
- 
-     form_for Create do
-       para do
-@@ -14,13 +14,14 @@ struct EmailConfirmations::NewPage < AuthLayout
-       end
- 
-       para do
--        link "Have an account?", to: CurrentLogin::New
-+        link have_account_text, to: CurrentLogin::New
-         text " | "
--        link "Lost your password?", to: PasswordResets::New
-+        link lost_password_text, to: ::PasswordResets::New
-       end
- 
-       para do
--        button "Send email", role: "submit"
-+        button Rex.t(:"page.email_confirmation.new.form.submit.label"),
-+          role: "submit"
-       end
-     end
-   end
-diff --git a/src/pages/errors/show_page.cr b/src/pages/errors/show_page.cr
-index d8b9f5b..ed6f1b7 100644
---- a/src/pages/errors/show_page.cr
-+++ b/src/pages/errors/show_page.cr
-@@ -9,7 +9,7 @@ struct Errors::ShowPage
-     html lang: "en" do
-       head do
-         utf8_charset
--        title "Something went wrong"
-+        title Rex.t(:"page.error.show.page_title")
-         load_lato_font
-         normalize_styles
-         error_page_styles
-@@ -18,11 +18,14 @@ struct Errors::ShowPage
-       body do
-         div class: "container" do
-           h2 status_code, class: "status-code"
--          h1 message, class: "message"
-+
-+          h1 Rex.t(:"page.error.show.main_title", message: message),
-+            class: "message"
- 
-           ul class: "helpful-links" do
-             li do
--              a "Try heading back to home", href: "/", class: "helpful-link"
-+              a Rex.t(:"page.error.show.link.home"),
-+                href: "/", class: "helpful-link"
-             end
-           end
-         end
-diff --git a/src/pages/home/index_page.cr b/src/pages/home/index_page.cr
-index dffe9e3..ec2bdeb 100644
---- a/src/pages/home/index_page.cr
-+++ b/src/pages/home/index_page.cr
-@@ -4,14 +4,11 @@ struct Home::IndexPage < MainLayout
-   end
- 
-   def content
--    h1 do
--      text "Hello "
--      em "Penny"
--    end
-+    h1 Rex.t(:"page.home.index.main_title")
- 
--    para "Penny is a rather quick way to get started with Lucky framework and Shield"
-+    para Rex.t(:"page.home.index.main_description")
- 
--    h2 "Resources"
-+    h2 Rex.t(:"page.home.index.resources")
- 
-     ul do
-       li do
-diff --git a/src/pages/logins/index_page.cr b/src/pages/logins/index_page.cr
-index 3532561..f225a61 100644
---- a/src/pages/logins/index_page.cr
-+++ b/src/pages/logins/index_page.cr
-@@ -3,25 +3,29 @@ struct Logins::IndexPage < MainLayout
-   needs pages : Lucky::Paginator
- 
-   def page_title
--    "Active logins"
-+    Rex.t(:"page.login.index.page_title")
-   end
- 
-   def content
--    h1 "Active Logins"
-+    h1 Rex.t(:"page.login.index.main_title")
- 
-     if logins.empty?
-       para do
--        text "No active logins"
-+        text Rex.t(:"page.login.index.none_found")
-       end
-     else
-       ul do
-         logins.each do |login|
-           li do
--            text login.active_at.to_s
-+            text login.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text login.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text login.user.full_name
-             text " | "
-             text login.ip_address
-             text " | "
--            link "[-] log out", to: Destroy.with(login.id)
-+            link "[-] #{log_out_text}", to: Destroy.with(login.id)
-           end
-         end
-       end
-diff --git a/src/pages/main_layout.cr b/src/pages/main_layout.cr
-index ac101b1..bdd7568 100644
---- a/src/pages/main_layout.cr
-+++ b/src/pages/main_layout.cr
-@@ -1,12 +1,13 @@
- abstract struct MainLayout
-   include Lucky::HTMLPage
-+  include LinkTextHelpers
- 
-   # The default page title. It is passed to `Shared::LayoutHead`.
-   #
-   # Add a `page_title` method to pages to override it. You can also remove
-   # This method so every page is required to have its own page title.
-   def page_title
--    "Penny"
-+    Rex.t(:"page.misc.page_title")
-   end
- 
-   def render
-@@ -16,7 +17,12 @@ abstract struct MainLayout
-       mount Shared::LayoutHead, page_title: page_title
- 
-       body do
--        mount Menus::Primary
-+        if current_user?.try(&.level.admin?)
-+          mount Menus::AdminPrimary
-+        else
-+          mount Menus::Primary
-+        end
-+
-         mount Shared::FlashMessages, flash: context.flash
-         content
-       end
-diff --git a/src/pages/mixins/link_text_helpers.cr b/src/pages/mixins/link_text_helpers.cr
-new file mode 100644
-index 0000000..8d80b1f
---- /dev/null
-+++ b/src/pages/mixins/link_text_helpers.cr
-@@ -0,0 +1,59 @@
-+module LinkTextHelpers
-+  macro included
-+    private def delete_text
-+      Rex.t(:"page.link.delete")
-+    end
-+
-+    private def add_new_text
-+      Rex.t(:"page.link.add_new")
-+    end
-+
-+    private def edit_text
-+      Rex.t(:"page.link.edit")
-+    end
-+
-+    private def list_text
-+      Rex.t(:"page.link.list")
-+    end
-+
-+    private def no_account_text
-+      Rex.t(:"page.link.no_account?")
-+    end
-+
-+    private def have_account_text
-+      Rex.t(:"page.link.have_account?")
-+    end
-+
-+    private def lost_password_text
-+      Rex.t(:"page.link.lost_password?")
-+    end
-+
-+    private def remembered_password_text
-+      Rex.t(:"page.link.remembered_password?")
-+    end
-+
-+    private def revoke_text
-+      Rex.t(:"page.link.revoke")
-+    end
-+
-+    private def revoke_all_text
-+      Rex.t(:"page.link.revoke_all")
-+    end
-+
-+    private def deactivate_text
-+      Rex.t(:"page.link.deactivate")
-+    end
-+
-+    private def deactivate_all_text
-+      Rex.t(:"page.link.deactivate_all")
-+    end
-+
-+    private def log_out_text
-+      Rex.t(:"page.link.log_out")
-+    end
-+
-+    private def log_out_everywhere_text
-+      Rex.t(:"page.link.log_out_everywhere")
-+    end
-+  end
-+end
-diff --git a/src/pages/password_resets/edit_page.cr b/src/pages/password_resets/edit_page.cr
-index 63c06ee..ce2a40d 100644
---- a/src/pages/password_resets/edit_page.cr
-+++ b/src/pages/password_resets/edit_page.cr
-@@ -2,11 +2,11 @@ struct PasswordResets::EditPage < AuthLayout
-   needs operation : ResetPassword
- 
-   def page_title
--    "Edit password"
-+    Rex.t(:"page.password_reset.edit.page_title")
-   end
- 
-   def content
--    h1 "Edit Password"
-+    h1 Rex.t(:"page.password_reset.edit.main_title")
- 
-     form_for Update do
-       para do
-@@ -16,7 +16,8 @@ struct PasswordResets::EditPage < AuthLayout
-       end
- 
-       para do
--        button "Update password", role: "submit"
-+        button Rex.t(:"page.password_reset.edit.form.submit.label"),
-+          role: "submit"
-       end
-     end
-   end
-diff --git a/src/pages/password_resets/index_page.cr b/src/pages/password_resets/index_page.cr
-new file mode 100644
-index 0000000..1520ff7
---- /dev/null
-+++ b/src/pages/password_resets/index_page.cr
-@@ -0,0 +1,36 @@
-+struct PasswordResets::IndexPage < MainLayout
-+  needs password_resets : Array(PasswordReset)
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.password_reset.index.page_title")
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.password_reset.index.main_title")
-+
-+    if password_resets.empty?
-+      para do
-+        text Rex.t(:"page.password_reset.index.none_found")
-+      end
-+    else
-+      ul do
-+        password_resets.each do |password_reset|
-+          li do
-+            text password_reset.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text password_reset.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text password_reset.ip_address
-+            text " | "
-+            link "[-] #{deactivate_text}", to: Destroy.with(password_reset.id)
-+          end
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/password_resets/new_page.cr b/src/pages/password_resets/new_page.cr
-index 2f64ca3..3a2c058 100644
---- a/src/pages/password_resets/new_page.cr
-+++ b/src/pages/password_resets/new_page.cr
-@@ -2,11 +2,11 @@ struct PasswordResets::NewPage < AuthLayout
-   needs operation : StartPasswordReset
- 
-   def page_title
--    "Password reset"
-+    Rex.t(:"page.password_reset.new.page_title")
-   end
- 
-   def content
--    h1 "Password Reset"
-+    h1 Rex.t(:"page.password_reset.new.main_title")
- 
-     form_for Create do
-       para do
-@@ -14,13 +14,14 @@ struct PasswordResets::NewPage < AuthLayout
-       end
- 
-       para do
--        link "Remembered your password?", to: CurrentLogin::New
-+        link remembered_password_text, to: CurrentLogin::New
-         text " | "
--        link "Don't have an account?", to: EmailConfirmations::New
-+        link no_account_text, to: ::EmailConfirmations::New
-       end
- 
-       para do
--        button "Send email", role: "submit"
-+        button Rex.t(:"page.password_reset.new.form.submit.label"),
-+          role: "submit"
-       end
-     end
-   end
-diff --git a/src/pages/users/bearer_logins/index_page.cr b/src/pages/users/bearer_logins/index_page.cr
-new file mode 100644
-index 0000000..6dc0e01
---- /dev/null
-+++ b/src/pages/users/bearer_logins/index_page.cr
-@@ -0,0 +1,44 @@
-+struct Users::BearerLogins::IndexPage < MainLayout
-+  needs bearer_logins : Array(BearerLogin)
-+  needs user : User
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.user.bearer_login.index.page_title", full_name: user.full_name)
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.user.bearer_login.index.main_title",
-+      full_name: user.full_name)
-+
-+    if bearer_logins.empty?
-+      para do
-+        text Rex.t(:"page.user.bearer_login.index.none_found")
-+      end
-+    else
-+      ul do
-+        bearer_logins.each do |bearer_login|
-+          li do
-+            text bearer_login.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text bearer_login.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text bearer_login.name
-+            text " | "
-+
-+            link "[x] #{revoke_text}",
-+              to: ::BearerLogins::Destroy.with(bearer_login_id: bearer_login.id)
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{revoke_all_text}", to: Destroy.with(user_id: user.id)
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/users/edit_page.cr b/src/pages/users/edit_page.cr
-index 2b51629..15fa137 100644
---- a/src/pages/users/edit_page.cr
-+++ b/src/pages/users/edit_page.cr
-@@ -2,11 +2,11 @@ struct Users::EditPage < MainLayout
-   needs operation : UpdateUser
- 
-   def page_title
--    "Edit user"
-+    Rex.t(:"page.user.edit.page_title")
-   end
- 
-   def content
--    h1 "Edit User"
-+    h1 Rex.t(:"page.user.edit.main_title")
- 
-     form_for Update.with(user_id: operation.id.value.not_nil!) do
-       para do
-@@ -63,24 +63,24 @@ struct Users::EditPage < MainLayout
-       end
- 
-       para do
--        button "Update user", role: "submit"
-+        button Rex.t(:"page.user.edit.form.submit.label"), role: "submit"
-       end
-     end
-   end
- 
-   private def bearer_login_notify_label_text
--    label_text = "Send user an email whenever they create a bearer login"
-+    Rex.t(:"page.user.form.bearer_login_notify.label")
-   end
- 
-   private def login_notify_label_text
--    label_text = "Send user an email whenever their account is accessed"
-+    Rex.t(:"page.user.form.login_notify.label")
-   end
- 
-   private def password_notify_label_text
--    label_text = "Send user an email whenever their password changes"
-+    Rex.t(:"page.user.form.password_notify.label")
-   end
- 
-   private def options_for_levels
--    User::Level.raw.names.map { |name| {name, User::Level.new(name)} }
-+    UserLevel.raw.names.map { |name| {name, UserLevel.new(name)} }
-   end
- end
-diff --git a/src/pages/users/email_confirmations/index_page.cr b/src/pages/users/email_confirmations/index_page.cr
-new file mode 100644
-index 0000000..957ab27
---- /dev/null
-+++ b/src/pages/users/email_confirmations/index_page.cr
-@@ -0,0 +1,47 @@
-+struct Users::EmailConfirmations::IndexPage < MainLayout
-+  needs email_confirmations : Array(EmailConfirmation)
-+  needs user : User
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.user.email_confirmation.index.page_title",
-+      full_name: user.full_name)
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.user.email_confirmation.index.main_title",
-+      full_name: user.full_name)
-+
-+    if email_confirmations.empty?
-+      para do
-+        text Rex.t(:"page.user.email_confirmation.index.none_found")
-+      end
-+    else
-+      ul do
-+        email_confirmations.each do |email_confirmation|
-+          li do
-+            text email_confirmation.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text email_confirmation.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text email_confirmation.ip_address
-+            text " | "
-+
-+            link "[x] #{deactivate_text}",
-+              to: ::EmailConfirmations::Destroy.with(
-+                email_confirmation_id: email_confirmation.id
-+              )
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{deactivate_all_text}", to: Destroy.with(user_id: user.id)
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/users/index_page.cr b/src/pages/users/index_page.cr
-index 613b364..fe8c5af 100644
---- a/src/pages/users/index_page.cr
-+++ b/src/pages/users/index_page.cr
-@@ -3,15 +3,15 @@ struct Users::IndexPage < MainLayout
-   needs pages : Lucky::Paginator
- 
-   def page_title
--    "Users"
-+    Rex.t(:"page.user.index.page_title")
-   end
- 
-   def content
--    h1 "Users"
-+    h1 Rex.t(:"page.user.index.main_title")
- 
-     if users.empty?
-       para do
--        text "No users"
-+        text Rex.t(:"page.user.index.none_found")
-       end
-     else
-       ul do
-@@ -19,7 +19,7 @@ struct Users::IndexPage < MainLayout
-           li do
-             text user.full_name
-             text " | "
--            link "[e] edit", to: Edit.with(user.id)
-+            link "[e] #{edit_text}", to: Edit.with(user.id)
-           end
-         end
-       end
-diff --git a/src/pages/users/logins/index_page.cr b/src/pages/users/logins/index_page.cr
-new file mode 100644
-index 0000000..5c628e2
---- /dev/null
-+++ b/src/pages/users/logins/index_page.cr
-@@ -0,0 +1,44 @@
-+struct Users::Logins::IndexPage < MainLayout
-+  needs logins : Array(Login)
-+  needs user : User
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.user.login.index.page_title", full_name: user.full_name)
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.user.login.index.main_title", full_name: user.full_name)
-+
-+    if logins.empty?
-+      para do
-+        text Rex.t(:"page.user.login.index.none_found")
-+      end
-+    else
-+      ul do
-+        logins.each do |login|
-+          li do
-+            text login.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text login.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text login.ip_address
-+            text " | "
-+
-+            link "[x] #{log_out_text}",
-+              to: ::Logins::Destroy.with(login_id: login.id)
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{log_out_everywhere_text}",
-+            to: Destroy.with(user_id: user.id)
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/users/password_resets/index_page.cr b/src/pages/users/password_resets/index_page.cr
-new file mode 100644
-index 0000000..51821a8
---- /dev/null
-+++ b/src/pages/users/password_resets/index_page.cr
-@@ -0,0 +1,46 @@
-+struct Users::PasswordResets::IndexPage < MainLayout
-+  needs password_resets : Array(PasswordReset)
-+  needs user : User
-+  needs pages : Lucky::Paginator
-+
-+  def page_title
-+    Rex.t(:"page.user.password_reset.index.page_title",
-+      full_name: user.full_name)
-+  end
-+
-+  def content
-+    h1 Rex.t(:"page.user.password_reset.index.main_title",
-+      full_name: user.full_name)
-+
-+    if password_resets.empty?
-+      para do
-+        text Rex.t(:"page.user.password_reset.index.none_found")
-+      end
-+    else
-+      ul do
-+        password_resets.each do |password_reset|
-+          li do
-+            text password_reset.active_at.to_s(App.settings.date_format)
-+            text " | "
-+            text password_reset.active_at.to_s(App.settings.time_format)
-+            text " | "
-+            text password_reset.ip_address
-+            text " | "
-+
-+            link "[x] #{deactivate_text}", to: ::PasswordResets::Destroy.with(
-+              password_reset_id: password_reset.id
-+            )
-+          end
-+        end
-+
-+        para do
-+          link "[x] #{deactivate_all_text}", to: Destroy.with(user_id: user.id)
-+        end
-+      end
-+
-+      if pages.total > 1
-+        mount Lucky::Paginator::SimpleNav, pages
-+      end
-+    end
-+  end
-+end
-diff --git a/src/pages/users/show_page.cr b/src/pages/users/show_page.cr
-index 6e27f6a..692401c 100644
---- a/src/pages/users/show_page.cr
-+++ b/src/pages/users/show_page.cr
-@@ -2,16 +2,16 @@ struct Users::ShowPage < MainLayout
-   needs user : User
- 
-   def page_title
--    user.full_name
-+    Rex.t(:"page.user.show.page_title", full_name: user.full_name)
-   end
- 
-   def content
--    h1 user.full_name
-+    h1 Rex.t(:"page.user.show.main_title", full_name: user.full_name)
- 
-     div do
-       text user.full_name
-       text " | "
--      link "[e] edit", to: Edit.with(user_id: user.id)
-+      link "[e] #{edit_text}", to: Edit.with(user_id: user.id)
-     end
-   end
- end
-diff --git a/src/serializers/base_serializer.cr b/src/serializers/base_serializer.cr
-index 79a422b..7503a4d 100644
---- a/src/serializers/base_serializer.cr
-+++ b/src/serializers/base_serializer.cr
-@@ -1,3 +1,23 @@
--abstract class BaseSerializer
-+abstract struct BaseSerializer
-+  enum Status
-+    Success
-+    Failure
-+    Error
-+  end
-+
-   include Lucille::Serializer
-+
-+  @message : String?
-+
-+  def render : NamedTuple
-+    json = {status: status}
-+    @message.try { |message| json = json.merge({message: message}) }
-+    data_json.empty? ? json : json.merge({data: data_json})
-+  end
-+
-+  private def data_json : NamedTuple
-+    NamedTuple.new
-+  end
-+
-+  private abstract def status : Status
- end
-diff --git a/src/serializers/bearer_login_serializer.cr b/src/serializers/bearer_login_serializer.cr
-index d29d43b..060ee6d 100644
---- a/src/serializers/bearer_login_serializer.cr
-+++ b/src/serializers/bearer_login_serializer.cr
-@@ -1,14 +1,57 @@
--class BearerLoginSerializer < BaseSerializer
--  def initialize(@bearer_login : BearerLogin)
-+struct BearerLoginSerializer < SuccessSerializer
-+  def initialize(
-+    @bearer_login : BearerLogin? = nil,
-+    @bearer_logins : Array(BearerLogin)? = nil,
-+    @message : String? = nil,
-+    @pages : Lucky::Paginator? = nil,
-+    @token : String? = nil,
-+    @user : User? = nil,
-+  )
-   end
- 
--  def render
-+  def self.item(bearer_login : BearerLogin)
-     {
--      id: @bearer_login.id,
--      name: @bearer_login.name,
--      scopes: @bearer_login.scopes,
--      active_at: @bearer_login.active_at.to_unix,
--      inactive_at: @bearer_login.inactive_at.try &.to_unix
-+      active_at: bearer_login.active_at.to_unix,
-+      id: bearer_login.id,
-+      inactive_at: bearer_login.inactive_at.try &.to_unix,
-+      name: bearer_login.name,
-+      scopes: bearer_login.scopes,
-+      status: bearer_login.status.to_s,
-     }
-   end
-+
-+  private def data_json : NamedTuple
-+    data = super
-+    data = add_bearer_login(data)
-+    data = add_bearer_logins(data)
-+    data = add_token(data)
-+    data = add_user(data)
-+    data
-+  end
-+
-+  private def add_bearer_login(data)
-+    @bearer_login.try do |bearer_login|
-+      data = data.merge({bearer_login: self.class.item(bearer_login)})
-+    end
-+
-+    data
-+  end
-+
-+  private def add_bearer_logins(data)
-+    @bearer_logins.try do |bearer_logins|
-+      data = data.merge({bearer_logins: self.class.list(bearer_logins)})
-+    end
-+
-+    data
-+  end
-+
-+  private def add_token(data)
-+    @token.try { |token| data = data.merge({token: token }) }
-+    data
-+  end
-+
-+  private def add_user(data)
-+    @user.try { |user| data = data.merge({user: UserSerializer.item(user)}) }
-+    data
-+  end
- end
-diff --git a/src/serializers/email_confirmation_serializer.cr b/src/serializers/email_confirmation_serializer.cr
-new file mode 100644
-index 0000000..bc2cc0b
---- /dev/null
-+++ b/src/serializers/email_confirmation_serializer.cr
-@@ -0,0 +1,62 @@
-+struct EmailConfirmationSerializer < SuccessSerializer
-+  def initialize(
-+    @email_confirmation : EmailConfirmation? = nil,
-+    @email_confirmations : Array(EmailConfirmation)? = nil,
-+    @message : String? = nil,
-+    @pages : Lucky::Paginator? = nil,
-+    @token : String? = nil,
-+    @user : User? = nil,
-+  )
-+  end
-+
-+  def self.item(email_confirmation : EmailConfirmation)
-+    {
-+      active_at: email_confirmation.active_at.to_unix,
-+      email: email_confirmation.email,
-+      id: email_confirmation.id,
-+      inactive_at: email_confirmation.inactive_at.try &.to_unix,
-+      ip_address: email_confirmation.ip_address,
-+      status: email_confirmation.status.to_s,
-+      user_id: email_confirmation.user_id
-+    }
-+  end
-+
-+  private def data_json : NamedTuple
-+    data = super
-+    data = add_email_confirmation(data)
-+    data = add_email_confirmations(data)
-+    data = add_token(data)
-+    data = add_user(data)
-+    data
-+  end
-+
-+  private def add_email_confirmation(data)
-+    @email_confirmation.try do |email_confirmation|
-+      data = data.merge({
-+        email_confirmation: self.class.item(email_confirmation)
-+      })
-+    end
-+
-+    data
-+  end
-+
-+  private def add_email_confirmations(data)
-+    @email_confirmations.try do |email_confirmations|
-+      data = data.merge({
-+        email_confirmations: self.class.list(email_confirmations)
-+      })
-+    end
-+
-+    data
-+  end
-+
-+  private def add_token(data)
-+    @token.try { |token| data = data.merge({token: token }) }
-+    data
-+  end
-+
-+  private def add_user(data)
-+    @user.try { |user| data = data.merge({user: UserSerializer.item(user) }) }
-+    data
-+  end
-+end
-diff --git a/src/serializers/error_serializer.cr b/src/serializers/error_serializer.cr
-index 21a53aa..b7f1d83 100644
---- a/src/serializers/error_serializer.cr
-+++ b/src/serializers/error_serializer.cr
-@@ -1,14 +1,21 @@
--# This is the default error serializer generated by Lucky.
--# Feel free to customize it in any way you like.
--class ErrorSerializer < BaseSerializer
-+struct ErrorSerializer < BaseSerializer
-   def initialize(
--    @message : String,
-+    @error_message : String,
-     @details : String? = nil,
--    @param : String? = nil # so you can track which param (if any) caused the problem
-+    @message : String? = nil,
-+    @param : String? = nil
-   )
-   end
- 
--  def render
--    {message: @message, param: @param, details: @details}
-+  private def status : Status
-+    Status::Error
-+  end
-+
-+  private def data_json : NamedTuple
-+    super.merge(error: error_json)
-+  end
-+
-+  private def error_json
-+    {message: @error_message, details: @details, param: @param}
-   end
- end
-diff --git a/src/serializers/failure_serializer.cr b/src/serializers/failure_serializer.cr
-new file mode 100644
-index 0000000..30e8c51
---- /dev/null
-+++ b/src/serializers/failure_serializer.cr
-@@ -0,0 +1,21 @@
-+struct FailureSerializer < BaseSerializer
-+  def initialize(
-+    @errors : Hash(Symbol, Array(String))? = nil,
-+    @message : String? = nil
-+  )
-+  end
-+
-+  private def status : Status
-+    Status::Failure
-+  end
-+
-+  private def data_json : NamedTuple
-+    data = super
-+
-+    @errors.try do |errors|
-+      data = data.merge({errors: errors}) unless errors.empty?
-+    end
-+
-+    data
-+  end
-+end
-diff --git a/src/serializers/login_serializer.cr b/src/serializers/login_serializer.cr
-index 77cd81d..5bb218e 100644
---- a/src/serializers/login_serializer.cr
-+++ b/src/serializers/login_serializer.cr
-@@ -1,13 +1,54 @@
--class LoginSerializer < BaseSerializer
--  def initialize(@login : Login)
-+struct LoginSerializer < SuccessSerializer
-+  def initialize(
-+    @login : Login? = nil,
-+    @logins : Array(Login)? = nil,
-+    @message : String? = nil,
-+    @pages : Lucky::Paginator? = nil,
-+    @token : String? = nil,
-+    @user : User? = nil,
-+  )
-   end
- 
--  def render
-+  def self.item(login : Login)
-     {
--      id: @login.id,
--      ip_address: @login.ip_address,
--      active_at: @login.active_at.to_unix,
--      inactive_at: @login.inactive_at.try &.to_unix
-+      active_at: login.active_at.to_unix,
-+      id: login.id,
-+      inactive_at: login.inactive_at.try &.to_unix,
-+      ip_address: login.ip_address,
-+      status: login.status.to_s,
-+      user_id: login.user_id
-     }
-   end
-+
-+  private def data_json : NamedTuple
-+    data = super
-+    data = add_login(data)
-+    data = add_logins(data)
-+    data = add_token(data)
-+    data = add_user(data)
-+    data
-+  end
-+
-+  private def add_login(data)
-+    @login.try { |login| data = data.merge({login: self.class.item(login)}) }
-+    data
-+  end
-+
-+  private def add_logins(data)
-+    @logins.try do |logins|
-+      data = data.merge({logins: self.class.list(logins)})
-+    end
-+
-+    data
-+  end
-+
-+  private def add_token(data)
-+    @token.try { |token| data = data.merge({token: token }) }
-+    data
-+  end
-+
-+  private def add_user(data)
-+    @user.try { |user| data = data.merge({user: UserSerializer.item(user)}) }
-+    data
-+  end
- end
-diff --git a/src/serializers/password_reset_serializer.cr b/src/serializers/password_reset_serializer.cr
-new file mode 100644
-index 0000000..4e2b05b
---- /dev/null
-+++ b/src/serializers/password_reset_serializer.cr
-@@ -0,0 +1,57 @@
-+struct PasswordResetSerializer < SuccessSerializer
-+  def initialize(
-+    @password_reset : PasswordReset? = nil,
-+    @password_resets : Array(PasswordReset)? = nil,
-+    @message : String? = nil,
-+    @pages : Lucky::Paginator? = nil,
-+    @token : String? = nil,
-+    @user : User? = nil,
-+  )
-+  end
-+
-+  def self.item(password_reset : PasswordReset)
-+    {
-+      active_at: password_reset.active_at.to_unix,
-+      id: password_reset.id,
-+      inactive_at: password_reset.inactive_at.try &.to_unix,
-+      ip_address: password_reset.ip_address,
-+      status: password_reset.status.to_s,
-+      user_id: password_reset.user_id
-+    }
-+  end
-+
-+  private def data_json : NamedTuple
-+    data = super
-+    data = add_password_reset(data)
-+    data = add_password_resets(data)
-+    data = add_token(data)
-+    data = add_user(data)
-+    data
-+  end
-+
-+  private def add_password_reset(data)
-+    @password_reset.try do |password_reset|
-+      data = data.merge({password_reset: self.class.item(password_reset)})
-+    end
-+
-+    data
-+  end
-+
-+  private def add_password_resets(data)
-+    @password_resets.try do |password_resets|
-+      data = data.merge({password_resets: self.class.list(password_resets)})
-+    end
-+
-+    data
-+  end
-+
-+  private def add_token(data)
-+    @token.try { |token| data = data.merge({token: token }) }
-+    data
-+  end
-+
-+  private def add_user(data)
-+    @user.try { |user| data = data.merge({user: UserSerializer.item(user)}) }
-+    data
-+  end
-+end
 diff --git a/src/serializers/success_serializer.cr b/src/serializers/success_serializer.cr
-new file mode 100644
-index 0000000..358f1ee
---- /dev/null
+index 358f1ee..e44c785 100644
+--- a/src/serializers/success_serializer.cr
 +++ b/src/serializers/success_serializer.cr
-@@ -0,0 +1,25 @@
-+abstract struct SuccessSerializer < BaseSerializer
-+  @pages : Lucky::Paginator?
-+
-+  def render : NamedTuple
-+    json = super
-+
-+    @pages.try do |pages|
-+      json = json.merge({pages: {
-+        current: pages.page,
-+        per_page: pages.per_page,
-+        total: pages.total,
-+      }})
-+    end
-+
-+    json
-+  end
-+
-+  def self.list(list : Array, *args, **named_args)
-+    list.map { |item| item(item, *args, **named_args) }
-+  end
-+
-+  private def status : Status
-+    Status::Success
-+  end
-+end
-diff --git a/src/serializers/user_serializer.cr b/src/serializers/user_serializer.cr
-index 800e9b2..e3192bd 100644
---- a/src/serializers/user_serializer.cr
-+++ b/src/serializers/user_serializer.cr
-@@ -1,13 +1,54 @@
--class UserSerializer < BaseSerializer
--  def initialize(@user : User)
-+struct UserSerializer < SuccessSerializer
-+  def initialize(
-+    @user : User? = nil,
-+    @users : Array(User)? = nil,
-+    @message : String? = nil,
-+    @pages : Lucky::Paginator? = nil,
-+    @token : String? = nil,
-+  )
-   end
- 
--  def render
-+  def self.item(user : User)
-     {
--      id: @user.id,
--      email: @user.email,
--      first_name: @user.first_name,
--      last_name: @user.last_name
-+      created_at: user.created_at.to_unix,
-+      email: user.email,
-+      first_name: user.first_name,
-+      full_name: user.full_name,
-+      id: user.id,
-+      last_name: user.last_name,
-+      level: user.level,
-+      updated_at: user.updated_at.to_unix,
-     }
+@@ -7,7 +7,15 @@ abstract struct SuccessSerializer < BaseSerializer
+     @pages.try do |pages|
+       json = json.merge({pages: {
+         current: pages.page,
+-        per_page: pages.per_page,
++        items: {
++          count: pages.per_page,
++          end: pages.item_range.end,
++          start: pages.item_range.begin,
++          total: pages.item_count,
++        },
++        next: pages.next_page,
++        previous: pages.previous_page,
++        series: pages_series(pages),
+         total: pages.total,
+       }})
+     end
+@@ -22,4 +30,28 @@ abstract struct SuccessSerializer < BaseSerializer
+   private def status : Status
+     Status::Success
    end
 +
-+  private def data_json : NamedTuple
-+    data = super
-+    data = add_user(data)
-+    data = add_users(data)
-+    data = add_token(data)
-+    data
-+  end
++  # The idea here is to free the frontend from having to calculate
++  # pagination parameters itself. We are therefore sending along the
++  # pagination series as built by *Lucky*.
 +
-+  private def add_user(data)
-+    @user.try { |user| data = data.merge({user: self.class.item(user)}) }
-+    data
-+  end
-+
-+  private def add_users(data)
-+    @users.try do |users|
-+      data = data.merge({users: self.class.list(users)})
++  # Here, a negative number represents the current page, a `0`
++  # represents a gap. Eg: `[1,0,5,-6,7,0,11]`.
++  private def pages_series(pages)
++    pages.series(
++      begin: 1,
++      end: 1,
++      left_of_current: 2,
++      right_of_current: 2
++    ).map do |item|
++      case item
++      when Lucky::Paginator::CurrentPage
++        -item.number
++      when Lucky::Paginator::Page
++        item.number
++      else
++        0
++      end
 +    end
-+
-+    data
-+  end
-+
-+  private def add_token(data)
-+    @token.try { |token| data = data.merge({token: token }) }
-+    data
-+  end
-+
-+  private def add_user(data)
-+    @user.try { |user| data = data.merge({user: UserSerializer.item(user)}) }
-+    data
 +  end
  end
-diff --git a/src/operations/mixins/.keep b/src/utilities/mixins/.keep
-similarity index 100%
-rename from src/operations/mixins/.keep
-rename to src/utilities/mixins/.keep
