@@ -10,6 +10,3 @@ trim_trailing_whitespace = true
 
 [*.{diff,md}]
 trim_trailing_whitespace = false
-
-[*.md]
-indent_size = 4
