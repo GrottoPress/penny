@@ -268,7 +268,6 @@ en:
     error:
       active_at_required: Active time is required
       bearer_login_notify_required: Bearer login notification was not set
-      bearer_scopes_empty: Scopes cannot be empty
       bearer_scopes_invalid: One or more scopes are not valid
       bearer_scopes_required: Scopes is required
       email_invalid: Email format is not valid

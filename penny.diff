@@ -1,339 +1,286 @@
-diff --git a/.editorconfig b/.editorconfig
-index 7eef262..6d64754 100644
---- a/.editorconfig
-+++ b/.editorconfig
-@@ -10,6 +10,3 @@ trim_trailing_whitespace = true
- 
- [*.{diff,md}]
- trim_trailing_whitespace = false
--
--[*.md]
--indent_size = 4
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 31576d5..6b88761 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -16,7 +16,7 @@ jobs:
+     strategy:
+       fail-fast: false
+       matrix:
+-        crystal: [1.3.2]
++        crystal: [1.4.0]
+     runs-on: ubuntu-latest
+     continue-on-error: false
+     steps:
+@@ -34,7 +34,7 @@ jobs:
+     strategy:
+       fail-fast: false
+       matrix:
+-        crystal: [1.0.0, latest]
++        crystal: [1.4.0, latest]
+         experimental: [false]
+         include:
+           - crystal: nightly
+diff --git a/config/locales/en.yml b/config/locales/en.yml
+index 7991a3b..77b1907 100644
+--- a/config/locales/en.yml
++++ b/config/locales/en.yml
+@@ -268,7 +268,6 @@ en:
+     error:
+       active_at_required: Active time is required
+       bearer_login_notify_required: Bearer login notification was not set
+-      bearer_scopes_empty: Scopes cannot be empty
+       bearer_scopes_invalid: One or more scopes are not valid
+       bearer_scopes_required: Scopes is required
+       email_invalid: Email format is not valid
+diff --git a/package.json b/package.json
+index f5acd7b..fd6b12f 100644
+--- a/package.json
++++ b/package.json
+@@ -3,8 +3,7 @@
+   "private": true,
+   "dependencies": {
+     "@rails/ujs": "^6.0.0",
+-    "normalize-scss": "^7.0.1",
+-    "turbolinks": "^5.2.0"
++    "modern-normalize": "^1.1.0"
+   },
+   "scripts": {
+     "heroku-postbuild": "yarn prod",
 diff --git a/shard.yml b/shard.yml
-index 77448a9..b9d65f5 100644
+index b9d65f5..cde9c9f 100644
 --- a/shard.yml
 +++ b/shard.yml
-@@ -33,7 +33,7 @@ dependencies:
+@@ -10,21 +10,24 @@ targets:
+   app:
+     main: src/start_server.cr
+ 
+-crystal: ~> 1.0
++crystal: ~> 1.4
+ 
+ dependencies:
++  avram:
++    github: luckyframework/avram
++    version: ~> 1.0.0-rc1
+   lucky:
+     github: luckyframework/lucky
+-    version: ~> 0.30.0
++    version: ~> 1.0.0-rc1
+   lucky_env:
+     github: luckyframework/lucky_env
+     version: ~> 0.1.4
+   carbon:
+     github: luckyframework/carbon
+-    version: ~> 0.2.0
++    version: ~> 0.3.0
+   carbon_sendgrid_adapter:
+     github: luckyframework/carbon_sendgrid_adapter
+-    version: ~> 0.1.0
++    version: ~> 0.3.0
+   envy:
+     github: GrottoPress/envy
+     version: ~> 0.3.0
+@@ -33,7 +36,7 @@ dependencies:
      version: ~> 0.2.1
    shield:
      github: GrottoPress/shield
--    version: ~> 0.15.0
-+    version: ~> 0.16.0
+-    version: ~> 0.16.0
++    version: ~> 0.17.0
    unslash:
      github: GrottoPress/unslash
      version: ~> 0.1.0
-diff --git a/src/actions/api/bearer_logins/show.cr b/src/actions/api/bearer_logins/show.cr
-new file mode 100644
-index 0000000..589becd
---- /dev/null
-+++ b/src/actions/api/bearer_logins/show.cr
-@@ -0,0 +1,7 @@
-+# class Api::BearerLogins::Show < ApiAction
-+#   include Shield::Api::BearerLogins::Show
+@@ -41,7 +44,7 @@ dependencies:
+ development_dependencies:
+   ameba:
+     github: crystal-ameba/ameba
+-    version: ~> 0.14.3
++    version: ~> 1.0.0
+   lucky_flow:
+     github: luckyframework/lucky_flow
+-    version: ~> 0.7.3
++    version: ~> 0.9.0
+diff --git a/spec/setup/flow.cr b/spec/setup/flow.cr
+index 6b14f50..504a3d3 100644
+--- a/spec/setup/flow.cr
++++ b/spec/setup/flow.cr
+@@ -1,7 +1,37 @@
++# For more detailed documentation, visit
++# https://luckyframework.org/guides/testing/html-and-interactivity
 +
-+#   get "/bearer-logins/:bearer_login_id" do
-+#     json BearerLoginSerializer.new(bearer_login: bearer_login)
-+#   end
-+# end
-diff --git a/src/actions/api/bearer_logins/verify.cr b/src/actions/api/bearer_logins/verify.cr
-new file mode 100644
-index 0000000..7714418
---- /dev/null
-+++ b/src/actions/api/bearer_logins/verify.cr
-@@ -0,0 +1,7 @@
-+class Api::BearerLogins::Verify < ApiAction
-+  include Shield::Api::BearerLogins::Verify
+ LuckyFlow.configure do |settings|
+   settings.stop_retrying_after = 200.milliseconds
+   settings.base_uri = Lucky::RouteHelper.settings.base_uri
+-  settings.driver = LuckyFlow::Drivers::Chrome
 +
-+  post "/bearer-logins/verify" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/email_confirmations/show.cr b/src/actions/api/email_confirmations/show.cr
-new file mode 100644
-index 0000000..e26d5a6
---- /dev/null
-+++ b/src/actions/api/email_confirmations/show.cr
-@@ -0,0 +1,7 @@
-+# class Api::EmailConfirmations::Show < ApiAction
-+#   include Shield::Api::EmailConfirmations::Show
-+
-+#   get "/email-confirmations/:email_confirmation_id" do
-+#     json EmailConfirmationSerializer.new(email_confirmation: email_confirmation)
-+#   end
-+# end
-diff --git a/src/actions/api/logins/show.cr b/src/actions/api/logins/show.cr
-new file mode 100644
-index 0000000..0cdc789
---- /dev/null
-+++ b/src/actions/api/logins/show.cr
-@@ -0,0 +1,7 @@
-+# class Api::Logins::Show < ApiAction
-+#   include Shield::Api::Logins::Show
-+
-+#   get "/logins/:login_id" do
-+#     json LoginSerializer.new(login: login)
-+#   end
-+# end
-diff --git a/src/actions/api/password_resets/show.cr b/src/actions/api/password_resets/show.cr
-new file mode 100644
-index 0000000..f91c3ca
---- /dev/null
-+++ b/src/actions/api/password_resets/show.cr
-@@ -0,0 +1,7 @@
-+# class Api::PasswordResets::Show < ApiAction
-+#   include Shield::Api::PasswordResets::Show
-+
-+#   get "/password-resets/:password_reset_id" do
-+#     json PasswordResetSerializer.new(password_reset: password_reset)
-+#   end
-+# end
-diff --git a/src/actions/bearer_logins/show.cr b/src/actions/bearer_logins/show.cr
-index cff88c4..e694bbf 100644
---- a/src/actions/bearer_logins/show.cr
-+++ b/src/actions/bearer_logins/show.cr
-@@ -1,9 +1,9 @@
--class BearerLogins::Show < BrowserAction
--  include Shield::BearerLogins::Show
-+# class BearerLogins::Show < BrowserAction
-+#   include Shield::BearerLogins::Show
- 
--  param page : Int32 = 1
-+#   param page : Int32 = 1
- 
--  get "/bearer-logins/:bearer_login_id" do
--    html ShowPage, bearer_login: bearer_login, token: token
--  end
--end
-+#   get "/bearer-logins/:bearer_login_id" do
-+#     html ShowPage, bearer_login: bearer_login
-+#   end
-+# end
-diff --git a/src/actions/bearer_logins/token/show.cr b/src/actions/bearer_logins/token/show.cr
-new file mode 100644
-index 0000000..55449a9
---- /dev/null
-+++ b/src/actions/bearer_logins/token/show.cr
-@@ -0,0 +1,9 @@
-+class BearerLogins::Token::Show < BrowserAction
-+  include Shield::BearerLogins::Token::Show
-+
-+  param page : Int32 = 1
-+
-+  get "/bearer-logins/token" do
-+    html ShowPage, bearer_login: bearer_login, token: token
-+  end
-+end
-diff --git a/src/actions/current_user/bearer_logins/new.cr b/src/actions/current_user/bearer_logins/new.cr
-index e8efafe..c728a91 100644
---- a/src/actions/current_user/bearer_logins/new.cr
-+++ b/src/actions/current_user/bearer_logins/new.cr
-@@ -2,11 +2,7 @@ class CurrentUser::BearerLogins::New < BrowserAction
-   include Shield::CurrentUser::BearerLogins::New
- 
-   get "/account/bearer-logins/new" do
--    operation = CreateBearerLogin.new(
--      user: user,
--      allowed_scopes: BearerScope.action_scopes.map(&.to_s)
--    )
--
-+    operation = CreateBearerLogin.new(user: user)
-     html NewPage, operation: operation
-   end
++  # LuckyFlow will install the chromedriver for you located in
++  # ~./webdrivers/. Uncomment this to point to a specific driver
++  # settings.driver_path = "/path/to/specific/chromedriver"
  end
-diff --git a/src/actions/email_confirmations/show.cr b/src/actions/email_confirmations/show.cr
-index dee5e89..419e1b6 100644
---- a/src/actions/email_confirmations/show.cr
-+++ b/src/actions/email_confirmations/show.cr
-@@ -1,7 +1,7 @@
--class EmailConfirmations::Show < BrowserAction
--  include Shield::EmailConfirmations::Show
-+# class EmailConfirmations::Show < BrowserAction
-+#   include Shield::EmailConfirmations::Show
  
--  get "/email-confirmations/:token" do
--    run_operation
--  end
--end
-+#   get "/email-confirmations/:email_confirmation_id" do
-+#     run_operation
-+#   end
-+# end
-diff --git a/src/actions/email_confirmations/token/show.cr b/src/actions/email_confirmations/token/show.cr
-new file mode 100644
-index 0000000..4024586
---- /dev/null
-+++ b/src/actions/email_confirmations/token/show.cr
-@@ -0,0 +1,7 @@
-+class EmailConfirmations::Token::Show < BrowserAction
-+  include Shield::EmailConfirmations::Token::Show
+-Spec.before_each { LuckyFlow::Server::INSTANCE.reset }
++# By default, LuckyFlow is set in "headless" mode (no browser window shown).
++# Uncomment this to enable running `LuckyFlow` in a Google Chrome window instead.
++# Be sure to disable for CI.
++#
++# LuckyFlow.default_driver = "chrome"
 +
-+  get "/email-confirmations/token/:token" do
++# LuckyFlow uses a registry for each driver. By default, chrome, and headless_chrome
++# are available. If you'd like to register your own custom driver, you can register
++# it here.
++#
++# LuckyFlow::Registry.register :firefox do
++#   # add your custom driver here
++# end
++
++# Setup specs to allow you to change the driver on the fly
++# per spec by setting a tag on specific specs. Requires the
++# driver to be registered through `LuckyFlow::Registry` first.
++#
++# ```
++# it "uses headless_chrome" do
++# end
++# it "uses webless", tags: "webless" do
++# end
++# ```
++LuckyFlow::Spec.setup
+diff --git a/spec/spec_helper.cr b/spec/spec_helper.cr
+index 31992e5..dd4ba7b 100644
+--- a/spec/spec_helper.cr
++++ b/spec/spec_helper.cr
+@@ -2,6 +2,8 @@ ENV["LUCKY_ENV"] = "test"
+ 
+ require "spec"
+ require "lucky_flow"
++require "lucky_flow/ext/lucky"
++require "lucky_flow/ext/avram"
+ 
+ require "../src/app"
+ require "./support/flows/base_flow"
+diff --git a/src/actions/api/bearer_logins/token/verify.cr b/src/actions/api/bearer_logins/token/verify.cr
+new file mode 100644
+index 0000000..09a08e9
+--- /dev/null
++++ b/src/actions/api/bearer_logins/token/verify.cr
+@@ -0,0 +1,7 @@
++class Api::BearerLogins::Token::Verify < ApiAction
++  include Shield::Api::BearerLogins::Token::Verify
++
++  post "/bearer-logins/token/verify" do
 +    run_operation
 +  end
 +end
-diff --git a/src/actions/logins/show.cr b/src/actions/logins/show.cr
-new file mode 100644
-index 0000000..f5ebea7
---- /dev/null
-+++ b/src/actions/logins/show.cr
-@@ -0,0 +1,9 @@
-+# class Logins::Show < BrowserAction
-+#   include Shield::Logins::Show
-+
-+#   param page : Int32 = 1
-+
-+#   get "/logins/:login_id" do
-+#     html ShowPage, login: login
-+#   end
-+# end
-diff --git a/src/actions/password_resets/show.cr b/src/actions/password_resets/show.cr
-index cf3e234..85f3ba8 100644
---- a/src/actions/password_resets/show.cr
-+++ b/src/actions/password_resets/show.cr
-@@ -1,7 +1,7 @@
--class PasswordResets::Show < BrowserAction
--  include Shield::PasswordResets::Show
-+# class PasswordResets::Show < BrowserAction
-+#   include Shield::PasswordResets::Show
- 
--  get "/password-resets/:token" do
--    run_operation
--  end
--end
-+#   get "/password-resets/:password_reset_id" do
-+#     html ShowPage, password_reset: password_reset
-+#   end
-+# end
-diff --git a/src/actions/password_resets/token/show.cr b/src/actions/password_resets/token/show.cr
-new file mode 100644
-index 0000000..fd6178b
---- /dev/null
-+++ b/src/actions/password_resets/token/show.cr
-@@ -0,0 +1,7 @@
-+class PasswordResets::Token::Show < BrowserAction
-+  include Shield::PasswordResets::Token::Show
-+
-+  get "/password-resets/token/:token" do
-+    run_operation
-+  end
-+end
-diff --git a/src/pages/bearer_logins/show_page.cr b/src/pages/bearer_logins/show_page.cr
-index 7d59a91..4919c23 100644
---- a/src/pages/bearer_logins/show_page.cr
-+++ b/src/pages/bearer_logins/show_page.cr
-@@ -1,21 +1,13 @@
--struct BearerLogins::ShowPage < MainLayout
--  needs bearer_login : BearerLogin
--  needs token : String
-+# struct BearerLogins::ShowPage < MainLayout
-+#   needs bearer_login : BearerLogin
- 
--  def page_title
--    Rex.t(:"page.bearer_login.show.page_title", name: bearer_login.name)
--  end
-+#   def page_title
-+#     Rex.t(:"page.bearer_login.show.page_title")
-+#   end
- 
--  def content
--    h1 Rex.t(:"page.bearer_login.show.main_title", name: bearer_login.name)
-+#   def content
-+#     h1 Rex.t(:"page.bearer_login.show.main_title")
- 
--    para Rex.t(:"page.bearer_login.show.copy_token")
--    pre token
+diff --git a/src/actions/api/bearer_logins/verify.cr b/src/actions/api/bearer_logins/verify.cr
+deleted file mode 100644
+index 7714418..0000000
+--- a/src/actions/api/bearer_logins/verify.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::BearerLogins::Verify < ApiAction
+-  include Shield::Api::BearerLogins::Verify
 -
--    para do
--      link "[=] #{list_text}", to: Index
--      text " | "
--      link "[+] #{add_new_text}", to: CurrentUser::BearerLogins::New
--    end
+-  post "/bearer-logins/verify" do
+-    run_operation
 -  end
 -end
-+#     #
-+#   end
-+# end
-diff --git a/src/pages/bearer_logins/token/show_page.cr b/src/pages/bearer_logins/token/show_page.cr
+diff --git a/src/actions/api/email_confirmations/token/verify.cr b/src/actions/api/email_confirmations/token/verify.cr
 new file mode 100644
-index 0000000..3e6639b
+index 0000000..bb5fbb3
 --- /dev/null
-+++ b/src/pages/bearer_logins/token/show_page.cr
-@@ -0,0 +1,21 @@
-+struct BearerLogins::Token::ShowPage < MainLayout
-+  needs bearer_login : BearerLogin
-+  needs token : String
++++ b/src/actions/api/email_confirmations/token/verify.cr
+@@ -0,0 +1,9 @@
++class Api::EmailConfirmations::Token::Verify < ApiAction
++  include Shield::Api::EmailConfirmations::Token::Verify
 +
-+  def page_title
-+    Rex.t(:"page.bearer_login.show.page_title", name: bearer_login.name)
-+  end
++  skip :pin_email_confirmation_to_ip_address
 +
-+  def content
-+    h1 Rex.t(:"page.bearer_login.show.main_title", name: bearer_login.name)
-+
-+    para Rex.t(:"page.bearer_login.show.copy_token")
-+    pre token
-+
-+    para do
-+      link "[=] #{list_text}", to: Index
-+      text " | "
-+      link "[+] #{add_new_text}", to: CurrentUser::BearerLogins::New
-+    end
++  post "/email-confirmations/token/verify" do
++    run_operation
 +  end
 +end
-diff --git a/src/pages/email_confirmations/show_page.cr b/src/pages/email_confirmations/show_page.cr
+diff --git a/src/actions/api/email_confirmations/verify.cr b/src/actions/api/email_confirmations/verify.cr
+deleted file mode 100644
+index 9214c6d..0000000
+--- a/src/actions/api/email_confirmations/verify.cr
++++ /dev/null
+@@ -1,9 +0,0 @@
+-class Api::EmailConfirmations::Verify < ApiAction
+-  include Shield::Api::EmailConfirmations::Verify
+-
+-  skip :pin_email_confirmation_to_ip_address
+-
+-  post "/email-confirmations/verify" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/password_resets/token/verify.cr b/src/actions/api/password_resets/token/verify.cr
 new file mode 100644
-index 0000000..ee07373
+index 0000000..cfd3085
 --- /dev/null
-+++ b/src/pages/email_confirmations/show_page.cr
-@@ -0,0 +1,13 @@
-+# struct EmailConfirmations::ShowPage < MainLayout
-+#   needs email_confirmation : EmailConfirmation
++++ b/src/actions/api/password_resets/token/verify.cr
+@@ -0,0 +1,9 @@
++class Api::PasswordResets::Token::Verify < ApiAction
++  include Shield::Api::PasswordResets::Token::Verify
 +
-+#   def page_title
-+#     Rex.t(:"page.email_confirmation.show.page_title")
-+#   end
++  skip :pin_password_reset_to_ip_address
 +
-+#   def content
-+#     h1 Rex.t(:"page.email_confirmation.show.main_title")
++  post "/password-resets/token/verify" do
++    run_operation
++  end
++end
+diff --git a/src/actions/api/password_resets/verify.cr b/src/actions/api/password_resets/verify.cr
+deleted file mode 100644
+index a9a4d87..0000000
+--- a/src/actions/api/password_resets/verify.cr
++++ /dev/null
+@@ -1,9 +0,0 @@
+-class Api::PasswordResets::Verify < ApiAction
+-  include Shield::Api::PasswordResets::Verify
+-
+-  skip :pin_password_reset_to_ip_address
+-
+-  post "/password-resets/verify" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api_action.cr b/src/actions/api_action.cr
+index d10019a..1473c93 100644
+--- a/src/actions/api_action.cr
++++ b/src/actions/api_action.cr
+@@ -1,7 +1,14 @@
+ abstract class ApiAction < Lucky::Action
++  # IMPORTANT!:
++  #   This module reduces `Shield::Api::LoginPipes` from an authentication
++  #   pipe to a delegated authorization pipe. Once included, bearer tokens
++  #   retrieved from the `Authorization` header MUST NOT be used as proof
++  #   of authentication.
++  include Shield::Api::BearerLoginPipes
 +
-+#     #
-+#   end
-+# end
-diff --git a/src/pages/logins/show_page.cr b/src/pages/logins/show_page.cr
-new file mode 100644
-index 0000000..7a7a749
---- /dev/null
-+++ b/src/pages/logins/show_page.cr
-@@ -0,0 +1,13 @@
-+# struct Logins::ShowPage < MainLayout
-+#   needs login : Login
-+
-+#   def page_title
-+#     Rex.t(:"page.login.show.page_title")
-+#   end
-+
-+#   def content
-+#     h1 Rex.t(:"page.login.show.main_title")
-+
-+#     #
-+#   end
-+# end
-diff --git a/src/pages/password_resets/show_page.cr b/src/pages/password_resets/show_page.cr
-new file mode 100644
-index 0000000..f92d13a
---- /dev/null
-+++ b/src/pages/password_resets/show_page.cr
-@@ -0,0 +1,13 @@
-+# struct PasswordResets::ShowPage < MainLayout
-+#   needs password_reset : PasswordReset
-+
-+#   def page_title
-+#     Rex.t(:"page.password_reset.show.page_title")
-+#   end
-+
-+#   def content
-+#     h1 Rex.t(:"page.password_reset.show.main_title")
-+
-+#     #
-+#   end
-+# end
+   skip :pin_login_to_ip_address
+ 
+-  accepted_formats [:html, :json], default: :json
++  accepted_formats [:json]
+ 
+   route_prefix "/api/v0"
+ 
+diff --git a/src/app.cr b/src/app.cr
+index 5fc2488..c03e31f 100644
+--- a/src/app.cr
++++ b/src/app.cr
+@@ -8,6 +8,7 @@
+ require "envy"
+ require "lucky_env"
+ require "lucky"
++require "avram/lucky"
+ require "carbon"
+ require "carbon_sendgrid_adapter"
+ require "shield"
+diff --git a/tasks.cr b/tasks.cr
+index 8bc2590..fc1057e 100644
+--- a/tasks.cr
++++ b/tasks.cr
+@@ -19,5 +19,6 @@ require "./tasks/**"
+ 
+ # Load Lucky tasks (dev, routes, etc.)
+ require "lucky/tasks/**"
++require "avram/lucky/tasks"
+ 
+ LuckyTask::Runner.run

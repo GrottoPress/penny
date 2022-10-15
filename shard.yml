@@ -10,21 +10,24 @@ targets:
   app:
     main: src/start_server.cr
 
-crystal: ~> 1.0
+crystal: ~> 1.4
 
 dependencies:
+  avram:
+    github: luckyframework/avram
+    version: ~> 1.0.0-rc1
   lucky:
     github: luckyframework/lucky
-    version: ~> 0.30.0
+    version: ~> 1.0.0-rc1
   lucky_env:
     github: luckyframework/lucky_env
     version: ~> 0.1.4
   carbon:
     github: luckyframework/carbon
-    version: ~> 0.2.0
+    version: ~> 0.3.0
   carbon_sendgrid_adapter:
     github: luckyframework/carbon_sendgrid_adapter
-    version: ~> 0.1.0
+    version: ~> 0.3.0
   envy:
     github: GrottoPress/envy
     version: ~> 0.3.0
@@ -33,7 +36,7 @@ dependencies:
     version: ~> 0.2.1
   shield:
     github: GrottoPress/shield
-    version: ~> 0.16.0
+    version: ~> 0.17.0
   unslash:
     github: GrottoPress/unslash
     version: ~> 0.1.0
@@ -41,7 +44,7 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 0.14.3
+    version: ~> 1.0.0
   lucky_flow:
     github: luckyframework/lucky_flow
-    version: ~> 0.7.3
+    version: ~> 0.9.0

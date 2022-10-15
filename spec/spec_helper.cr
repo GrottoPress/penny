@@ -2,6 +2,8 @@ ENV["LUCKY_ENV"] = "test"
 
 require "spec"
 require "lucky_flow"
+require "lucky_flow/ext/lucky"
+require "lucky_flow/ext/avram"
 
 require "../src/app"
 require "./support/flows/base_flow"

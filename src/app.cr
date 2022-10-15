@@ -8,6 +8,7 @@
 require "envy"
 require "lucky_env"
 require "lucky"
+require "avram/lucky"
 require "carbon"
 require "carbon_sendgrid_adapter"
 require "shield"
