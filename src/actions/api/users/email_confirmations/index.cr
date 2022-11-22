@@ -1,4 +1,4 @@
-class Api::Users::EmailConfirmations::Index < ApiAction
+class Api::Users::EmailConfirmations::Index < PublicApi
   include Shield::Api::Users::EmailConfirmations::Index
 
   param page : Int32 = 1

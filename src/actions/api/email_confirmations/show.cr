@@ -1,4 +1,4 @@
-# class Api::EmailConfirmations::Show < ApiAction
+# class Api::EmailConfirmations::Show < PublicApi
 #   include Shield::Api::EmailConfirmations::Show
 
 #   get "/email-confirmations/:email_confirmation_id" do

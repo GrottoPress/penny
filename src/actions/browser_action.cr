@@ -1,4 +1,14 @@
 abstract class BrowserAction < Lucky::Action
+  include Shield::BrowserAction
+
+  include Shield::LoginHelpers
+  include Shield::EmailConfirmationHelpers
+  include Shield::PasswordResetHelpers
+
+  include Shield::LoginPipes
+  include Shield::EmailConfirmationPipes
+  include Shield::PasswordResetPipes
+
   include Lucky::SecureHeaders::SetFrameGuard
   include Lucky::SecureHeaders::SetSniffGuard
   include Lucky::SecureHeaders::SetXSSGuard

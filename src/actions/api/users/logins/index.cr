@@ -1,4 +1,4 @@
-class Api::Users::Logins::Index < ApiAction
+class Api::Users::Logins::Index < PublicApi
   include Shield::Api::Users::Logins::Index
 
   param page : Int32 = 1

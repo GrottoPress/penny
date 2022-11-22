@@ -1,4 +1,4 @@
-# class Api::BearerLogins::Show < ApiAction
+# class Api::BearerLogins::Show < PublicApi
 #   include Shield::Api::BearerLogins::Show
 
 #   get "/bearer-logins/:bearer_login_id" do

@@ -5,8 +5,8 @@ I18n.init
 private struct I18nAdapter
   include Rex::Adapter
 
-  def translate(text : String | Symbol, *args) : String
-    I18n.t(text, *args)
+  def translate(text : String | Symbol, **named_args) : String
+    I18n.t(text, **named_args)
   end
 
   def localize(value, *args) : String

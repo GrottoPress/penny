@@ -1,4 +1,4 @@
-class Api::CurrentUser::PasswordResets::Index < ApiAction
+class Api::CurrentUser::PasswordResets::Index < PublicApi
   include Shield::Api::CurrentUser::PasswordResets::Index
 
   param page : Int32 = 1

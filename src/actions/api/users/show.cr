@@ -1,4 +1,4 @@
-class Api::Users::Show < ApiAction
+class Api::Users::Show < PublicApi
   include Shield::Api::Users::Show
 
   get "/users/:user_id" do

@@ -1,4 +1,4 @@
-# class Api::PasswordResets::Show < ApiAction
+# class Api::PasswordResets::Show < PublicApi
 #   include Shield::Api::PasswordResets::Show
 
 #   get "/password-resets/:password_reset_id" do

@@ -1,4 +1,4 @@
-class Api::Users::BearerLogins::Index < ApiAction
+class Api::Users::BearerLogins::Index < PublicApi
   include Shield::Api::Users::BearerLogins::Index
 
   param page : Int32 = 1

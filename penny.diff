@@ -1,13 +1,13 @@
 diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index 31576d5..6b88761 100644
+index 6b88761..baab970 100644
 --- a/.github/workflows/ci.yml
 +++ b/.github/workflows/ci.yml
 @@ -16,7 +16,7 @@ jobs:
      strategy:
        fail-fast: false
        matrix:
--        crystal: [1.3.2]
-+        crystal: [1.4.0]
+-        crystal: [1.4.0]
++        crystal: [1.6.0]
      runs-on: ubuntu-latest
      continue-on-error: false
      steps:
@@ -15,272 +15,1331 @@ index 31576d5..6b88761 100644
      strategy:
        fail-fast: false
        matrix:
--        crystal: [1.0.0, latest]
-+        crystal: [1.4.0, latest]
+-        crystal: [1.4.0, latest]
++        crystal: [1.6.0, latest]
          experimental: [false]
          include:
            - crystal: nightly
-diff --git a/config/locales/en.yml b/config/locales/en.yml
-index 7991a3b..77b1907 100644
---- a/config/locales/en.yml
-+++ b/config/locales/en.yml
-@@ -268,7 +268,6 @@ en:
-     error:
-       active_at_required: Active time is required
-       bearer_login_notify_required: Bearer login notification was not set
--      bearer_scopes_empty: Scopes cannot be empty
-       bearer_scopes_invalid: One or more scopes are not valid
-       bearer_scopes_required: Scopes is required
-       email_invalid: Email format is not valid
-diff --git a/package.json b/package.json
-index f5acd7b..fd6b12f 100644
---- a/package.json
-+++ b/package.json
-@@ -3,8 +3,7 @@
-   "private": true,
-   "dependencies": {
-     "@rails/ujs": "^6.0.0",
--    "normalize-scss": "^7.0.1",
--    "turbolinks": "^5.2.0"
-+    "modern-normalize": "^1.1.0"
-   },
-   "scripts": {
-     "heroku-postbuild": "yarn prod",
+diff --git a/config/i18n.cr b/config/i18n.cr
+index c1511a2..1883f38 100644
+--- a/config/i18n.cr
++++ b/config/i18n.cr
+@@ -5,8 +5,8 @@ I18n.init
+ private struct I18nAdapter
+   include Rex::Adapter
+ 
+-  def translate(text : String | Symbol, *args) : String
+-    I18n.t(text, *args)
++  def translate(text : String | Symbol, **named_args) : String
++    I18n.t(text, **named_args)
+   end
+ 
+   def localize(value, *args) : String
 diff --git a/shard.yml b/shard.yml
-index b9d65f5..cde9c9f 100644
+index cde9c9f..4d04af7 100644
 --- a/shard.yml
 +++ b/shard.yml
-@@ -10,21 +10,24 @@ targets:
+@@ -10,7 +10,7 @@ targets:
    app:
      main: src/start_server.cr
  
--crystal: ~> 1.0
-+crystal: ~> 1.4
+-crystal: ~> 1.4
++crystal: ~> 1.6
  
  dependencies:
-+  avram:
-+    github: luckyframework/avram
-+    version: ~> 1.0.0-rc1
-   lucky:
-     github: luckyframework/lucky
--    version: ~> 0.30.0
-+    version: ~> 1.0.0-rc1
-   lucky_env:
-     github: luckyframework/lucky_env
-     version: ~> 0.1.4
-   carbon:
-     github: luckyframework/carbon
--    version: ~> 0.2.0
-+    version: ~> 0.3.0
-   carbon_sendgrid_adapter:
-     github: luckyframework/carbon_sendgrid_adapter
--    version: ~> 0.1.0
-+    version: ~> 0.3.0
-   envy:
-     github: GrottoPress/envy
-     version: ~> 0.3.0
-@@ -33,7 +36,7 @@ dependencies:
+   avram:
+@@ -36,7 +36,7 @@ dependencies:
      version: ~> 0.2.1
    shield:
      github: GrottoPress/shield
--    version: ~> 0.16.0
-+    version: ~> 0.17.0
+-    version: ~> 0.17.0
++    version: ~> 0.18.0
    unslash:
      github: GrottoPress/unslash
      version: ~> 0.1.0
-@@ -41,7 +44,7 @@ dependencies:
+@@ -44,7 +44,7 @@ dependencies:
  development_dependencies:
    ameba:
      github: crystal-ameba/ameba
--    version: ~> 0.14.3
-+    version: ~> 1.0.0
+-    version: ~> 1.0.0
++    version: ~> 1.2.0
    lucky_flow:
      github: luckyframework/lucky_flow
--    version: ~> 0.7.3
-+    version: ~> 0.9.0
-diff --git a/spec/setup/flow.cr b/spec/setup/flow.cr
-index 6b14f50..504a3d3 100644
---- a/spec/setup/flow.cr
-+++ b/spec/setup/flow.cr
-@@ -1,7 +1,37 @@
-+# For more detailed documentation, visit
-+# https://luckyframework.org/guides/testing/html-and-interactivity
-+
- LuckyFlow.configure do |settings|
-   settings.stop_retrying_after = 200.milliseconds
-   settings.base_uri = Lucky::RouteHelper.settings.base_uri
--  settings.driver = LuckyFlow::Drivers::Chrome
-+
-+  # LuckyFlow will install the chromedriver for you located in
-+  # ~./webdrivers/. Uncomment this to point to a specific driver
-+  # settings.driver_path = "/path/to/specific/chromedriver"
- end
- 
--Spec.before_each { LuckyFlow::Server::INSTANCE.reset }
-+# By default, LuckyFlow is set in "headless" mode (no browser window shown).
-+# Uncomment this to enable running `LuckyFlow` in a Google Chrome window instead.
-+# Be sure to disable for CI.
-+#
-+# LuckyFlow.default_driver = "chrome"
-+
-+# LuckyFlow uses a registry for each driver. By default, chrome, and headless_chrome
-+# are available. If you'd like to register your own custom driver, you can register
-+# it here.
-+#
-+# LuckyFlow::Registry.register :firefox do
-+#   # add your custom driver here
-+# end
-+
-+# Setup specs to allow you to change the driver on the fly
-+# per spec by setting a tag on specific specs. Requires the
-+# driver to be registered through `LuckyFlow::Registry` first.
-+#
-+# ```
-+# it "uses headless_chrome" do
-+# end
-+# it "uses webless", tags: "webless" do
-+# end
-+# ```
-+LuckyFlow::Spec.setup
-diff --git a/spec/spec_helper.cr b/spec/spec_helper.cr
-index 31992e5..dd4ba7b 100644
---- a/spec/spec_helper.cr
-+++ b/spec/spec_helper.cr
-@@ -2,6 +2,8 @@ ENV["LUCKY_ENV"] = "test"
- 
- require "spec"
- require "lucky_flow"
-+require "lucky_flow/ext/lucky"
-+require "lucky_flow/ext/avram"
- 
- require "../src/app"
- require "./support/flows/base_flow"
-diff --git a/src/actions/api/bearer_logins/token/verify.cr b/src/actions/api/bearer_logins/token/verify.cr
-new file mode 100644
-index 0000000..09a08e9
---- /dev/null
-+++ b/src/actions/api/bearer_logins/token/verify.cr
-@@ -0,0 +1,7 @@
-+class Api::BearerLogins::Token::Verify < ApiAction
-+  include Shield::Api::BearerLogins::Token::Verify
-+
-+  post "/bearer-logins/token/verify" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/bearer_logins/verify.cr b/src/actions/api/bearer_logins/verify.cr
+     version: ~> 0.9.0
+diff --git a/src/actions/api/bearer_logins/destroy.cr b/src/actions/api/bearer_logins/destroy.cr
 deleted file mode 100644
-index 7714418..0000000
---- a/src/actions/api/bearer_logins/verify.cr
+index b89292e..0000000
+--- a/src/actions/api/bearer_logins/destroy.cr
 +++ /dev/null
 @@ -1,7 +0,0 @@
--class Api::BearerLogins::Verify < ApiAction
--  include Shield::Api::BearerLogins::Verify
+-class Api::BearerLogins::Destroy < ApiAction
+-  include Shield::Api::BearerLogins::Destroy
 -
--  post "/bearer-logins/verify" do
+-  delete "/bearer-logins/:bearer_login_id" do
 -    run_operation
 -  end
 -end
-diff --git a/src/actions/api/email_confirmations/token/verify.cr b/src/actions/api/email_confirmations/token/verify.cr
-new file mode 100644
-index 0000000..bb5fbb3
---- /dev/null
-+++ b/src/actions/api/email_confirmations/token/verify.cr
-@@ -0,0 +1,9 @@
-+class Api::EmailConfirmations::Token::Verify < ApiAction
-+  include Shield::Api::EmailConfirmations::Token::Verify
-+
-+  skip :pin_email_confirmation_to_ip_address
-+
-+  post "/email-confirmations/token/verify" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/email_confirmations/verify.cr b/src/actions/api/email_confirmations/verify.cr
+diff --git a/src/actions/api/bearer_logins/index.cr b/src/actions/api/bearer_logins/index.cr
+index 890b4bf..63e1624 100644
+--- a/src/actions/api/bearer_logins/index.cr
++++ b/src/actions/api/bearer_logins/index.cr
+@@ -1,4 +1,4 @@
+-class Api::BearerLogins::Index < ApiAction
++class Api::BearerLogins::Index < PublicApi
+   include Shield::Api::BearerLogins::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/bearer_logins/show.cr b/src/actions/api/bearer_logins/show.cr
+index 589becd..d6c7917 100644
+--- a/src/actions/api/bearer_logins/show.cr
++++ b/src/actions/api/bearer_logins/show.cr
+@@ -1,4 +1,4 @@
+-# class Api::BearerLogins::Show < ApiAction
++# class Api::BearerLogins::Show < PublicApi
+ #   include Shield::Api::BearerLogins::Show
+ 
+ #   get "/bearer-logins/:bearer_login_id" do
+diff --git a/src/actions/api/bearer_logins/token/verify.cr b/src/actions/api/bearer_logins/token/verify.cr
 deleted file mode 100644
-index 9214c6d..0000000
---- a/src/actions/api/email_confirmations/verify.cr
+index 09a08e9..0000000
+--- a/src/actions/api/bearer_logins/token/verify.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::BearerLogins::Token::Verify < ApiAction
+-  include Shield::Api::BearerLogins::Token::Verify
+-
+-  post "/bearer-logins/token/verify" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_login/create.cr b/src/actions/api/current_login/create.cr
+deleted file mode 100644
+index c11456f..0000000
+--- a/src/actions/api/current_login/create.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentLogin::Create < ApiAction
+-  include Shield::Api::CurrentLogin::Create
+-
+-  post "/login" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_login/destroy.cr b/src/actions/api/current_login/destroy.cr
+deleted file mode 100644
+index b1f8e26..0000000
+--- a/src/actions/api/current_login/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentLogin::Destroy < ApiAction
+-  include Shield::Api::CurrentLogin::Destroy
+-
+-  delete "/login" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_user/bearer_logins/create.cr b/src/actions/api/current_user/bearer_logins/create.cr
+deleted file mode 100644
+index ad6529f..0000000
+--- a/src/actions/api/current_user/bearer_logins/create.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentUser::BearerLogins::Create < ApiAction
+-  include Shield::Api::CurrentUser::BearerLogins::Create
+-
+-  post "/account/bearer-logins" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_user/bearer_logins/destroy.cr b/src/actions/api/current_user/bearer_logins/destroy.cr
+deleted file mode 100644
+index 33f92c0..0000000
+--- a/src/actions/api/current_user/bearer_logins/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentUser::BearerLogins::Destroy < ApiAction
+-  include Shield::Api::CurrentUser::BearerLogins::Destroy
+-
+-  delete "/account/bearer-logins" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_user/bearer_logins/index.cr b/src/actions/api/current_user/bearer_logins/index.cr
+index ebf261c..6877982 100644
+--- a/src/actions/api/current_user/bearer_logins/index.cr
++++ b/src/actions/api/current_user/bearer_logins/index.cr
+@@ -1,4 +1,4 @@
+-class Api::CurrentUser::BearerLogins::Index < ApiAction
++class Api::CurrentUser::BearerLogins::Index < PublicApi
+   include Shield::Api::CurrentUser::BearerLogins::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/current_user/create.cr b/src/actions/api/current_user/create.cr
+deleted file mode 100644
+index 6d6a199..0000000
+--- a/src/actions/api/current_user/create.cr
 +++ /dev/null
 @@ -1,9 +0,0 @@
--class Api::EmailConfirmations::Verify < ApiAction
--  include Shield::Api::EmailConfirmations::Verify
+-class Api::CurrentUser::Create < ApiAction
+-  include Shield::Api::EmailConfirmationCurrentUser::Create
 -
 -  skip :pin_email_confirmation_to_ip_address
 -
--  post "/email-confirmations/verify" do
+-  post "/account" do
 -    run_operation
 -  end
 -end
-diff --git a/src/actions/api/password_resets/token/verify.cr b/src/actions/api/password_resets/token/verify.cr
-new file mode 100644
-index 0000000..cfd3085
---- /dev/null
-+++ b/src/actions/api/password_resets/token/verify.cr
-@@ -0,0 +1,9 @@
-+class Api::PasswordResets::Token::Verify < ApiAction
-+  include Shield::Api::PasswordResets::Token::Verify
-+
-+  skip :pin_password_reset_to_ip_address
-+
-+  post "/password-resets/token/verify" do
-+    run_operation
-+  end
-+end
-diff --git a/src/actions/api/password_resets/verify.cr b/src/actions/api/password_resets/verify.cr
+diff --git a/src/actions/api/current_user/email_confirmations/destroy.cr b/src/actions/api/current_user/email_confirmations/destroy.cr
 deleted file mode 100644
-index a9a4d87..0000000
---- a/src/actions/api/password_resets/verify.cr
+index 550cd21..0000000
+--- a/src/actions/api/current_user/email_confirmations/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentUser::EmailConfirmations::Destroy < ApiAction
+-  include Shield::Api::CurrentUser::EmailConfirmations::Destroy
+-
+-  delete "/account/email-confirmations" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_user/email_confirmations/index.cr b/src/actions/api/current_user/email_confirmations/index.cr
+index 9573be5..f5ac386 100644
+--- a/src/actions/api/current_user/email_confirmations/index.cr
++++ b/src/actions/api/current_user/email_confirmations/index.cr
+@@ -1,4 +1,4 @@
+-class Api::CurrentUser::EmailConfirmations::Index < ApiAction
++class Api::CurrentUser::EmailConfirmations::Index < PublicApi
+   include Shield::Api::CurrentUser::EmailConfirmations::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/current_user/logins/destroy.cr b/src/actions/api/current_user/logins/destroy.cr
+deleted file mode 100644
+index eafe4d1..0000000
+--- a/src/actions/api/current_user/logins/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentUser::Logins::Destroy < ApiAction
+-  include Shield::Api::CurrentUser::Logins::Destroy
+-
+-  delete "/account/logins" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_user/logins/index.cr b/src/actions/api/current_user/logins/index.cr
+index 33fee13..876ef7d 100644
+--- a/src/actions/api/current_user/logins/index.cr
++++ b/src/actions/api/current_user/logins/index.cr
+@@ -1,4 +1,4 @@
+-class Api::CurrentUser::Logins::Index < ApiAction
++class Api::CurrentUser::Logins::Index < PublicApi
+   include Shield::Api::CurrentUser::Logins::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/current_user/password_resets/destroy.cr b/src/actions/api/current_user/password_resets/destroy.cr
+deleted file mode 100644
+index 6535ff4..0000000
+--- a/src/actions/api/current_user/password_resets/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentUser::PasswordResets::Destroy < ApiAction
+-  include Shield::Api::CurrentUser::PasswordResets::Destroy
+-
+-  delete "/account/password-resets" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/current_user/password_resets/index.cr b/src/actions/api/current_user/password_resets/index.cr
+index 9a79195..c78db6c 100644
+--- a/src/actions/api/current_user/password_resets/index.cr
++++ b/src/actions/api/current_user/password_resets/index.cr
+@@ -1,4 +1,4 @@
+-class Api::CurrentUser::PasswordResets::Index < ApiAction
++class Api::CurrentUser::PasswordResets::Index < PublicApi
+   include Shield::Api::CurrentUser::PasswordResets::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/current_user/show.cr b/src/actions/api/current_user/show.cr
+index 64f00e9..70a493c 100644
+--- a/src/actions/api/current_user/show.cr
++++ b/src/actions/api/current_user/show.cr
+@@ -1,4 +1,4 @@
+-class Api::CurrentUser::Show < ApiAction
++class Api::CurrentUser::Show < PublicApi
+   include Shield::Api::EmailConfirmationCurrentUser::Show
+ 
+   get "/account" do
+diff --git a/src/actions/api/current_user/update.cr b/src/actions/api/current_user/update.cr
+deleted file mode 100644
+index 14c3967..0000000
+--- a/src/actions/api/current_user/update.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::CurrentUser::Update < ApiAction
+-  include Shield::Api::EmailConfirmationCurrentUser::Update
+-
+-  patch "/account" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/email_confirmations/create.cr b/src/actions/api/email_confirmations/create.cr
+deleted file mode 100644
+index d595c29..0000000
+--- a/src/actions/api/email_confirmations/create.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::EmailConfirmations::Create < ApiAction
+-  include Shield::Api::EmailConfirmations::Create
+-
+-  post "/email-confirmations" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/email_confirmations/destroy.cr b/src/actions/api/email_confirmations/destroy.cr
+deleted file mode 100644
+index e1d34cf..0000000
+--- a/src/actions/api/email_confirmations/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::EmailConfirmations::Destroy < ApiAction
+-  include Shield::Api::EmailConfirmations::Destroy
+-
+-  delete "/email-confirmations/:email_confirmation_id" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/email_confirmations/index.cr b/src/actions/api/email_confirmations/index.cr
+index c552e09..321627f 100644
+--- a/src/actions/api/email_confirmations/index.cr
++++ b/src/actions/api/email_confirmations/index.cr
+@@ -1,4 +1,4 @@
+-class Api::EmailConfirmations::Index < ApiAction
++class Api::EmailConfirmations::Index < PublicApi
+   include Shield::Api::EmailConfirmations::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/email_confirmations/show.cr b/src/actions/api/email_confirmations/show.cr
+index e26d5a6..d5b623d 100644
+--- a/src/actions/api/email_confirmations/show.cr
++++ b/src/actions/api/email_confirmations/show.cr
+@@ -1,4 +1,4 @@
+-# class Api::EmailConfirmations::Show < ApiAction
++# class Api::EmailConfirmations::Show < PublicApi
+ #   include Shield::Api::EmailConfirmations::Show
+ 
+ #   get "/email-confirmations/:email_confirmation_id" do
+diff --git a/src/actions/api/email_confirmations/token/verify.cr b/src/actions/api/email_confirmations/token/verify.cr
+deleted file mode 100644
+index bb5fbb3..0000000
+--- a/src/actions/api/email_confirmations/token/verify.cr
 +++ /dev/null
 @@ -1,9 +0,0 @@
--class Api::PasswordResets::Verify < ApiAction
--  include Shield::Api::PasswordResets::Verify
+-class Api::EmailConfirmations::Token::Verify < ApiAction
+-  include Shield::Api::EmailConfirmations::Token::Verify
+-
+-  skip :pin_email_confirmation_to_ip_address
+-
+-  post "/email-confirmations/token/verify" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/email_confirmations/update.cr b/src/actions/api/email_confirmations/update.cr
+deleted file mode 100644
+index 953b8d3..0000000
+--- a/src/actions/api/email_confirmations/update.cr
++++ /dev/null
+@@ -1,9 +0,0 @@
+-class Api::EmailConfirmations::Update < ApiAction
+-  include Shield::Api::EmailConfirmations::Update
+-
+-  skip :pin_email_confirmation_to_ip_address
+-
+-  patch "/email-confirmations" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/logins/destroy.cr b/src/actions/api/logins/destroy.cr
+deleted file mode 100644
+index c8c774d..0000000
+--- a/src/actions/api/logins/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::Logins::Destroy < ApiAction
+-  include Shield::Api::Logins::Destroy
+-
+-  delete "/logins/:login_id" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/logins/index.cr b/src/actions/api/logins/index.cr
+index 7bdb30a..06b0bf0 100644
+--- a/src/actions/api/logins/index.cr
++++ b/src/actions/api/logins/index.cr
+@@ -1,4 +1,4 @@
+-class Api::Logins::Index < ApiAction
++class Api::Logins::Index < PublicApi
+   include Shield::Api::Logins::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/password_resets/create.cr b/src/actions/api/password_resets/create.cr
+deleted file mode 100644
+index 9ced1e8..0000000
+--- a/src/actions/api/password_resets/create.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::PasswordResets::Create < ApiAction
+-  include Shield::Api::PasswordResets::Create
+-
+-  post "/password-resets" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/password_resets/destroy.cr b/src/actions/api/password_resets/destroy.cr
+deleted file mode 100644
+index 47ceac3..0000000
+--- a/src/actions/api/password_resets/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::PasswordResets::Destroy < ApiAction
+-  include Shield::Api::PasswordResets::Destroy
+-
+-  delete "/password-resets/:password_reset_id" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/password_resets/index.cr b/src/actions/api/password_resets/index.cr
+index 7acdee4..5b0e43a 100644
+--- a/src/actions/api/password_resets/index.cr
++++ b/src/actions/api/password_resets/index.cr
+@@ -1,4 +1,4 @@
+-class Api::PasswordResets::Index < ApiAction
++class Api::PasswordResets::Index < PublicApi
+   include Shield::Api::PasswordResets::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/password_resets/show.cr b/src/actions/api/password_resets/show.cr
+index f91c3ca..dffe8c5 100644
+--- a/src/actions/api/password_resets/show.cr
++++ b/src/actions/api/password_resets/show.cr
+@@ -1,4 +1,4 @@
+-# class Api::PasswordResets::Show < ApiAction
++# class Api::PasswordResets::Show < PublicApi
+ #   include Shield::Api::PasswordResets::Show
+ 
+ #   get "/password-resets/:password_reset_id" do
+diff --git a/src/actions/api/password_resets/token/verify.cr b/src/actions/api/password_resets/token/verify.cr
+deleted file mode 100644
+index cfd3085..0000000
+--- a/src/actions/api/password_resets/token/verify.cr
++++ /dev/null
+@@ -1,9 +0,0 @@
+-class Api::PasswordResets::Token::Verify < ApiAction
+-  include Shield::Api::PasswordResets::Token::Verify
 -
 -  skip :pin_password_reset_to_ip_address
 -
--  post "/password-resets/verify" do
+-  post "/password-resets/token/verify" do
 -    run_operation
 -  end
 -end
+diff --git a/src/actions/api/password_resets/update.cr b/src/actions/api/password_resets/update.cr
+deleted file mode 100644
+index 01be54c..0000000
+--- a/src/actions/api/password_resets/update.cr
++++ /dev/null
+@@ -1,9 +0,0 @@
+-class Api::PasswordResets::Update < ApiAction
+-  include Shield::Api::PasswordResets::Update
+-
+-  skip :pin_password_reset_to_ip_address
+-
+-  patch "/password-resets" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/users/bearer_logins/destroy.cr b/src/actions/api/users/bearer_logins/destroy.cr
+deleted file mode 100644
+index 65a22ba..0000000
+--- a/src/actions/api/users/bearer_logins/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::Users::BearerLogins::Destroy < ApiAction
+-  include Shield::Api::Users::BearerLogins::Destroy
+-
+-  delete "/users/:user_id/bearer-logins" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/users/bearer_logins/index.cr b/src/actions/api/users/bearer_logins/index.cr
+index c489f60..ec45fe6 100644
+--- a/src/actions/api/users/bearer_logins/index.cr
++++ b/src/actions/api/users/bearer_logins/index.cr
+@@ -1,4 +1,4 @@
+-class Api::Users::BearerLogins::Index < ApiAction
++class Api::Users::BearerLogins::Index < PublicApi
+   include Shield::Api::Users::BearerLogins::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/users/email_confirmations/destroy.cr b/src/actions/api/users/email_confirmations/destroy.cr
+deleted file mode 100644
+index 8e2594c..0000000
+--- a/src/actions/api/users/email_confirmations/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::Users::EmailConfirmations::Destroy < ApiAction
+-  include Shield::Api::Users::EmailConfirmations::Destroy
+-
+-  delete "/users/:user_id/email-confirmations" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/users/email_confirmations/index.cr b/src/actions/api/users/email_confirmations/index.cr
+index 7f3b9a7..f1b3ddc 100644
+--- a/src/actions/api/users/email_confirmations/index.cr
++++ b/src/actions/api/users/email_confirmations/index.cr
+@@ -1,4 +1,4 @@
+-class Api::Users::EmailConfirmations::Index < ApiAction
++class Api::Users::EmailConfirmations::Index < PublicApi
+   include Shield::Api::Users::EmailConfirmations::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/users/index.cr b/src/actions/api/users/index.cr
+index 41539a9..0a9a22a 100644
+--- a/src/actions/api/users/index.cr
++++ b/src/actions/api/users/index.cr
+@@ -1,4 +1,4 @@
+-class Api::Users::Index < ApiAction
++class Api::Users::Index < PublicApi
+   include Shield::Api::Users::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/users/logins/destroy.cr b/src/actions/api/users/logins/destroy.cr
+deleted file mode 100644
+index c8994bc..0000000
+--- a/src/actions/api/users/logins/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::Users::Logins::Destroy < ApiAction
+-  include Shield::Api::Users::Logins::Destroy
+-
+-  delete "/users/:user_id/logins" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/users/logins/index.cr b/src/actions/api/users/logins/index.cr
+index 19c85f4..c70c0ad 100644
+--- a/src/actions/api/users/logins/index.cr
++++ b/src/actions/api/users/logins/index.cr
+@@ -1,4 +1,4 @@
+-class Api::Users::Logins::Index < ApiAction
++class Api::Users::Logins::Index < PublicApi
+   include Shield::Api::Users::Logins::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/users/password_resets/destroy.cr b/src/actions/api/users/password_resets/destroy.cr
+deleted file mode 100644
+index 99cab90..0000000
+--- a/src/actions/api/users/password_resets/destroy.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::Users::PasswordResets::Destroy < ApiAction
+-  include Shield::Api::Users::PasswordResets::Destroy
+-
+-  delete "/users/:user_id/password-resets" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api/users/password_resets/index.cr b/src/actions/api/users/password_resets/index.cr
+index dd6a445..58b9aa7 100644
+--- a/src/actions/api/users/password_resets/index.cr
++++ b/src/actions/api/users/password_resets/index.cr
+@@ -1,4 +1,4 @@
+-class Api::Users::PasswordResets::Index < ApiAction
++class Api::Users::PasswordResets::Index < PublicApi
+   include Shield::Api::Users::PasswordResets::Index
+ 
+   param page : Int32 = 1
+diff --git a/src/actions/api/users/show.cr b/src/actions/api/users/show.cr
+index d3775fb..e7ad3ee 100644
+--- a/src/actions/api/users/show.cr
++++ b/src/actions/api/users/show.cr
+@@ -1,4 +1,4 @@
+-class Api::Users::Show < ApiAction
++class Api::Users::Show < PublicApi
+   include Shield::Api::Users::Show
+ 
+   get "/users/:user_id" do
+diff --git a/src/actions/api/users/update.cr b/src/actions/api/users/update.cr
+deleted file mode 100644
+index 20a2cbc..0000000
+--- a/src/actions/api/users/update.cr
++++ /dev/null
+@@ -1,7 +0,0 @@
+-class Api::Users::Update < ApiAction
+-  include Shield::Api::Users::Update
+-
+-  patch "/users/:user_id" do
+-    run_operation
+-  end
+-end
+diff --git a/src/actions/api__private/bearer_logins/destroy.cr b/src/actions/api__private/bearer_logins/destroy.cr
+new file mode 100644
+index 0000000..04e5890
+--- /dev/null
++++ b/src/actions/api__private/bearer_logins/destroy.cr
+@@ -0,0 +1,7 @@
++# class BearerLogins::Destroy < PrivateApi
++#   include Shield::Api::BearerLogins::Destroy
++
++#   delete "/bearer-logins/:bearer_login_id" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/bearer_logins/index.cr b/src/actions/api__private/bearer_logins/index.cr
+new file mode 100644
+index 0000000..7f1c8dd
+--- /dev/null
++++ b/src/actions/api__private/bearer_logins/index.cr
+@@ -0,0 +1,9 @@
++# class BearerLogins::Index < PrivateApi
++#   include Shield::Api::BearerLogins::Index
++
++#   param page : Int32 = 1
++
++#   get "/bearer-logins" do
++#     json BearerLoginSerializer.new(bearer_logins: bearer_logins, pages: pages)
++#   end
++# end
+diff --git a/src/actions/api__private/bearer_logins/show.cr b/src/actions/api__private/bearer_logins/show.cr
+new file mode 100644
+index 0000000..e0e275e
+--- /dev/null
++++ b/src/actions/api__private/bearer_logins/show.cr
+@@ -0,0 +1,7 @@
++# class BearerLogins::Show < PrivateApi
++#   include Shield::Api::BearerLogins::Show
++
++#   get "/bearer-logins/:bearer_login_id" do
++#     json BearerLoginSerializer.new(bearer_login: bearer_login)
++#   end
++# end
+diff --git a/src/actions/api__private/bearer_logins/token/verify.cr b/src/actions/api__private/bearer_logins/token/verify.cr
+new file mode 100644
+index 0000000..c6c370d
+--- /dev/null
++++ b/src/actions/api__private/bearer_logins/token/verify.cr
+@@ -0,0 +1,7 @@
++# class BearerLogins::Token::Verify < PrivateApi
++#   include Shield::Api::BearerLogins::Token::Verify
++
++#   post "/bearer-logins/token/verify" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_login/create.cr b/src/actions/api__private/current_login/create.cr
+new file mode 100644
+index 0000000..70bbc22
+--- /dev/null
++++ b/src/actions/api__private/current_login/create.cr
+@@ -0,0 +1,7 @@
++# class CurrentLogin::Create < PrivateApi
++#   include Shield::Api::CurrentLogin::Create
++
++#   post "/login" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_login/destroy.cr b/src/actions/api__private/current_login/destroy.cr
+new file mode 100644
+index 0000000..672ff56
+--- /dev/null
++++ b/src/actions/api__private/current_login/destroy.cr
+@@ -0,0 +1,7 @@
++# class CurrentLogin::Destroy < PrivateApi
++#   include Shield::Api::CurrentLogin::Destroy
++
++#   delete "/login" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/bearer_logins/create.cr b/src/actions/api__private/current_user/bearer_logins/create.cr
+new file mode 100644
+index 0000000..51e6d6c
+--- /dev/null
++++ b/src/actions/api__private/current_user/bearer_logins/create.cr
+@@ -0,0 +1,7 @@
++# class CurrentUser::BearerLogins::Create < PrivateApi
++#   include Shield::Api::CurrentUser::BearerLogins::Create
++
++#   post "/account/bearer-logins" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/bearer_logins/destroy.cr b/src/actions/api__private/current_user/bearer_logins/destroy.cr
+new file mode 100644
+index 0000000..157157b
+--- /dev/null
++++ b/src/actions/api__private/current_user/bearer_logins/destroy.cr
+@@ -0,0 +1,7 @@
++# class CurrentUser::BearerLogins::Destroy < PrivateApi
++#   include Shield::Api::CurrentUser::BearerLogins::Destroy
++
++#   delete "/account/bearer-logins" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/bearer_logins/index.cr b/src/actions/api__private/current_user/bearer_logins/index.cr
+new file mode 100644
+index 0000000..64728e6
+--- /dev/null
++++ b/src/actions/api__private/current_user/bearer_logins/index.cr
+@@ -0,0 +1,9 @@
++# class CurrentUser::BearerLogins::Index < PrivateApi
++#   include Shield::Api::CurrentUser::BearerLogins::Index
++
++#   param page : Int32 = 1
++
++#   get "/account/bearer-logins" do
++#     json BearerLoginSerializer.new(bearer_logins: bearer_logins, pages: pages)
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/create.cr b/src/actions/api__private/current_user/create.cr
+new file mode 100644
+index 0000000..70163a6
+--- /dev/null
++++ b/src/actions/api__private/current_user/create.cr
+@@ -0,0 +1,9 @@
++# class CurrentUser::Create < PrivateApi
++#   include Shield::Api::EmailConfirmationCurrentUser::Create
++
++#   skip :pin_email_confirmation_to_ip_address
++
++#   post "/account" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/email_confirmations/destroy.cr b/src/actions/api__private/current_user/email_confirmations/destroy.cr
+new file mode 100644
+index 0000000..0a19f44
+--- /dev/null
++++ b/src/actions/api__private/current_user/email_confirmations/destroy.cr
+@@ -0,0 +1,7 @@
++# class CurrentUser::EmailConfirmations::Destroy < PrivateApi
++#   include Shield::Api::CurrentUser::EmailConfirmations::Destroy
++
++#   delete "/account/email-confirmations" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/email_confirmations/index.cr b/src/actions/api__private/current_user/email_confirmations/index.cr
+new file mode 100644
+index 0000000..4940118
+--- /dev/null
++++ b/src/actions/api__private/current_user/email_confirmations/index.cr
+@@ -0,0 +1,12 @@
++# class CurrentUser::EmailConfirmations::Index < PrivateApi
++#   include Shield::Api::CurrentUser::EmailConfirmations::Index
++
++#   param page : Int32 = 1
++
++#   get "/account/email-confirmations" do
++#     json EmailConfirmationSerializer.new(
++#       email_confirmations: email_confirmations,
++#       pages: pages
++#     )
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/logins/destroy.cr b/src/actions/api__private/current_user/logins/destroy.cr
+new file mode 100644
+index 0000000..8d49cee
+--- /dev/null
++++ b/src/actions/api__private/current_user/logins/destroy.cr
+@@ -0,0 +1,7 @@
++# class CurrentUser::Logins::Destroy < PrivateApi
++#   include Shield::Api::CurrentUser::Logins::Destroy
++
++#   delete "/account/logins" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/logins/index.cr b/src/actions/api__private/current_user/logins/index.cr
+new file mode 100644
+index 0000000..81f317f
+--- /dev/null
++++ b/src/actions/api__private/current_user/logins/index.cr
+@@ -0,0 +1,9 @@
++# class CurrentUser::Logins::Index < PrivateApi
++#   include Shield::Api::CurrentUser::Logins::Index
++
++#   param page : Int32 = 1
++
++#   get "/account/logins" do
++#     json LoginSerializer.new(logins: logins, pages: pages)
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/password_resets/destroy.cr b/src/actions/api__private/current_user/password_resets/destroy.cr
+new file mode 100644
+index 0000000..02ca02b
+--- /dev/null
++++ b/src/actions/api__private/current_user/password_resets/destroy.cr
+@@ -0,0 +1,7 @@
++# class CurrentUser::PasswordResets::Destroy < PrivateApi
++#   include Shield::Api::CurrentUser::PasswordResets::Destroy
++
++#   delete "/account/password-resets" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/password_resets/index.cr b/src/actions/api__private/current_user/password_resets/index.cr
+new file mode 100644
+index 0000000..1c50dcf
+--- /dev/null
++++ b/src/actions/api__private/current_user/password_resets/index.cr
+@@ -0,0 +1,12 @@
++# class CurrentUser::PasswordResets::Index < PrivateApi
++#   include Shield::Api::CurrentUser::PasswordResets::Index
++
++#   param page : Int32 = 1
++
++#   get "/account/password-resets" do
++#     json PasswordResetSerializer.new(
++#       password_resets: password_resets,
++#       pages: pages
++#     )
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/show.cr b/src/actions/api__private/current_user/show.cr
+new file mode 100644
+index 0000000..cff937e
+--- /dev/null
++++ b/src/actions/api__private/current_user/show.cr
+@@ -0,0 +1,7 @@
++# class CurrentUser::Show < PrivateApi
++#   include Shield::Api::EmailConfirmationCurrentUser::Show
++
++#   get "/account" do
++#     json UserSerializer.new(user: user)
++#   end
++# end
+diff --git a/src/actions/api__private/current_user/update.cr b/src/actions/api__private/current_user/update.cr
+new file mode 100644
+index 0000000..b643801
+--- /dev/null
++++ b/src/actions/api__private/current_user/update.cr
+@@ -0,0 +1,7 @@
++# class CurrentUser::Update < PrivateApi
++#   include Shield::Api::EmailConfirmationCurrentUser::Update
++
++#   patch "/account" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/email_confirmations/create.cr b/src/actions/api__private/email_confirmations/create.cr
+new file mode 100644
+index 0000000..a1b3027
+--- /dev/null
++++ b/src/actions/api__private/email_confirmations/create.cr
+@@ -0,0 +1,7 @@
++# class EmailConfirmations::Create < PrivateApi
++#   include Shield::Api::EmailConfirmations::Create
++
++#   post "/email-confirmations" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/email_confirmations/destroy.cr b/src/actions/api__private/email_confirmations/destroy.cr
+new file mode 100644
+index 0000000..9c0f265
+--- /dev/null
++++ b/src/actions/api__private/email_confirmations/destroy.cr
+@@ -0,0 +1,7 @@
++# class EmailConfirmations::Destroy < PrivateApi
++#   include Shield::Api::EmailConfirmations::Destroy
++
++#   delete "/email-confirmations/:email_confirmation_id" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/email_confirmations/index.cr b/src/actions/api__private/email_confirmations/index.cr
+new file mode 100644
+index 0000000..b042773
+--- /dev/null
++++ b/src/actions/api__private/email_confirmations/index.cr
+@@ -0,0 +1,12 @@
++# class EmailConfirmations::Index < PrivateApi
++#   include Shield::Api::EmailConfirmations::Index
++
++#   param page : Int32 = 1
++
++#   get "/email-confirmations" do
++#     json EmailConfirmationSerializer.new(
++#       email_confirmations: email_confirmations,
++#       pages: pages
++#     )
++#   end
++# end
+diff --git a/src/actions/api__private/email_confirmations/show.cr b/src/actions/api__private/email_confirmations/show.cr
+new file mode 100644
+index 0000000..2a8b894
+--- /dev/null
++++ b/src/actions/api__private/email_confirmations/show.cr
+@@ -0,0 +1,7 @@
++# class EmailConfirmations::Show < PrivateApi
++#   include Shield::Api::EmailConfirmations::Show
++
++#   get "/email-confirmations/:email_confirmation_id" do
++#     json EmailConfirmationSerializer.new(email_confirmation: email_confirmation)
++#   end
++# end
+diff --git a/src/actions/api__private/email_confirmations/token/verify.cr b/src/actions/api__private/email_confirmations/token/verify.cr
+new file mode 100644
+index 0000000..3509f8e
+--- /dev/null
++++ b/src/actions/api__private/email_confirmations/token/verify.cr
+@@ -0,0 +1,9 @@
++# class EmailConfirmations::Token::Verify < PrivateApi
++#   include Shield::Api::EmailConfirmations::Token::Verify
++
++#   skip :pin_email_confirmation_to_ip_address
++
++#   post "/email-confirmations/token/verify" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/email_confirmations/update.cr b/src/actions/api__private/email_confirmations/update.cr
+new file mode 100644
+index 0000000..e36314a
+--- /dev/null
++++ b/src/actions/api__private/email_confirmations/update.cr
+@@ -0,0 +1,9 @@
++# class EmailConfirmations::Update < PrivateApi
++#   include Shield::Api::EmailConfirmations::Update
++
++#   skip :pin_email_confirmation_to_ip_address
++
++#   patch "/email-confirmations" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/logins/destroy.cr b/src/actions/api__private/logins/destroy.cr
+new file mode 100644
+index 0000000..1d5b10c
+--- /dev/null
++++ b/src/actions/api__private/logins/destroy.cr
+@@ -0,0 +1,7 @@
++# class Logins::Destroy < PrivateApi
++#   include Shield::Api::Logins::Destroy
++
++#   delete "/logins/:login_id" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/logins/index.cr b/src/actions/api__private/logins/index.cr
+new file mode 100644
+index 0000000..0b132e8
+--- /dev/null
++++ b/src/actions/api__private/logins/index.cr
+@@ -0,0 +1,9 @@
++# class Logins::Index < PrivateApi
++#   include Shield::Api::Logins::Index
++
++#   param page : Int32 = 1
++
++#   get "/logins" do
++#     json LoginSerializer.new(logins: logins, pages: pages)
++#   end
++# end
+diff --git a/src/actions/api/logins/show.cr b/src/actions/api__private/logins/show.cr
+similarity index 77%
+rename from src/actions/api/logins/show.cr
+rename to src/actions/api__private/logins/show.cr
+index 0cdc789..783ca9c 100644
+--- a/src/actions/api/logins/show.cr
++++ b/src/actions/api__private/logins/show.cr
+@@ -1,4 +1,4 @@
+-# class Api::Logins::Show < ApiAction
++# class Logins::Show < PrivateApi
+ #   include Shield::Api::Logins::Show
+ 
+ #   get "/logins/:login_id" do
+diff --git a/src/actions/api__private/password_resets/create.cr b/src/actions/api__private/password_resets/create.cr
+new file mode 100644
+index 0000000..4f4811f
+--- /dev/null
++++ b/src/actions/api__private/password_resets/create.cr
+@@ -0,0 +1,7 @@
++# class PasswordResets::Create < PrivateApi
++#   include Shield::Api::PasswordResets::Create
++
++#   post "/password-resets" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/password_resets/destroy.cr b/src/actions/api__private/password_resets/destroy.cr
+new file mode 100644
+index 0000000..bde0782
+--- /dev/null
++++ b/src/actions/api__private/password_resets/destroy.cr
+@@ -0,0 +1,7 @@
++# class PasswordResets::Destroy < PrivateApi
++#   include Shield::Api::PasswordResets::Destroy
++
++#   delete "/password-resets/:password_reset_id" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/password_resets/index.cr b/src/actions/api__private/password_resets/index.cr
+new file mode 100644
+index 0000000..f504780
+--- /dev/null
++++ b/src/actions/api__private/password_resets/index.cr
+@@ -0,0 +1,12 @@
++# class PasswordResets::Index < PrivateApi
++#   include Shield::Api::PasswordResets::Index
++
++#   param page : Int32 = 1
++
++#   get "/password-resets" do
++#     json PasswordResetSerializer.new(
++#       password_resets: password_resets,
++#       pages: pages
++#     )
++#   end
++# end
+diff --git a/src/actions/api__private/password_resets/show.cr b/src/actions/api__private/password_resets/show.cr
+new file mode 100644
+index 0000000..7ba5fb1
+--- /dev/null
++++ b/src/actions/api__private/password_resets/show.cr
+@@ -0,0 +1,7 @@
++# class PasswordResets::Show < PrivateApi
++#   include Shield::Api::PasswordResets::Show
++
++#   get "/password-resets/:password_reset_id" do
++#     json PasswordResetSerializer.new(password_reset: password_reset)
++#   end
++# end
+diff --git a/src/actions/api__private/password_resets/token/verify.cr b/src/actions/api__private/password_resets/token/verify.cr
+new file mode 100644
+index 0000000..1be3997
+--- /dev/null
++++ b/src/actions/api__private/password_resets/token/verify.cr
+@@ -0,0 +1,9 @@
++# class PasswordResets::Token::Verify < PrivateApi
++#   include Shield::Api::PasswordResets::Token::Verify
++
++#   skip :pin_password_reset_to_ip_address
++
++#   post "/password-resets/token/verify" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/password_resets/update.cr b/src/actions/api__private/password_resets/update.cr
+new file mode 100644
+index 0000000..43dbb36
+--- /dev/null
++++ b/src/actions/api__private/password_resets/update.cr
+@@ -0,0 +1,9 @@
++# class PasswordResets::Update < PrivateApi
++#   include Shield::Api::PasswordResets::Update
++
++#   skip :pin_password_reset_to_ip_address
++
++#   patch "/password-resets" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/users/bearer_logins/destroy.cr b/src/actions/api__private/users/bearer_logins/destroy.cr
+new file mode 100644
+index 0000000..05b3a01
+--- /dev/null
++++ b/src/actions/api__private/users/bearer_logins/destroy.cr
+@@ -0,0 +1,7 @@
++# class Users::BearerLogins::Destroy < PrivateApi
++#   include Shield::Api::Users::BearerLogins::Destroy
++
++#   delete "/users/:user_id/bearer-logins" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/users/bearer_logins/index.cr b/src/actions/api__private/users/bearer_logins/index.cr
+new file mode 100644
+index 0000000..4d19a96
+--- /dev/null
++++ b/src/actions/api__private/users/bearer_logins/index.cr
+@@ -0,0 +1,13 @@
++# class Users::BearerLogins::Index < PrivateApi
++#   include Shield::Api::Users::BearerLogins::Index
++
++#   param page : Int32 = 1
++
++#   get "/users/:user_id/bearer-logins" do
++#     json BearerLoginSerializer.new(
++#       bearer_logins: bearer_logins,
++#       user: user,
++#       pages: pages
++#     )
++#   end
++# end
+diff --git a/src/actions/api__private/users/email_confirmations/destroy.cr b/src/actions/api__private/users/email_confirmations/destroy.cr
+new file mode 100644
+index 0000000..00ce72b
+--- /dev/null
++++ b/src/actions/api__private/users/email_confirmations/destroy.cr
+@@ -0,0 +1,7 @@
++# class Users::EmailConfirmations::Destroy < PrivateApi
++#   include Shield::Api::Users::EmailConfirmations::Destroy
++
++#   delete "/users/:user_id/email-confirmations" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/users/email_confirmations/index.cr b/src/actions/api__private/users/email_confirmations/index.cr
+new file mode 100644
+index 0000000..d31c75f
+--- /dev/null
++++ b/src/actions/api__private/users/email_confirmations/index.cr
+@@ -0,0 +1,13 @@
++# class Users::EmailConfirmations::Index < PrivateApi
++#   include Shield::Api::Users::EmailConfirmations::Index
++
++#   param page : Int32 = 1
++
++#   get "/users/:user_id/email-confirmations" do
++#     json EmailConfirmationSerializer.new(
++#       email_confirmations: email_confirmations,
++#       user: user,
++#       pages: pages
++#     )
++#   end
++# end
+diff --git a/src/actions/api__private/users/index.cr b/src/actions/api__private/users/index.cr
+new file mode 100644
+index 0000000..46e87b3
+--- /dev/null
++++ b/src/actions/api__private/users/index.cr
+@@ -0,0 +1,9 @@
++# class Users::Index < PrivateApi
++#   include Shield::Api::Users::Index
++
++#   param page : Int32 = 1
++
++#   get "/users" do
++#     json UserSerializer.new(users: users, pages: pages)
++#   end
++# end
+diff --git a/src/actions/api__private/users/logins/destroy.cr b/src/actions/api__private/users/logins/destroy.cr
+new file mode 100644
+index 0000000..a5f3de8
+--- /dev/null
++++ b/src/actions/api__private/users/logins/destroy.cr
+@@ -0,0 +1,7 @@
++# class Users::Logins::Destroy < PrivateApi
++#   include Shield::Api::Users::Logins::Destroy
++
++#   delete "/users/:user_id/logins" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/users/logins/index.cr b/src/actions/api__private/users/logins/index.cr
+new file mode 100644
+index 0000000..9565805
+--- /dev/null
++++ b/src/actions/api__private/users/logins/index.cr
+@@ -0,0 +1,9 @@
++# class Users::Logins::Index < PrivateApi
++#   include Shield::Api::Users::Logins::Index
++
++#   param page : Int32 = 1
++
++#   get "/users/:user_id/logins" do
++#     json LoginSerializer.new(logins: logins, user: user, pages: pages)
++#   end
++# end
+diff --git a/src/actions/api__private/users/password_resets/destroy.cr b/src/actions/api__private/users/password_resets/destroy.cr
+new file mode 100644
+index 0000000..7665568
+--- /dev/null
++++ b/src/actions/api__private/users/password_resets/destroy.cr
+@@ -0,0 +1,7 @@
++# class Users::PasswordResets::Destroy < PrivateApi
++#   include Shield::Api::Users::PasswordResets::Destroy
++
++#   delete "/users/:user_id/password-resets" do
++#     run_operation
++#   end
++# end
+diff --git a/src/actions/api__private/users/password_resets/index.cr b/src/actions/api__private/users/password_resets/index.cr
+new file mode 100644
+index 0000000..1c3cf2e
+--- /dev/null
++++ b/src/actions/api__private/users/password_resets/index.cr
+@@ -0,0 +1,13 @@
++# class Users::PasswordResets::Index < PrivateApi
++#   include Shield::Api::Users::PasswordResets::Index
++
++#   param page : Int32 = 1
++
++#   get "/users/:user_id/password-resets" do
++#     json PasswordResetSerializer.new(
++#       password_resets: password_resets,
++#       user: user,
++#       pages: pages
++#     )
++#   end
++# end
+diff --git a/src/actions/api__private/users/show.cr b/src/actions/api__private/users/show.cr
+new file mode 100644
+index 0000000..dff2f4b
+--- /dev/null
++++ b/src/actions/api__private/users/show.cr
+@@ -0,0 +1,7 @@
++# class Users::Show < PrivateApi
++#   include Shield::Api::Users::Show
++
++#   get "/users/:user_id" do
++#     json UserSerializer.new(user: user)
++#   end
++# end
+diff --git a/src/actions/api__private/users/update.cr b/src/actions/api__private/users/update.cr
+new file mode 100644
+index 0000000..b6e98e0
+--- /dev/null
++++ b/src/actions/api__private/users/update.cr
+@@ -0,0 +1,7 @@
++# class Users::Update < PrivateApi
++#   include Shield::Api::Users::Update
++
++#   patch "/users/:user_id" do
++#     run_operation
++#   end
++# end
 diff --git a/src/actions/api_action.cr b/src/actions/api_action.cr
-index d10019a..1473c93 100644
+deleted file mode 100644
+index 1473c93..0000000
 --- a/src/actions/api_action.cr
-+++ b/src/actions/api_action.cr
-@@ -1,7 +1,14 @@
- abstract class ApiAction < Lucky::Action
++++ /dev/null
+@@ -1,20 +0,0 @@
+-abstract class ApiAction < Lucky::Action
+-  # IMPORTANT!:
+-  #   This module reduces `Shield::Api::LoginPipes` from an authentication
+-  #   pipe to a delegated authorization pipe. Once included, bearer tokens
+-  #   retrieved from the `Authorization` header MUST NOT be used as proof
+-  #   of authentication.
+-  include Shield::Api::BearerLoginPipes
+-
+-  skip :pin_login_to_ip_address
+-
+-  accepted_formats [:json]
+-
+-  route_prefix "/api/v0"
+-
+-  disable_cookies
+-
+-  def authorize?(user : User)  : Bool
+-    user.level.admin?
+-  end
+-end
+diff --git a/src/actions/browser_action.cr b/src/actions/browser_action.cr
+index 636e5a1..4522427 100644
+--- a/src/actions/browser_action.cr
++++ b/src/actions/browser_action.cr
+@@ -1,4 +1,14 @@
+ abstract class BrowserAction < Lucky::Action
++  include Shield::BrowserAction
++
++  include Shield::LoginHelpers
++  include Shield::EmailConfirmationHelpers
++  include Shield::PasswordResetHelpers
++
++  include Shield::LoginPipes
++  include Shield::EmailConfirmationPipes
++  include Shield::PasswordResetPipes
++
+   include Lucky::SecureHeaders::SetFrameGuard
+   include Lucky::SecureHeaders::SetSniffGuard
+   include Lucky::SecureHeaders::SetXSSGuard
+diff --git a/src/actions/private_api.cr b/src/actions/private_api.cr
+new file mode 100644
+index 0000000..a014e2a
+--- /dev/null
++++ b/src/actions/private_api.cr
+@@ -0,0 +1,33 @@
++# This action accepts **only** `Login` tokens for authentication purposes.
++#
++# It is useful if building an API backend for a decoupled frontend, where
++# the frontend sends the user's email and password to the `CurrentLogin::Create`
++# endpoint, in exchange for a `Login` token.
++#
++# The token is typically saved in a session store (eg: cookies) on the frontend,
++# and sent along in the `Authorization` header whenever a request is made to
++# this backend API on the logged-in user's behalf.
++abstract class PrivateApi < Lucky::Action
++  include Shield::ApiAction
++
++  include Shield::Api::LoginHelpers
++  include Shield::Api::BearerLoginHelpers
++  include Shield::Api::EmailConfirmationHelpers
++  include Shield::Api::PasswordResetHelpers
++
++  include Shield::Api::LoginPipes
++  include Shield::Api::EmailConfirmationPipes
++  include Shield::Api::PasswordResetPipes
++
++  skip :pin_login_to_ip_address
++
++  accepted_formats [:json]
++
++  route_prefix "/api"
++
++  disable_cookies
++
++  def authorize?(user : User)  : Bool
++    user.level.admin?
++  end
++end
+diff --git a/src/actions/public_api.cr b/src/actions/public_api.cr
+new file mode 100644
+index 0000000..adf47ed
+--- /dev/null
++++ b/src/actions/public_api.cr
+@@ -0,0 +1,40 @@
++# This action accepts both `Login` and `BearerLogin` tokens for
++# delegated authorization purposes.
++#
++# Use this to build an API to be consumed by the public, and by third-party
++# applications.
++#
++# Because any token type is accepted, bearer tokens retrieved from the
++# `Authorization` header MUST NOT be used as proof of authentication.
++abstract class PublicApi < Lucky::Action
++  include Shield::ApiAction
++
++  include Shield::Api::LoginHelpers
++  include Shield::Api::BearerLoginHelpers
++  include Shield::Api::EmailConfirmationHelpers
++  include Shield::Api::PasswordResetHelpers
++
++  include Shield::Api::LoginPipes
++
 +  # IMPORTANT!:
 +  #   This module reduces `Shield::Api::LoginPipes` from an authentication
-+  #   pipe to a delegated authorization pipe. Once included, bearer tokens
++  #   pipe to a delegated authorization pipe. Because of this, bearer tokens
 +  #   retrieved from the `Authorization` header MUST NOT be used as proof
 +  #   of authentication.
 +  include Shield::Api::BearerLoginPipes
 +
-   skip :pin_login_to_ip_address
- 
--  accepted_formats [:html, :json], default: :json
++  include Shield::Api::EmailConfirmationPipes
++  include Shield::Api::PasswordResetPipes
++
++  skip :pin_login_to_ip_address
++
 +  accepted_formats [:json]
- 
-   route_prefix "/api/v0"
- 
-diff --git a/src/app.cr b/src/app.cr
-index 5fc2488..c03e31f 100644
---- a/src/app.cr
-+++ b/src/app.cr
-@@ -8,6 +8,7 @@
- require "envy"
- require "lucky_env"
- require "lucky"
-+require "avram/lucky"
- require "carbon"
- require "carbon_sendgrid_adapter"
- require "shield"
-diff --git a/tasks.cr b/tasks.cr
-index 8bc2590..fc1057e 100644
---- a/tasks.cr
-+++ b/tasks.cr
-@@ -19,5 +19,6 @@ require "./tasks/**"
- 
- # Load Lucky tasks (dev, routes, etc.)
- require "lucky/tasks/**"
-+require "avram/lucky/tasks"
- 
- LuckyTask::Runner.run
++
++  route_prefix "/api/v0"
++
++  disable_cookies
++
++  def authorize?(user : User)  : Bool
++    user.level.admin?
++  end
++end
