@@ -9,20 +9,11 @@
 abstract class PublicApi < Lucky::Action
   include Shield::ApiAction
 
-  include Shield::Api::LoginHelpers
   include Shield::Api::BearerLoginHelpers
   include Shield::Api::EmailConfirmationHelpers
   include Shield::Api::PasswordResetHelpers
 
-  include Shield::Api::LoginPipes
-
-  # IMPORTANT!:
-  #   This module reduces `Shield::Api::LoginPipes` from an authentication
-  #   pipe to a delegated authorization pipe. Because of this, bearer tokens
-  #   retrieved from the `Authorization` header MUST NOT be used as proof
-  #   of authentication.
   include Shield::Api::BearerLoginPipes
-
   include Shield::Api::EmailConfirmationPipes
   include Shield::Api::PasswordResetPipes
 
