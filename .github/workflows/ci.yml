@@ -75,6 +75,7 @@ jobs:
           EMAIL_REPLY_TO: support@my-app.tld
           GZIP_ENABLED: "false"
           DATABASE_HOST: localhost
+          # DATABASE_PARAMS: ""
           DATABASE_PASSWORD: password
           DATABASE_PORT: "5432"
           DATABASE_USERNAME: postgres
