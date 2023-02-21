@@ -2,7 +2,7 @@ class BearerLoginNotificationEmail < BaseEmail
   def initialize(@operation : CreateBearerLogin, @bearer_login : BearerLogin)
   end
 
-  header "Reply-To", App.settings.email_reply_to
+  reply_to App.settings.email_reply_to
 
   private def receiver
     @bearer_login.user

@@ -2,7 +2,7 @@ class PasswordChangeNotificationEmail < BaseEmail
   def initialize(@operation : User::SaveOperation, @user : User)
   end
 
-  header "Reply-To", App.settings.email_reply_to
+  reply_to App.settings.email_reply_to
 
   private def receiver
     @user

@@ -2,7 +2,7 @@ class LoginNotificationEmail < BaseEmail
   def initialize(@operation : StartCurrentLogin, @login : Login)
   end
 
-  header "Reply-To", App.settings.email_reply_to
+  reply_to App.settings.email_reply_to
 
   private def receiver
     @login.user
