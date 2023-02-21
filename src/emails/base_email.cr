@@ -1,4 +1,6 @@
 abstract class BaseEmail < Carbon::Email
+  header "Content-Type", "text/plain; charset=UTF-8"
+
   from sender
   to receiver
   subject heading
