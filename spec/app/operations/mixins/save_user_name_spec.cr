@@ -7,6 +7,12 @@ private class SaveUser < User::SaveOperation
     email.value = "user@example.com"
     password_digest.value = "a1b2c3"
     level.value = UserLevel.new(:author)
+
+    settings.value = UserSettings.from_json({
+      bearer_login_notify: true,
+      login_notify: true,
+      password_notify: true,
+    }.to_json)
   end
 
   include SaveUserName

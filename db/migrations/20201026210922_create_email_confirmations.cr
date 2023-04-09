@@ -7,10 +7,11 @@ class CreateEmailConfirmations::V20201026210922 < Avram::Migrator::Migration::V1
 
       add email : String
 
-      add token_digest : String
+      add active_at : Time
+      add inactive_at : Time?
       add ip_address : String
-      add started_at : Time
-      add ended_at : Time?
+      add success : Bool
+      add token_digest : String
     end
   end
 

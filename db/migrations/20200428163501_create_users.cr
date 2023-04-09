@@ -10,6 +10,7 @@ class CreateUsers::V20200428163501 < Avram::Migrator::Migration::V1
       add last_name : String
       add level : String
       add password_digest : String
+      add settings : JSON::Any
     end
   end
 

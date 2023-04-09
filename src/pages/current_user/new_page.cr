@@ -37,7 +37,7 @@ struct CurrentUser::NewPage < AuthLayout
 
       para do
         mount Shared::Field,
-          operation.save_user_options.bearer_login_notify,
+          operation.bearer_login_notify,
           label_text: bearer_login_notify_label_text do |builder|
           builder.checkbox
         end
@@ -45,7 +45,7 @@ struct CurrentUser::NewPage < AuthLayout
 
       para do
         mount Shared::Field,
-          operation.save_user_options.login_notify,
+          operation.login_notify,
           label_text: login_notify_label_text do |builder|
           builder.checkbox
         end
@@ -53,7 +53,7 @@ struct CurrentUser::NewPage < AuthLayout
 
       para do
         mount Shared::Field,
-          operation.save_user_options.password_notify,
+          operation.password_notify,
           label_text: password_notify_label_text do |builder|
           builder.checkbox
         end
