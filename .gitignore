@@ -6,5 +6,6 @@
 *.dwarf
 /.crystal-version
 /.env*
+/.node-version
 /*.lock
 /start_server
