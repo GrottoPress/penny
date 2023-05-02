@@ -38,7 +38,7 @@ dependencies:
     version: ~> 0.2.1
   shield:
     github: GrottoPress/shield
-    version: ~> 0.20.0
+    version: ~> 0.21.0
   unslash:
     github: GrottoPress/unslash
     version: ~> 0.1.0
