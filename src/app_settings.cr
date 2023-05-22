@@ -9,6 +9,6 @@ module App
     setting make_first_user_admin : Bool
     setting name : String
     setting time_format : String
-    setting timezone : String?
+    setting timezone : Time::Location?
   end
 end
