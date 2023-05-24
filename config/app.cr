@@ -5,7 +5,7 @@ App.configure do |settings|
     .parse(Lucky::RouteHelper.settings.base_uri)
     .host.not_nil!
 
-  settings.name = ENV["APP_NAME"]
+  settings.name = ENV["NAME"]
 
   settings.date_format = ENV["DATE_FORMAT"]
   settings.time_format = ENV["TIME_FORMAT"]

@@ -66,7 +66,6 @@ jobs:
           "ALTER USER postgres WITH PASSWORD 'password';"
       - name: Run tests
         env:
-          APP_NAME: penny
           ASSETS_HOST: ""
           BASE_URI: http://localhost:5000
           BEARER_LOGIN_EXPIRY: "7776000" # 3 months
@@ -85,6 +84,7 @@ jobs:
           LOGIN_IDLE_TIMEOUT: "1800" # 30 minutes
           LOGO_URL: /logo.png
           MAKE_FIRST_USER_ADMIN: "true"
+          NAME: penny
           PASSWORD_MIN_LENGTH: "4"
           PASSWORD_REQUIRE_LOWERCASE: "false"
           PASSWORD_REQUIRE_NUMBER: "false"
