@@ -1,11 +1,8 @@
-require "./route_helper"
-
 App.configure do |settings|
-  settings.domain = URI
-    .parse(Lucky::RouteHelper.settings.base_uri)
-    .host.not_nil!
-
   settings.name = ENV["NAME"]
+  settings.url = ENV["URL"]
+
+  settings.domain = URI.parse(App.settings.url).host.not_nil!
 
   settings.date_format = ENV["DATE_FORMAT"]
   settings.time_format = ENV["TIME_FORMAT"]

@@ -10,5 +10,6 @@ module App
     setting name : String
     setting time_format : String
     setting timezone : Time::Location?
+    setting url : String
   end
 end

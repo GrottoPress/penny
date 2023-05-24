@@ -67,7 +67,6 @@ jobs:
       - name: Run tests
         env:
           ASSETS_HOST: ""
-          BASE_URI: http://localhost:5000
           BEARER_LOGIN_EXPIRY: "7776000" # 3 months
           DATE_FORMAT: '%d %B, %Y'
           EMAIL_FROM: noreply@my-app.tld
@@ -101,4 +100,5 @@ jobs:
           SSL_ENABLED: "false"
           TIME_FORMAT: '%l:%M %P'
           TIMEZONE: UTC
+          URL: http://localhost:5000
         run: crystal spec --error-on-warnings spec/app
