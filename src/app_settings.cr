@@ -1,7 +1,6 @@
 module App
   Habitat.create do
     setting date_format : String
-    setting domain : String
     setting email_from : String
     setting email_reply_to : String
     setting favicon_url : String

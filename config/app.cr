@@ -2,8 +2,6 @@ App.configure do |settings|
   settings.name = ENV["NAME"]
   settings.url = ENV["URL"]
 
-  settings.domain = URI.parse(App.settings.url).host.not_nil!
-
   settings.date_format = ENV["DATE_FORMAT"]
   settings.time_format = ENV["TIME_FORMAT"]
 
