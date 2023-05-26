@@ -1,2 +1,2 @@
-release: ./bin/lucky db.migrate
+release: ./bin/cli db.migrate
 web: ./bin/app

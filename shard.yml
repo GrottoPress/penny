@@ -9,7 +9,7 @@ authors:
 targets:
   app:
     main: src/start_server.cr
-  lucky:
+  cli:
     main: tasks.cr
 
 crystal: ~> 1.6
