@@ -1,10 +1,3 @@
-# Hack to prevent a segfault for static linking
-# @link https://hub.docker.com/r/jrei/crystal-alpine
-# {% if flag?(:static) %}
-#   require "llvm/lib_llvm"
-#   require "llvm/enums"
-# {% end %}
-
 require "envy"
 require "lucky_env"
 require "lucky"
