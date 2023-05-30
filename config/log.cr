@@ -6,19 +6,17 @@ if LuckyEnv.test?
   FileUtils.mkdir_p("tmp")
 
   backend = Log::IOBackend.new(File.new("tmp/test.log", mode: "w"))
-  backend.formatter = Lucky::PrettyLogFormatter.proc
   Log.dexter.configure(:debug, backend)
 elsif LuckyEnv.production?
   # Lucky uses JSON in production so logs can be searched more easily
   #
   # If you want logs like in develpoment use 'Lucky::PrettyLogFormatter.proc'.
-  backend = Log::IOBackend.new(File.new("log/app.log", mode: "w", perm: 0o640))
-  backend.formatter = Dexter::JSONLogFormatter.proc
+  backend = Log::IOBackend.new(formatter: Dexter::JSONLogFormatter.proc)
   Log.dexter.configure(:info, backend)
+  DB::Log.level = :none
 else
   # Use a pretty formatter printing to STDOUT in development
-  backend = Log::IOBackend.new
-  backend.formatter = Lucky::PrettyLogFormatter.proc
+  backend = Log::IOBackend.new(formatter: Lucky::PrettyLogFormatter.proc)
   Log.dexter.configure(:debug, backend)
   DB::Log.level = :info
 end
