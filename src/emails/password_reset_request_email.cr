@@ -22,7 +22,7 @@ class PasswordResetRequestEmail < BaseEmail
       first_name: user.first_name,
       last_name: user.last_name,
       full_name: user.full_name,
-      link: PasswordResetUrl.new(@operation, @password_reset),
+      link: PasswordResetCredentials.new(@operation, @password_reset).url,
       link_expiry: Shield.settings.password_reset_expiry.total_minutes.to_i
     )
   end

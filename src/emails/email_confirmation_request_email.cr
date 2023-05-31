@@ -20,7 +20,10 @@ class EmailConfirmationRequestEmail < BaseEmail
     Rex.t(
       :"email.email_confirmation_request.body",
       app_name: App.settings.name,
-      link: EmailConfirmationUrl.new(@operation, @email_confirmation),
+      link: EmailConfirmationCredentials.new(
+        @operation,
+        @email_confirmation
+      ).url,
       link_expiry: Shield.settings.email_confirmation_expiry.total_minutes.to_i,
     )
   end
