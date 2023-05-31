@@ -1,4 +1,6 @@
 abstract class BaseEmail < Carbon::Email
+  include JSON::Serializable
+
   from sender
   to receiver
   subject heading

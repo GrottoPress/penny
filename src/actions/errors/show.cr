@@ -76,6 +76,14 @@ class Errors::Show < Lucky::ErrorAction
   end
 
   private def report(error : Exception) : Nil
-    # Send to Rollbar, send an email, etc.
+    # if LuckyEnv.production?
+    #   ServerErrorEmail.new(error, context.request).deliver_later
+    # else
+    #   puts
+    #   puts "===== ERROR ====="
+    #   puts "#{error.inspect_with_backtrace}"
+    #   puts "===== ERROR ====="
+    #   puts
+    # end
   end
 end

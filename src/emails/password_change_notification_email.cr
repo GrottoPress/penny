@@ -1,5 +1,5 @@
 class PasswordChangeNotificationEmail < BaseEmail
-  def initialize(@operation : User::SaveOperation, @user : User)
+  def initialize(operation : User::SaveOperation, @user : User)
   end
 
   reply_to App.settings.email_reply_to

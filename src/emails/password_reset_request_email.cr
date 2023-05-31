@@ -1,8 +1,11 @@
 class PasswordResetRequestEmail < BaseEmail
+  @token : String
+
   def initialize(
-    @operation : StartPasswordReset,
+    operation : StartPasswordReset,
     @password_reset : PasswordReset
   )
+    @token = operation.token
   end
 
   private def receiver
@@ -22,7 +25,7 @@ class PasswordResetRequestEmail < BaseEmail
       first_name: user.first_name,
       last_name: user.last_name,
       full_name: user.full_name,
-      link: PasswordResetCredentials.new(@operation, @password_reset).url,
+      link: PasswordResetCredentials.new(@token, @password_reset.id).url,
       link_expiry: Shield.settings.password_reset_expiry.total_minutes.to_i
     )
   end

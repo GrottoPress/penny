@@ -18,6 +18,7 @@ require "../db/migrations/**"
 require "./setup/**"
 
 require "shield/spec"
+require "mel/spec"
 
 include Carbon::Expectations
 include Lucky::RequestExpectations

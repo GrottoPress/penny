@@ -1,9 +1,12 @@
 class GuestPasswordResetRequestEmail < BaseEmail
-  def initialize(@operation : StartPasswordReset)
+  @email : String
+
+  def initialize(operation : StartPasswordReset)
+    @email = operation.email.value.to_s
   end
 
   private def receiver
-    Carbon::Address.new(@operation.email.value.to_s)
+    Carbon::Address.new(@email)
   end
 
   private def heading

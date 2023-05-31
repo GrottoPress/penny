@@ -1,9 +1,12 @@
 class UserWelcomeEmail < BaseEmail
-  def initialize(@operation : RegisterCurrentUser)
+  @email : String
+
+  def initialize(operation : RegisterCurrentUser)
+    @email = operation.email.value.to_s
   end
 
   private def receiver
-    Carbon::Address.new(@operation.email.value.to_s)
+    Carbon::Address.new(@email)
   end
 
   private def heading

@@ -1,5 +1,5 @@
 class BearerLoginNotificationEmail < BaseEmail
-  def initialize(@operation : CreateBearerLogin, @bearer_login : BearerLogin)
+  def initialize(operation : CreateBearerLogin, @bearer_login : BearerLogin)
   end
 
   reply_to App.settings.email_reply_to
