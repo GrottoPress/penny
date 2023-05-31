@@ -1,3 +1,14 @@
+# These are needed to make Avram models JSON-serializable,
+# for use in Mel.
+#
+struct PG::Numeric
+  include JSON::Serializable
+end
+
+abstract class Avram::Model
+  include JSON::Serializable
+end
+
 module Lucky::SelectHelpers
   def options_for_multi_select(
     field : Avram::Attribute(Array(T)),

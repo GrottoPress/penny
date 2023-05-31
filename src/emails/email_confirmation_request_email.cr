@@ -1,8 +1,11 @@
 class EmailConfirmationRequestEmail < BaseEmail
+  @token : String
+
   def initialize(
-    @operation : StartEmailConfirmation,
+    operation : StartEmailConfirmation,
     @email_confirmation : EmailConfirmation
   )
+    @token = operation.token
   end
 
   private def receiver
@@ -21,8 +24,8 @@ class EmailConfirmationRequestEmail < BaseEmail
       :"email.email_confirmation_request.body",
       app_name: App.settings.name,
       link: EmailConfirmationCredentials.new(
-        @operation,
-        @email_confirmation
+        @token,
+        @email_confirmation.id
       ).url,
       link_expiry: Shield.settings.email_confirmation_expiry.total_minutes.to_i,
     )

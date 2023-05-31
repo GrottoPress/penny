@@ -1,5 +1,5 @@
 class WelcomeEmail < BaseEmail
-  def initialize(@operation : RegisterCurrentUser, @user : User)
+  def initialize(operation : RegisterCurrentUser, @user : User)
   end
 
   reply_to App.settings.email_reply_to

@@ -17,6 +17,7 @@ require "../db/migrations/**"
 require "./setup/**"
 
 require "shield/spec"
+require "mel/spec"
 
 Habitat.raise_if_missing_settings!
 

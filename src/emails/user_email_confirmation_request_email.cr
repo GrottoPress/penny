@@ -1,9 +1,12 @@
 class UserEmailConfirmationRequestEmail < BaseEmail
-  def initialize(@operation : StartEmailConfirmation)
+  @email : String
+
+  def initialize(operation : StartEmailConfirmation)
+    @email = operation.email.value.to_s
   end
 
   private def receiver
-    Carbon::Address.new(@operation.email.value.to_s)
+    Carbon::Address.new(@email)
   end
 
   private def heading

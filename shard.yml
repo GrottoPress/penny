@@ -11,6 +11,8 @@ targets:
     main: src/start_server.cr
   cli:
     main: tasks.cr
+  worker:
+    main: src/worker.cr
 
 crystal: ~> 1.6
 
@@ -36,6 +38,9 @@ dependencies:
   i18n:
     github: crystal-i18n/i18n
     version: ~> 0.2.1
+  mel:
+    github: GrottoPress/mel
+    version: ~> 0.9.0
   shield:
     github: GrottoPress/shield
     version: ~> 1.0

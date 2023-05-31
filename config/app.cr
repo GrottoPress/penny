@@ -17,6 +17,20 @@ App.configure do |settings|
 
   settings.make_first_user_admin = Bool.adapter
     .parse!(ENV["MAKE_FIRST_USER_ADMIN"])
+
+  settings.keep_bearer_logins_for = Time::Span.new(
+    days: ENV["KEEP_BEARER_LOGINS_DAYS"].to_i
+  )
+
+  settings.keep_email_confirmations_for = Time::Span.new(
+    days: ENV["KEEP_EMAIL_CONFIRMATIONS_DAYS"].to_i
+  )
+
+  settings.keep_logins_for = Time::Span.new(days: ENV["KEEP_LOGINS_DAYS"].to_i)
+
+  settings.keep_password_resets_for = Time::Span.new(
+    days: ENV["KEEP_PASSWORD_RESETS_DAYS"].to_i
+  )
 end
 
 App.settings.timezone.try { |location| Time::Location.local = location }

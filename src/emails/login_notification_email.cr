@@ -1,5 +1,5 @@
 class LoginNotificationEmail < BaseEmail
-  def initialize(@operation : StartCurrentLogin, @login : Login)
+  def initialize(operation : StartCurrentLogin, @login : Login)
   end
 
   reply_to App.settings.email_reply_to
