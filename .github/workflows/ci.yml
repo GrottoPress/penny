@@ -97,6 +97,9 @@ jobs:
           SESSION_KEY: _app-session
           SKIP_LOAD_ENV: 'true'
           SKIP_LOG_REGEX: /password|secret|token/i
+          SMTP_HOST: smtp.domain.tld
+          SMTP_PASSWORD: a1b2c3d4e5
+          SMTP_PORT: '587'
           SSL_ENABLED: 'false'
           TIME_FORMAT: '%l:%M %P'
           TIMEZONE: UTC
