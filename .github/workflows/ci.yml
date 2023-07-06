@@ -96,7 +96,7 @@ jobs:
           SERVER_PORT: '5000'
           SESSION_KEY: _app-session
           SKIP_LOAD_ENV: 'true'
-          SKIP_LOG_REGEX: /password|secret|token/i
+          SKIP_LOG_REGEX: password|secret|token
           SMTP_HOST: smtp.domain.tld
           SMTP_PASSWORD: a1b2c3d4e5
           SMTP_PORT: '587'
