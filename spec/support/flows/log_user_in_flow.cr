@@ -12,6 +12,6 @@ class LogUserInFlow < BaseFlow
   end
 
   def login_should_be_successful
-    el("h1", text: "User Account").should be_on_page
+    should have_element("h1", text: "User Account")
   end
 end
