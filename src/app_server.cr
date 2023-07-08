@@ -20,4 +20,26 @@ class AppServer < Lucky::BaseAppServer
       Lucky::RouteNotFoundHandler.new,
     ] of HTTP::Handler
   end
+
+  def listen : Nil
+    log_started
+    super
+  end
+
+  def close : Nil
+    super
+    log_stopped
+  end
+
+  private def log_started
+    Lucky::Log.info { "App started. Listening at #{address}..." }
+  end
+
+  private def log_stopped
+    Lucky::Log.info { "App stopped" }
+  end
+
+  private def address
+    "http://#{host}:#{port}"
+  end
 end
