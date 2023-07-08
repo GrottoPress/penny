@@ -12,10 +12,6 @@
 1. Run `script/setup`
 1. Run `lucky dev` to start the app
 
-### Upgrading
-
-See `penny.diff` for changes.
-
 ### Development
 
 Run tests with `crystal spec`.
