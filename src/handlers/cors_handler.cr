@@ -31,8 +31,15 @@ class CorsHandler < BaseHandler
   end
 
   private def allow_headers
-    "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,\
-      Content-Type,Range,Authorization"
+    "Authorization,\
+      Cache-Control,\
+      Content-Type,\
+      DNT,\
+      If-Modified-Since,\
+      Range,\
+      User-Agent,\
+      X-Forwarded-For,\
+      X-Requested-With"
   end
 
   private def max_age
