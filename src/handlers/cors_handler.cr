@@ -27,7 +27,7 @@ class CorsHandler < BaseHandler
   end
 
   private def allow_methods
-    "GET,POST,PATCH,DELETE,OPTIONS"
+    "GET,HEAD,POST,PATCH,DELETE,OPTIONS"
   end
 
   private def allow_headers
