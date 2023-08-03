@@ -27,19 +27,21 @@ class CorsHandler < BaseHandler
   end
 
   private def allow_methods
-    "GET,HEAD,POST,PATCH,DELETE,OPTIONS"
+    {"DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST"}.join(',')
   end
 
   private def allow_headers
-    "Authorization,\
-      Cache-Control,\
-      Content-Type,\
-      DNT,\
-      If-Modified-Since,\
-      Range,\
-      User-Agent,\
-      X-Forwarded-For,\
-      X-Requested-With"
+    {
+      "Authorization",
+      "Cache-Control",
+      "Content-Type",
+      "DNT",
+      "If-Modified-Since",
+      "Range",
+      "User-Agent",
+      "X-Forwarded-For",
+      "X-Requested-With"
+    }.join(',')
   end
 
   private def max_age
