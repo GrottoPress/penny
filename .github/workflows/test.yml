@@ -72,11 +72,7 @@ jobs:
           EMAIL_FROM: noreply@my-app.tld
           EMAIL_REPLY_TO: support@my-app.tld
           GZIP_ENABLED: 'false'
-          DATABASE_HOST: localhost
-          # DATABASE_PARAMS: ''
-          DATABASE_PASSWORD: password
-          DATABASE_PORT: '5432'
-          DATABASE_USERNAME: postgres
+          DATABASE_URL: postgres://postgres:password@localhost:5432/penny_development
           EMAIL_CONFIRMATION_EXPIRY: '3600' # 1 hour
           FAVICON_URL: /favicon.ico
           LOGIN_EXPIRY: '86400' # 1 day

@@ -1,15 +1,17 @@
 AppDatabase.configure do |settings|
-  settings.credentials = Avram::Credentials.new(
-    database: ENV["DATABASE_NAME"],
-    hostname: ENV["DATABASE_HOST"],
-    query: ENV["DATABASE_PARAMS"]?,
-    port: ENV["DATABASE_PORT"].to_i,
-    username: ENV["DATABASE_USERNAME"],
-    password: ENV["DATABASE_PASSWORD"]
-  )
+  settings.credentials = Avram::Credentials.parse(ENV["DATABASE_URL"])
 end
 
-ENV["DATABASE_URL"] = AppDatabase.settings.credentials.url
+if LuckyEnv.test?
+  AppDatabase.settings.credentials = Avram::Credentials.new(
+    database: "penny_test",
+    hostname: AppDatabase.settings.credentials.hostname,
+    port: AppDatabase.settings.credentials.port,
+    query: AppDatabase.settings.credentials.query,
+    username: AppDatabase.settings.credentials.username,
+    password: AppDatabase.settings.credentials.password
+  )
+end
 
 Avram.configure do |settings|
   settings.database_to_migrate = AppDatabase

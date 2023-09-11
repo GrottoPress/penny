@@ -1,5 +1,4 @@
 ENV["LUCKY_ENV"] = "test"
-ENV["DATABASE_NAME"] = "penny_test"
 
 require "spec"
 require "lucky_flow"
