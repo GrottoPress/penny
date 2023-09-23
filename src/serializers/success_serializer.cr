@@ -45,11 +45,11 @@ abstract struct SuccessSerializer < BaseSerializer
       right_of_current: 2
     ).map do |item|
       case item
-      when Lucky::Paginator::CurrentPage
+      in Lucky::Paginator::CurrentPage
         -item.number
-      when Lucky::Paginator::Page
+      in Lucky::Paginator::Page
         item.number
-      else
+      in Lucky::Paginator::Gap
         0
       end
     end
