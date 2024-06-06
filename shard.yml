@@ -14,33 +14,33 @@ targets:
   worker:
     main: src/worker.cr
 
-crystal: ~> 1.6
+crystal: ~> 1.12
 
 dependencies:
   avram:
     github: luckyframework/avram
     version: ~> 1.0
-  lucky:
-    github: luckyframework/lucky
-    version: ~> 1.0
-  lucky_env:
-    github: luckyframework/lucky_env
-    version: ~> 0.1.4
   carbon:
     github: luckyframework/carbon
-    version: ~> 0.3.0
+    version: ~> 0.5.0
   envy:
     github: GrottoPress/envy
     version: ~> 1.0
   halo:
     github:  GrottoPress/halo
-    version: ~> 0.1.0
+    version: ~> 0.3.0
   i18n:
     github: crystal-i18n/i18n
     version: ~> 0.2.1
+  lucky:
+    github: luckyframework/lucky
+    version: ~> 1.0
+  lucky_env:
+    github: luckyframework/lucky_env
+    version: ~> 0.2.0
   mel:
     github: GrottoPress/mel
-    version: ~> 0.9.0
+    version: ~> 0.20.0
   shield:
     github: GrottoPress/shield
     version: ~> 1.0
@@ -51,7 +51,7 @@ dependencies:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: ~> 1.2.0
+    version: ~> 1.6.0
   lucky_flow:
     github: luckyframework/lucky_flow
-    version: ~> 0.9.0
+    version: ~> 0.10.0
