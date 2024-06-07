@@ -3,6 +3,8 @@
 /bin/
 /lib/
 /node_modules/
+/public/css/
+/public/js/
 /tmp/
 *.dwarf
 /.env*
