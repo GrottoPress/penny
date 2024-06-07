@@ -11,10 +11,10 @@ notice "Running System Check"
 print_done
 
 notice "Installing node dependencies"
-yarn install --no-progress | indent
+npm install --no-progress | indent
 
 notice "Compiling assets"
-yarn dev | indent
+npm run dev | indent
 
 print_done
 

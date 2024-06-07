@@ -8,8 +8,8 @@
 
 # Returns true if the command $1 is not found
 # example:
-#   if command_not_found "yarn"; then
-#     echo "no yarn"
+#   if command_not_found "npm"; then
+#     echo "no npm"
 #   fi
 command_not_found() {
   ! command -v $1 > /dev/null
