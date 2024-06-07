@@ -6,6 +6,5 @@
 /tmp/
 *.dwarf
 /.env*
-/.node-version
 /*.lock
 /start_server
