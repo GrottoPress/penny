@@ -23,7 +23,7 @@ shards install --ignore-crystal-version | indent
 
 if [ ! -f ".env.yml" ]; then
   notice "No .env.yml found. Creating one."
-  touch .env.yml
+  cp sample.env.yml .env.yml
   print_done
 fi
 
