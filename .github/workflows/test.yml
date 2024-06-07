@@ -72,11 +72,17 @@ jobs:
         env:
           ASSETS_HOST: ''
           BEARER_LOGIN_EXPIRY: '7776000' # 3 months
+          DATABASE_URL: postgres://postgres:password@localhost:5432/penny_development
           DATE_FORMAT: '%d %B, %Y'
           EMAIL_FROM: noreply@my-app.tld
           EMAIL_REPLY_TO: support@my-app.tld
           GZIP_ENABLED: 'false'
-          DATABASE_URL: postgres://postgres:password@localhost:5432/penny_development
+          JOBS_BATCH_SIZE: '-1'
+          JOBS_POLL_INTERVAL: '3'
+          KEEP_BEARER_LOGINS_DAYS: '90'
+          KEEP_EMAIL_CONFIRMATIONS_DAYS: '90'
+          KEEP_LOGINS_DAYS: '90'
+          KEEP_PASSWORD_RESETS_DAYS: '90'
           EMAIL_CONFIRMATION_EXPIRY: '3600' # 1 hour
           FAVICON_URL: /favicon.ico
           LOGIN_EXPIRY: '86400' # 1 day
@@ -90,6 +96,7 @@ jobs:
           PASSWORD_REQUIRE_SPECIAL_CHAR: 'false'
           PASSWORD_REQUIRE_UPPERCASE: 'false'
           PASSWORD_RESET_EXPIRY: '1800' # 30 minutes
+          REDIS_URL: redis://localhost:6379/0
           SECRET_KEY_BASE: XeqAgSy5QQ+dWe8ruOBUMrz9XPbPZ7chPVtz2ecDGss=
           SEND_GRID_KEY: unused
           SERVER_HOST: '0.0.0.0'
@@ -104,4 +111,5 @@ jobs:
           TIME_FORMAT: '%l:%M %P'
           TIMEZONE: UTC
           URL: http://localhost:5000
+          WORKER_ID: '1'
         run: crystal spec --error-on-warnings spec/app
