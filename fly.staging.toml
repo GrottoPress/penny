@@ -1,0 +1,71 @@
+app = 'penny-staging'
+primary_region = 'ams'
+swap_size_mb = 256
+
+[build]
+  image = 'registry.fly.io/penny-staging:latest'
+
+[deploy]
+  release_command = 'bin/cli db.migrate'
+
+[processes]
+  app = 'bin/app'
+  worker_1 = 'bin/worker 1'
+
+[http_service]
+  processes = ['app']
+  internal_port = 5000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[env]
+  ASSETS_HOST = ''
+  BEARER_LOGIN_EXPIRY = '7776000' # 3 months
+  DATE_FORMAT = '%d %B, %Y'
+  EMAIL_FROM = 'noreply@my-app.tld'
+  EMAIL_REPLY_TO = 'support@my-app.tld'
+  GZIP_ENABLED = 'false'
+  JOBS_BATCH_SIZE = '-1'
+  JOBS_POLL_INTERVAL = '30'
+  KEEP_BEARER_LOGINS_DAYS = '90'
+  KEEP_EMAIL_CONFIRMATIONS_DAYS = '90'
+  KEEP_LOGINS_DAYS = '90'
+  KEEP_PASSWORD_RESETS_DAYS = '90'
+  EMAIL_CONFIRMATION_EXPIRY = '3600' # 1 hour
+  FAVICON_URL = '/favicon.ico'
+  LOGIN_EXPIRY = '86400' # 1 day
+  LOGIN_IDLE_TIMEOUT = '1800' # 30 minutes
+  LOGO_URL = '/logo.png'
+  MAKE_FIRST_USER_ADMIN = 'false'
+  NAME = 'Penny (staging)'
+  PASSWORD_MIN_LENGTH = '4'
+  PASSWORD_REQUIRE_LOWERCASE = 'false'
+  PASSWORD_REQUIRE_NUMBER = 'false'
+  PASSWORD_REQUIRE_SPECIAL_CHAR = 'false'
+  PASSWORD_REQUIRE_UPPERCASE = 'false'
+  PASSWORD_RESET_EXPIRY = '1800' # 30 minutes
+  SEND_GRID_KEY = 'unused'
+  SERVER_HOST = 'fly-local-6pn'
+  SERVER_PORT = '5000'
+  SESSION_KEY = '_penny-staging-session'
+  SKIP_LOAD_ENV = 'true'
+  SKIP_LOG_REGEX = 'password|secret|token'
+  SMTP_HOST = 'smtp.domain.tld'
+  SMTP_PORT = '587'
+  SSL_ENABLED = 'false'
+  TIME_FORMAT = '%l:%M %P'
+  TIMEZONE = 'Africa/Accra'
+  URL = 'https://penny-staging.fly.dev'
+  WORKER_ID = '0'
+
+  # Secrets
+  #
+  # Listed for documentation purposes
+  # Do NOT set them here!
+  #
+  # DATABASE_URL = ''
+  # REDIS_URL = ''
+  # SECRET_KEY_BASE = ''
+  # SMTP_PASSWORD = ''

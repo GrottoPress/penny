@@ -1,0 +1,194 @@
+name: Deploy (staging)
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**.cr'
+      - '.github/workflows/deploy.staging.yml'
+      - 'lang/**'
+      - '.dockerignore'
+      - 'Dockerfile'
+      - 'fly.staging.toml'
+      - 'shard.lock'
+jobs:
+  checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal:
+          - '1.12.1'
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    steps:
+      - name: Download source
+        uses: actions/checkout@v4
+      # - name: Add SSH keys
+      #   uses: webfactory/ssh-agent@v0.9.0
+      #   with:
+      #     ssh-private-key: |
+      #       $\{{ secrets.SOME_SSH_PRIVATE_KEY }}
+      #       $\{{ secrets.ANOTHER_SSH_PRIVATE_KEY }}
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
+      - name: Install shards
+        run: shards install
+      - name: Lint code
+        run: ./bin/ameba
+  specs:
+    needs: checks
+    strategy:
+      fail-fast: false
+      matrix:
+        # cockroachdb:
+        #   - v22.2.0
+        #   - latest
+        crystal:
+          - '1.12.1'
+        experimental:
+          - false
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - name: Download source
+        uses: actions/checkout@v4
+      # - name: Add SSH keys
+      #   uses: webfactory/ssh-agent@v0.9.0
+      #   with:
+      #     ssh-private-key: |
+      #       $\{{ secrets.SOME_SSH_PRIVATE_KEY }}
+      #       $\{{ secrets.ANOTHER_SSH_PRIVATE_KEY }}
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+        with:
+          crystal: ${{ matrix.crystal }}
+      - name: Cache shards
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/shards
+          key: ${{ runner.os }}-shards-${{ hashFiles('shard.yml') }}
+          restore-keys: ${{ runner.os }}-shards-
+      - name: Install shards
+        run: shards install --skip-postinstall --skip-executables
+      # - name: Install CockroachDB
+      #   run: |
+      #     sudo apt -y install tar wget
+      #     sudo mkdir -p /usr/local/lib/cockroach
+      #     wget -O cockroachdb.tgz https://binaries.cockroachdb.com/cockroach-${{ matrix.cockroachdb }}.linux-amd64.tgz
+      #     tar -xzf cockroachdb.tgz
+      #     sudo cp -f cockroach-*/cockroach /usr/local/bin/
+      #     sudo chmod +x /usr/local/bin/cockroach
+      #     sudo cp -rf cockroach-*/lib/* /usr/local/lib/cockroach/
+      #   working-directory: /tmp
+      # - name: Start CockroachDB
+      #   run: cockroach start-single-node --insecure --listen-addr=localhost:36257 --sql-addr=localhost:26257 --background
+      - name: Install Postgresql
+        run: sudo apt -y install postgresql
+      - name: Start Postgresql
+        run: sudo systemctl start postgresql
+      - name: Set Postgres password
+        run: >-
+          sudo -u postgres psql -c
+          "ALTER USER postgres WITH PASSWORD 'password';"
+      - name: Install Redis
+        run: sudo apt -y install redis
+      - name: Start Redis
+        run: sudo systemctl start redis
+      - name: Run tests
+        env:
+          ASSETS_HOST: ''
+          BEARER_LOGIN_EXPIRY: '7776000' # 3 months
+          # DATABASE_URL: postgres://root@localhost:26257/penny_development?sslmode=disable
+          DATABASE_URL: postgres://postgres:password@localhost:5432/penny_development
+          DATE_FORMAT: '%d %B, %Y'
+          EMAIL_FROM: noreply@my-app.tld
+          EMAIL_REPLY_TO: support@my-app.tld
+          GZIP_ENABLED: 'false'
+          JOBS_BATCH_SIZE: '-1'
+          JOBS_POLL_INTERVAL: '3'
+          KEEP_BEARER_LOGINS_DAYS: '90'
+          KEEP_EMAIL_CONFIRMATIONS_DAYS: '90'
+          KEEP_LOGINS_DAYS: '90'
+          KEEP_PASSWORD_RESETS_DAYS: '90'
+          EMAIL_CONFIRMATION_EXPIRY: '3600' # 1 hour
+          FAVICON_URL: /favicon.ico
+          LOGIN_EXPIRY: '86400' # 1 day
+          LOGIN_IDLE_TIMEOUT: '1800' # 30 minutes
+          LOGO_URL: /logo.png
+          MAKE_FIRST_USER_ADMIN: 'true'
+          NAME: penny
+          PASSWORD_MIN_LENGTH: '4'
+          PASSWORD_REQUIRE_LOWERCASE: 'false'
+          PASSWORD_REQUIRE_NUMBER: 'false'
+          PASSWORD_REQUIRE_SPECIAL_CHAR: 'false'
+          PASSWORD_REQUIRE_UPPERCASE: 'false'
+          PASSWORD_RESET_EXPIRY: '1800' # 30 minutes
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY_BASE: XeqAgSy5QQ+dWe8ruOBUMrz9XPbPZ7chPVtz2ecDGss=
+          SEND_GRID_KEY: unused
+          SERVER_HOST: '0.0.0.0'
+          SERVER_PORT: '5000'
+          SESSION_KEY: _app-session
+          SKIP_LOAD_ENV: 'true'
+          SKIP_LOG_REGEX: password|secret|token
+          SMTP_HOST: smtp.domain.tld
+          SMTP_PASSWORD: a1b2c3d4e5
+          SMTP_PORT: '587'
+          SSL_ENABLED: 'false'
+          TIME_FORMAT: '%l:%M %P'
+          TIMEZONE: UTC
+          URL: http://localhost:5000
+          WORKER_ID: '1'
+        run: crystal spec --error-on-warnings spec/app
+  deploy:
+    needs: specs
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    steps:
+      - name: Download source
+        uses: actions/checkout@v4
+      # - name: Add SSH keys
+      #   uses: webfactory/ssh-agent@v0.9.0
+      #   with:
+      #     ssh-private-key: |
+      #       $\{{ secrets.SOME_SSH_PRIVATE_KEY }}
+      #       $\{{ secrets.ANOTHER_SSH_PRIVATE_KEY }}
+      - name: Collect Git and SSH config files
+        run: |
+          mkdir root-config
+          cp -r ~/.gitconfig ~/.ssh root-config/
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Set up Fly
+        uses: superfly/flyctl-actions/setup-flyctl@v1
+      # - name: Log in to GitLab registry
+      #   uses: docker/login-action@v3
+      #   with:
+      #     password: $\{{ secrets.GITLAB_REGISTRY_TOKEN }}
+      #     registry: registry.gitlab.com
+      #     username: $\{{ secrets.GITLAB_REGISTRY_USERNAME }}
+      - name: Log in to Fly.io registry
+        run: flyctl auth docker
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_STAGING_API_TOKEN }}
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          build-args: |
+            ALPINE_VERSION=3.18
+            CRYSTAL_VERSION=1.12.1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          provenance: false
+          push: true
+          ssh: |
+            ssh-key=${{ env.SSH_AUTH_SOCK }}
+          tags: |
+            registry.fly.io/penny-staging:latest
+      - name: Deploy app
+        run: flyctl deploy -c fly.staging.toml --ha=false --vm-size=shared-cpu-1x --detach
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_STAGING_API_TOKEN }}
