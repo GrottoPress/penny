@@ -6,5 +6,4 @@
 /tmp/
 *.dwarf
 /.env*
-/*.lock
 /start_server
