@@ -21,7 +21,7 @@ jobs:
     continue-on-error: false
     steps:
       - name: Download source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
@@ -43,7 +43,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Download source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
