@@ -36,9 +36,9 @@ jobs:
       matrix:
         crystal: ['1.12.1']
         experimental: [false]
-        include:
-          - crystal: nightly
-            experimental: true
+        # include:
+        #   - crystal: nightly
+        #     experimental: true
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental }}
     steps:
