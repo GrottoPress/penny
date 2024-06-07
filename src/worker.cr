@@ -2,6 +2,8 @@ require "mel/worker"
 
 require "./app"
 
+Habitat.raise_if_missing_settings!
+
 exit if LuckyEnv.development?
 
 DeleteBearerLoginsJob.run_every(1.week, id: "delete-bearer-logins-weekly")
