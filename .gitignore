@@ -5,7 +5,6 @@
 /node_modules/
 /tmp/
 *.dwarf
-/.crystal-version
 /.env*
 /.node-version
 /*.lock
