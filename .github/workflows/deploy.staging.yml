@@ -177,8 +177,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            ALPINE_VERSION=3.18
+            ALPINE_VERSION=3.20
             CRYSTAL_VERSION=1.12.1
+            NODE_VERSION=20.12
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
