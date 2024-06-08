@@ -33,10 +33,18 @@ Lucky::ContinuedPipeLog.dexter.configure(:none)
 Avram::QueryLog.dexter.configure(:none)
 
 # Skip logging
-Lucky::LogHandler.configure do |settings|
-  settings.skip_if = ->(context : HTTP::Server::Context) do
+# Lucky::LogHandler.configure do |settings|
+#   settings.skip_if = ->(context : HTTP::Server::Context) do
+#     return false unless LuckyEnv.production?
+#     return false unless filter = ENV["SKIP_LOG_REGEX"]?
+#     request.query_params.any? { |key, _| !key.match(/#{filter}/i).nil? }
+#   end
+# end
+
+Fella.configure do |settings|
+  settings.skip_if = ->(request : HTTP::Request) do
     return false unless LuckyEnv.production?
     return false unless filter = ENV["SKIP_LOG_REGEX"]?
-    !context.request.resource.match(/#{filter}/i).nil?
+    request.query_params.any? { |key, _| !key.match(/#{filter}/i).nil? }
   end
 end

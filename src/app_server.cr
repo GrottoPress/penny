@@ -7,7 +7,7 @@ class AppServer < Lucky::BaseAppServer
       Lucky::ForceSSLHandler.new,
       Lucky::HttpMethodOverrideHandler.new,
       # Lucky::RemoteIpHandler.new,
-      Lucky::LogHandler.new,
+      log_handler,
       Lucky::ErrorHandler.new(action: Errors::Show),
       Defense::Handler.new,
       CorsHandler.new,
@@ -43,5 +43,11 @@ class AppServer < Lucky::BaseAppServer
 
   private def address
     "http://#{host}:#{port}"
+  end
+
+  private def log_handler
+    LuckyEnv.production? ?
+      Fella::Handler.new(Lucky::Log) :
+      Lucky::LogHandler.new
   end
 end

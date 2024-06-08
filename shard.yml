@@ -29,6 +29,9 @@ dependencies:
   envy:
     github: GrottoPress/envy
     version: ~> 1.0
+  fella:
+    github: GrottoPress/fella
+    version: ~> 0.1.0
   halo:
     github:  GrottoPress/halo
     version: ~> 0.3.0
