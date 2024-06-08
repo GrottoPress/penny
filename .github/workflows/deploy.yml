@@ -178,8 +178,8 @@ jobs:
           context: .
           provenance: false
           push: true
-          ssh: |
-            ssh-key=${{ env.SSH_AUTH_SOCK }}
+          # ssh: | # Enable if using webfactory action above
+          #   ssh-key=$\{{ env.SSH_AUTH_SOCK }}
           tags: |
             registry.fly.io/penny:latest
       - name: Deploy app
