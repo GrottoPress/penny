@@ -36,6 +36,10 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.13.1
 
+  defense:
+    git: https://github.com/defense-cr/defense.git
+    version: 0.5.1
+
   dexter:
     git: https://github.com/luckyframework/dexter.git
     version: 0.3.4

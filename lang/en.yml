@@ -261,6 +261,9 @@ en:
         Regards,
         %{app_name}.
       subject: Welcome to %{app_name}
+  handler:
+    request_blocked: Request blocked
+    request_throttled: Too many attempts. Retry later.
   model:
     user:
       full_name: '%{first_name} %{last_name}'

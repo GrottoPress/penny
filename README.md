@@ -21,4 +21,5 @@ Run tests with `crystal spec`.
 - [Crystal](https://crystal-lang.org)
 - [Lucky](https://luckyframework.org)
 - [Shield](https://github.com/grottopress/shield)
+- [Defense](https://github.com/defense-cr/defense)
 - [Mel](https://github.com/grottoPress/mel)

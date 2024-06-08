@@ -7,6 +7,7 @@ require "shield"
 require "unslash"
 require "i18n"
 require "mel"
+require "defense"
 
 require "./app_settings"
 require "../config/charms"
