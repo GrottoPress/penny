@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Download source
         uses: actions/checkout@v4
-      # - name: Add SSH keys
+      # - name: Add SSH keys # Enable if pulling packages from private repos
       #   uses: webfactory/ssh-agent@v0.9.0
       #   with:
       #     ssh-private-key: |
@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Download source
         uses: actions/checkout@v4
-      # - name: Add SSH keys
+      # - name: Add SSH keys # Enable if pulling packages from private repos
       #   uses: webfactory/ssh-agent@v0.9.0
       #   with:
       #     ssh-private-key: |
@@ -141,7 +141,7 @@ jobs:
     steps:
       - name: Download source
         uses: actions/checkout@v4
-      # - name: Add SSH keys
+      # - name: Add SSH keys # Enable if pulling packages from private repos
       #   uses: webfactory/ssh-agent@v0.9.0
       #   with:
       #     ssh-private-key: |
