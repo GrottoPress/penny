@@ -46,11 +46,11 @@ shards:
 
   email:
     git: https://github.com/arcage/crystal-email.git
-    version: 0.7.0
+    version: 0.7.1
 
   envy:
     git: https://github.com/grottopress/envy.git
-    version: 1.0.3
+    version: 1.0.4
 
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
