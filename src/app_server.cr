@@ -2,7 +2,7 @@ class AppServer < Lucky::BaseAppServer
   # Learn about middleware with HTTP::Handlers:
   # https://luckyframework.org/guides/http-and-routing/http-handlers
   def middleware : Array(HTTP::Handler)
-    [
+    Array(HTTP::Handler){
       Lucky::RequestIdHandler.new,
       Lucky::ForceSSLHandler.new,
       Lucky::HttpMethodOverrideHandler.new,
@@ -20,7 +20,7 @@ class AppServer < Lucky::BaseAppServer
       ),
       Lucky::StaticFileHandler.new("./public", false),
       Lucky::RouteNotFoundHandler.new,
-    ] of HTTP::Handler
+    }
   end
 
   def listen : Nil
