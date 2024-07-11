@@ -46,6 +46,8 @@ struct CurrentUser::BearerLogins::NewPage < MainLayout
   end
 
   private def options_for_scopes
-    BearerScope.action_scopes.map { |scope| {scope.to_s, scope.to_s} }
+    Shield.settings.bearer_login_scopes_allowed.map do |scope|
+      {scope, scope}
+    end
   end
 end

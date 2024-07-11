@@ -1,4 +1,7 @@
 Shield.configure do |settings|
+  settings.bearer_login_scopes_allowed =
+    ENV["BEARER_LOGIN_SCOPES_ALLOWED"]?.try(&.split) || [] of String
+
   settings.bearer_login_expiry = ENV["BEARER_LOGIN_EXPIRY"]?.try do |expiry|
     Time::Span.new(seconds: expiry.to_i)
   end
