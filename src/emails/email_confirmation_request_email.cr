@@ -1,15 +1,25 @@
 class EmailConfirmationRequestEmail < BaseEmail
+  @email_confirmation : {
+    email: String,
+    id: EmailConfirmation::PrimaryKeyType,
+  }
+
   @token : String
 
   def initialize(
     operation : StartEmailConfirmation,
-    @email_confirmation : EmailConfirmation
+    email_confirmation : EmailConfirmation
   )
+    @email_confirmation = {
+      email: email_confirmation.email,
+      id: email_confirmation.id
+    }
+
     @token = operation.token
   end
 
   private def receiver
-    Carbon::Address.new(@email_confirmation.email)
+    Carbon::Address.new(@email_confirmation[:email])
   end
 
   private def heading
@@ -23,10 +33,10 @@ class EmailConfirmationRequestEmail < BaseEmail
     Rex.t(
       :"email.email_confirmation_request.body",
       app_name: App.settings.name,
-      link: EmailConfirmationCredentials.new(
+      link: EmailConfirmationCredentials.url(
         @token,
-        @email_confirmation.id
-      ).url,
+        @email_confirmation[:id]
+      ),
       link_expiry: Shield.settings.email_confirmation_expiry.total_minutes.to_i,
     )
   end

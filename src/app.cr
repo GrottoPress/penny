@@ -11,7 +11,6 @@ require "defense"
 require "fella"
 
 require "./app_settings"
-require "../config/charms"
 require "./app_database"
 require "./models/mixins/**"
 require "./models/base_model"
