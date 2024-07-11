@@ -37,10 +37,10 @@ struct CurrentUser::BearerLogins::IndexPage < MainLayout
       if pages.total > 1
         mount Lucky::Paginator::SimpleNav, pages
       end
+    end
 
-      para do
-        link "[+] #{add_new_text}", to: New
-      end
+    para do
+      link "[+] #{add_new_text}", to: New
     end
   end
 end
