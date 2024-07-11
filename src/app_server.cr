@@ -34,15 +34,11 @@ class AppServer < Lucky::BaseAppServer
   end
 
   private def log_started
-    Lucky::Log.info { "App started. Listening at #{address}..." }
+    Lucky::Log.info { "App running at #{host}:#{port}" }
   end
 
   private def log_stopped
     Lucky::Log.info { "App stopped" }
-  end
-
-  private def address
-    "http://#{host}:#{port}"
   end
 
   private def log_handler
