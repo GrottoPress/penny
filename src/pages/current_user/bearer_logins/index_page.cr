@@ -17,9 +17,9 @@ struct CurrentUser::BearerLogins::IndexPage < MainLayout
       ul do
         bearer_logins.each do |bearer_login|
           li do
-            text bearer_login.active_at.to_s(App.settings.date_format)
+            text Rex.l(bearer_login.active_at.date)
             text " | "
-            text bearer_login.active_at.to_s(App.settings.time_format)
+            text Rex.l(bearer_login.active_at)
             text " | "
             text bearer_login.name
             text " | "

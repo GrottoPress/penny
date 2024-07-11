@@ -17,9 +17,9 @@ struct Logins::IndexPage < MainLayout
       ul do
         logins.each do |login|
           li do
-            text login.active_at.to_s(App.settings.date_format)
+            text Rex.l(login.active_at.date)
             text " | "
-            text login.active_at.to_s(App.settings.time_format)
+            text Rex.l(login.active_at)
             text " | "
             text login.user.full_name
             text " | "

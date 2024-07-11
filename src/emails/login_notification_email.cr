@@ -21,12 +21,8 @@ class LoginNotificationEmail < BaseEmail
       first_name: user.first_name,
       last_name: user.last_name,
       full_name: user.full_name,
-      login_time: @login.active_at.to_s(date_time_format),
+      login_time: Rex.l(@login.active_at, :long),
       ip_address: @login.ip_address
     )
-  end
-
-  private def date_time_format
-    "#{App.settings.date_format}, #{App.settings.time_format}"
   end
 end

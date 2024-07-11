@@ -23,7 +23,6 @@ swap_size_mb = 256
 [env]
   ASSETS_HOST = ''
   BEARER_LOGIN_EXPIRY = '7776000' # 3 months
-  DATE_FORMAT = '%d %B, %Y'
   EMAIL_FROM = 'noreply@my-app.tld'
   EMAIL_REPLY_TO = 'support@my-app.tld'
   GZIP_ENABLED = 'false'
@@ -55,7 +54,6 @@ swap_size_mb = 256
   SMTP_HOST = 'smtp.domain.tld'
   SMTP_PORT = '587'
   SSL_ENABLED = 'false'
-  TIME_FORMAT = '%l:%M %P'
   TIMEZONE = 'Africa/Accra'
   URL = 'https://penny-staging.fly.dev'
   WORKER_ID = '0'

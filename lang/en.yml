@@ -1,4 +1,30 @@
 en:
+  i18n:
+    date:
+      abbr_day_names: [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+      abbr_month_names: [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
+      day_names: [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]
+      formats:
+        default: '%d %b %Y'
+      month_names:
+        - January
+        - February
+        - March
+        - April
+        - May
+        - June
+        - July
+        - August
+        - September
+        - October
+        - November
+        - December
+    time:
+      am: am
+      formats:
+        default: '%l:%M %p %^Z'
+        long: '%d %b %Y at %l:%M %p %^Z'
+      pm: pm
   action:
     misc:
       dev_mode_skip_email: "Development mode: no need to check your mail."

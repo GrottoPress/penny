@@ -17,9 +17,9 @@ struct PasswordResets::IndexPage < MainLayout
       ul do
         password_resets.each do |password_reset|
           li do
-            text password_reset.active_at.to_s(App.settings.date_format)
+            text Rex.l(password_reset.active_at.date)
             text " | "
-            text password_reset.active_at.to_s(App.settings.time_format)
+            text Rex.l(password_reset.active_at)
             text " | "
             text password_reset.ip_address
             text " | "

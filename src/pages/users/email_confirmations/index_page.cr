@@ -20,9 +20,9 @@ struct Users::EmailConfirmations::IndexPage < MainLayout
       ul do
         email_confirmations.each do |email_confirmation|
           li do
-            text email_confirmation.active_at.to_s(App.settings.date_format)
+            text Rex.l(email_confirmation.active_at.date)
             text " | "
-            text email_confirmation.active_at.to_s(App.settings.time_format)
+            text Rex.l(email_confirmation.active_at)
             text " | "
             text email_confirmation.ip_address
             text " | "

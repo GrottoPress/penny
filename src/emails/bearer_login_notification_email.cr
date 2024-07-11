@@ -24,12 +24,8 @@ class BearerLoginNotificationEmail < BaseEmail
       first_name: user.first_name,
       last_name: user.last_name,
       full_name: user.full_name,
-      active_time: @bearer_login.active_at.to_s(date_time_format),
+      active_time: Rex.l(@bearer_login.active_at, :long),
       bearer_login_name: @bearer_login.name
     )
-  end
-
-  private def date_time_format
-    "#{App.settings.date_format}, #{App.settings.time_format}"
   end
 end

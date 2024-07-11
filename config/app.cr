@@ -2,9 +2,6 @@ App.configure do |settings|
   settings.name = ENV["NAME"]
   settings.url = ENV["URL"]
 
-  settings.date_format = ENV["DATE_FORMAT"]
-  settings.time_format = ENV["TIME_FORMAT"]
-
   settings.timezone = ENV["TIMEZONE"]?.try do |timezone|
     Time::Location.load(timezone)
   end
