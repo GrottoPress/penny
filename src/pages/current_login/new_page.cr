@@ -20,9 +20,9 @@ struct CurrentLogin::NewPage < AuthLayout
       end
 
       para do
-        link lost_password_text, to: ::EmailConfirmations::New
+        link lost_password_text, to: ::PasswordResets::New
         text " | "
-        link no_account_text, to: ::PasswordResets::New
+        link no_account_text, to: ::EmailConfirmations::New
       end
 
       para do
