@@ -16,13 +16,11 @@ struct CurrentUser::BearerLogins::NewPage < MainLayout
       end
 
       para do
-        label Rex.t(:"page.current_user.bearer_login.new.form.scopes.label"),
-          for: "#{param_key}_scopes"
+        label_for operation.scopes,
+          Rex.t(:"page.current_user.bearer_login.new.form.scopes.label")
 
-        select_tag id: "#{param_key}_scopes",
-          name: "#{param_key}:scopes[]",
-          attrs: [:multiple] do
-            options_for_multi_select operation.scopes, options_for_scopes
+        multi_select_input(operation.scopes) do
+          options_for_select(operation.scopes, options_for_scopes)
         end
 
         mount Shared::FieldErrors, operation.scopes
