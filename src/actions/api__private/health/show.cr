@@ -10,7 +10,7 @@
 #   end
 
 #   private def verify_database_connection
-#     Avram.settings.database_to_migrate.exec("SELECT 1;")
+#     BaseModel.database.exec("SELECT 1;")
 #   end
 
 #   private def verify_redis_connection
