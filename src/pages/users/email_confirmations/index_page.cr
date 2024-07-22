@@ -1,4 +1,6 @@
-struct Users::EmailConfirmations::IndexPage < MainLayout
+struct Users::EmailConfirmations::IndexPage
+  include Mixins::MainLayout
+
   needs email_confirmations : Array(EmailConfirmation)
   needs user : User
   needs pages : Lucky::Paginator

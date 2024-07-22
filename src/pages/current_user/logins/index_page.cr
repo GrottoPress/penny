@@ -1,4 +1,6 @@
-struct CurrentUser::Logins::IndexPage < MainLayout
+struct CurrentUser::Logins::IndexPage
+  include Mixins::MainLayout
+
   needs logins : Array(Login)
   needs pages : Lucky::Paginator
 

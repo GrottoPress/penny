@@ -1,4 +1,6 @@
-struct CurrentUser::EditPage < MainLayout
+struct CurrentUser::EditPage
+  include Mixins::MainLayout
+
   needs operation : UpdateCurrentUser
 
   def page_title

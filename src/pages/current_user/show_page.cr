@@ -1,4 +1,6 @@
-struct CurrentUser::ShowPage < MainLayout
+struct CurrentUser::ShowPage
+  include Mixins::MainLayout
+
   needs user : User
 
   def page_title

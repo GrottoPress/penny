@@ -1,4 +1,6 @@
-struct Home::IndexPage < MainLayout
+struct Home::IndexPage
+  include Mixins::MainLayout
+
   def page_title
     ""
   end

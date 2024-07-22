@@ -1,4 +1,6 @@
-# struct BearerLogins::ShowPage < MainLayout
+# struct BearerLogins::ShowPage
+#  include Mixins::MainLayout
+
 #   needs bearer_login : BearerLogin
 
 #   def page_title

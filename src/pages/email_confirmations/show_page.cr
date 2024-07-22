@@ -1,4 +1,6 @@
-# struct EmailConfirmations::ShowPage < MainLayout
+# struct EmailConfirmations::ShowPage
+#  include Mixins::MainLayout
+
 #   needs email_confirmation : EmailConfirmation
 
 #   def page_title

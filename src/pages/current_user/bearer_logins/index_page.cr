@@ -1,4 +1,6 @@
-struct CurrentUser::BearerLogins::IndexPage < MainLayout
+struct CurrentUser::BearerLogins::IndexPage
+  include Mixins::MainLayout
+
   needs bearer_logins : Array(BearerLogin)
   needs pages : Lucky::Paginator
 

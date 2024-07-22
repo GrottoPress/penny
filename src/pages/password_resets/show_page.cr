@@ -1,4 +1,6 @@
-# struct PasswordResets::ShowPage < MainLayout
+# struct PasswordResets::ShowPage
+#  include Mixins::MainLayout
+
 #   needs password_reset : PasswordReset
 
 #   def page_title

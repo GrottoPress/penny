@@ -1,4 +1,6 @@
-struct CurrentUser::BearerLogins::NewPage < MainLayout
+struct CurrentUser::BearerLogins::NewPage
+  include Mixins::MainLayout
+
   needs operation : CreateBearerLogin
 
   include Mixins::PageParamKey

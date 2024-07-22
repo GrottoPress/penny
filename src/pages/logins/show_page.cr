@@ -1,4 +1,6 @@
-# struct Logins::ShowPage < MainLayout
+# struct Logins::ShowPage
+#  include Mixins::MainLayout
+
 #   needs login : Login
 
 #   def page_title

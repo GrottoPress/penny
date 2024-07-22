@@ -1,4 +1,6 @@
-struct Users::PasswordResets::IndexPage < MainLayout
+struct Users::PasswordResets::IndexPage
+  include Mixins::MainLayout
+
   needs password_resets : Array(PasswordReset)
   needs user : User
   needs pages : Lucky::Paginator

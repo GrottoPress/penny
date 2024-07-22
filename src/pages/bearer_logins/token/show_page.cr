@@ -1,4 +1,6 @@
-struct BearerLogins::Token::ShowPage < MainLayout
+struct BearerLogins::Token::ShowPage
+  include Mixins::MainLayout
+
   needs bearer_login : BearerLogin
   needs token : String
 
