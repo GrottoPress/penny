@@ -1,4 +1,6 @@
-struct PasswordResets::NewPage < AuthLayout
+struct PasswordResets::NewPage
+  include Mixins::AuthLayout
+
   needs operation : StartPasswordReset
 
   def page_title

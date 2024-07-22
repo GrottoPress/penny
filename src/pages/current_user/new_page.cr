@@ -1,4 +1,6 @@
-struct CurrentUser::NewPage < AuthLayout
+struct CurrentUser::NewPage
+  include Mixins::AuthLayout
+
   needs operation : RegisterCurrentUser
 
   include Mixins::PageParamKey

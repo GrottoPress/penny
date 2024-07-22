@@ -1,4 +1,6 @@
-struct EmailConfirmations::NewPage < AuthLayout
+struct EmailConfirmations::NewPage
+  include Mixins::AuthLayout
+
   needs operation : StartEmailConfirmation
 
   def page_title

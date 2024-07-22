@@ -1,4 +1,6 @@
-struct CurrentLogin::NewPage < AuthLayout
+struct CurrentLogin::NewPage
+  include Mixins::AuthLayout
+
   needs operation : StartCurrentLogin
 
   def page_title
