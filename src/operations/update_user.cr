@@ -7,8 +7,8 @@ class UpdateUser < User::SaveOperation
     reset_level
   end
 
-  include ValidateNotPwned
-  include SaveUserName
+  include Mixins::ValidateNotPwned
+  include Mixins::SaveUserName
 
   # Ensure current admin cannot change their own level,
   # lest they get locked out

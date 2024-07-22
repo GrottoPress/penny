@@ -1,6 +1,6 @@
 abstract struct AuthLayout
   include Lucky::HTMLPage
-  include LinkTextHelpers
+  include Mixins::LinkTextHelpers
 
   # The default page title. It is passed to `Shared::LayoutHead`.
   #

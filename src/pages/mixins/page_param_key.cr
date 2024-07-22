@@ -1,4 +1,4 @@
-module PageParamKey
+module Mixins::PageParamKey
   macro included
     private def param_key
       operation.class.param_key

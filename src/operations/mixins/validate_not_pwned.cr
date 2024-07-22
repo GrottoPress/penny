@@ -1,4 +1,4 @@
-module ValidateNotPwned
+module Mixins::ValidateNotPwned
   macro included
     before_save do
       validate_not_pwned

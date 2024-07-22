@@ -1,7 +1,7 @@
 struct CurrentUser::BearerLogins::NewPage < MainLayout
   needs operation : CreateBearerLogin
 
-  include PageParamKey
+  include Mixins::PageParamKey
 
   def page_title
     Rex.t(:"page.current_user.bearer_login.new.page_title")

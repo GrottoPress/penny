@@ -1,7 +1,7 @@
 struct CurrentUser::NewPage < AuthLayout
   needs operation : RegisterCurrentUser
 
-  include PageParamKey
+  include Mixins::PageParamKey
 
   def page_title
     Rex.t(:"page.current_user.new.page_title")

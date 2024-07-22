@@ -5,6 +5,6 @@ class RegisterUser < User::SaveOperation
     validate_required level
   end
 
-  include ValidateNotPwned
-  include SaveUserName
+  include Mixins::ValidateNotPwned
+  include Mixins::SaveUserName
 end

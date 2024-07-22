@@ -1,4 +1,4 @@
-module LinkTextHelpers
+module Mixins::LinkTextHelpers
   macro included
     private def delete_text
       Rex.t(:"page.link.delete")

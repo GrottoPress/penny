@@ -5,8 +5,8 @@ class RegisterCurrentUser < User::SaveOperation
     set_level
   end
 
-  include SaveUserName
-  include ValidateNotPwned
+  include Mixins::SaveUserName
+  include Mixins::ValidateNotPwned
   include Shield::SendWelcomeEmail
 
   private def set_level
