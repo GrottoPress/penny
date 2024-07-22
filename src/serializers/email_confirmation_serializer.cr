@@ -1,4 +1,6 @@
-struct EmailConfirmationSerializer < SuccessSerializer
+struct EmailConfirmationSerializer
+  include Mixins::SuccessSerializer
+
   def initialize(
     @email_confirmation : EmailConfirmation? = nil,
     @email_confirmations : Array(EmailConfirmation)? = nil,
@@ -22,7 +24,7 @@ struct EmailConfirmationSerializer < SuccessSerializer
   end
 
   private def data_json : NamedTuple
-    data = super
+    data = previous_def
     data = add_email_confirmation(data)
     data = add_email_confirmations(data)
     data = add_token(data)

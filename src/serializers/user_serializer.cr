@@ -1,4 +1,6 @@
-struct UserSerializer < SuccessSerializer
+struct UserSerializer
+  include Mixins::SuccessSerializer
+
   def initialize(
     @user : User? = nil,
     @users : Array(User)? = nil,
@@ -22,7 +24,7 @@ struct UserSerializer < SuccessSerializer
   end
 
   private def data_json : NamedTuple
-    data = super
+    data = previous_def
     data = add_user(data)
     data = add_users(data)
     data = add_token(data)

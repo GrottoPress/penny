@@ -1,4 +1,6 @@
-struct FailureSerializer < BaseSerializer
+struct FailureSerializer
+  include Mixins::Serializer
+
   def initialize(
     @errors : Hash(Symbol, Array(String))? = nil,
     @message : String? = nil
@@ -10,7 +12,7 @@ struct FailureSerializer < BaseSerializer
   end
 
   private def data_json : NamedTuple
-    data = super
+    data = previous_def
 
     @errors.try do |errors|
       data = data.merge({errors: errors}) unless errors.empty?

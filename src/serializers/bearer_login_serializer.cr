@@ -1,4 +1,6 @@
-struct BearerLoginSerializer < SuccessSerializer
+struct BearerLoginSerializer
+  include Mixins::SuccessSerializer
+
   def initialize(
     @bearer_login : BearerLogin? = nil,
     @bearer_logins : Array(BearerLogin)? = nil,
@@ -21,7 +23,7 @@ struct BearerLoginSerializer < SuccessSerializer
   end
 
   private def data_json : NamedTuple
-    data = super
+    data = previous_def
     data = add_bearer_login(data)
     data = add_bearer_logins(data)
     data = add_token(data)

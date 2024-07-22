@@ -1,4 +1,6 @@
-struct PasswordResetSerializer < SuccessSerializer
+struct PasswordResetSerializer
+  include Mixins::SuccessSerializer
+
   def initialize(
     @password_reset : PasswordReset? = nil,
     @password_resets : Array(PasswordReset)? = nil,
@@ -21,7 +23,7 @@ struct PasswordResetSerializer < SuccessSerializer
   end
 
   private def data_json : NamedTuple
-    data = super
+    data = previous_def
     data = add_password_reset(data)
     data = add_password_resets(data)
     data = add_token(data)
