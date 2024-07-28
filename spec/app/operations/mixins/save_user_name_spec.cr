@@ -15,10 +15,10 @@ private class SaveUser < User::SaveOperation
     }.to_json)
   end
 
-  include SaveUserName
+  include Mixins::SaveUserName
 end
 
-describe SaveUserName do
+describe Mixins::SaveUserName do
   it "saves first and last names" do
     first_name = "Kofi"
     last_name = "Amoako"
