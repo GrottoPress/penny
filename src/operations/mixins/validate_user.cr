@@ -9,6 +9,7 @@ module Mixins::ValidateUser
       validate_last_name_valid
 
       validate_first_name_length
+      validate_last_name_length
     end
 
     private def validate_first_name_required
@@ -41,6 +42,14 @@ module Mixins::ValidateUser
       validate_size_of first_name,
         max: max,
         message: Rex.t(:"operation.error.first_name_too_long", max: max)
+    end
+
+    private def validate_last_name_length
+      max = 255
+
+      validate_size_of last_name,
+        max: max,
+        message: Rex.t(:"operation.error.last_name_too_long", max: max)
     end
   end
 end
