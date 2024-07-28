@@ -312,6 +312,8 @@ en:
       login_failed: Email or password is incorrect
       login_notify_required: Login notification was not set
       name_exists: Name is taken
+      name_invalid: Name is not valid
+      name_not_allowed: The provided name is not allowed
       name_required: Name is required
       name_too_long: Name cannot be longer than %{max} characters
       password_length_invalid: Password must be between %{min} and %{max} characters long
