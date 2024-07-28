@@ -61,4 +61,15 @@ describe Mixins::ValidateUser do
       operation.last_name.should have_error("not a valid")
     end
   end
+
+  it "rejects long first name" do
+    SaveUser.create(params(
+      first_name: "f" * 300,
+      last_name: "Atta",
+      level: :author
+    )) do |operation, _|
+      operation.saved?.should be_false
+      operation.first_name.should have_error("longer than")
+    end
+  end
 end

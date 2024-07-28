@@ -305,6 +305,7 @@ en:
       email_exists: Email is already taken
       first_name_invalid: First name is not a valid name
       first_name_required: First name is required
+      first_name_too_long: First name cannot be longer than %{max} characters
       inactive_at_earlier: Inactive time cannot be earlier than active time
       ip_address_required: IP address could not be determined
       last_name_invalid: Last name is not a valid name
