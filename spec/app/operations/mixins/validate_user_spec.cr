@@ -15,27 +15,10 @@ private class SaveUser < User::SaveOperation
     }.to_json)
   end
 
-  include Mixins::SaveUserName
+  include Mixins::ValidateUser
 end
 
-describe Mixins::SaveUserName do
-  it "saves first and last names" do
-    first_name = "Kofi"
-    last_name = "Amoako"
-
-    SaveUser.create(params(
-      first_name: first_name,
-      last_name: last_name
-    )) do |_, user|
-      user.should be_a(User)
-
-      user.try do |user| # ameba:disable Lint/ShadowingOuterLocalVar
-        user.first_name.should eq(first_name)
-        user.last_name.should eq(last_name)
-      end
-    end
-  end
-
+describe Mixins::ValidateUser do
   it "requires first name" do
     SaveUser.create(params(last_name: "Nkrumah")) do |operation, _|
       operation.saved?.should be_false

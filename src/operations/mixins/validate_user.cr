@@ -1,4 +1,4 @@
-module Mixins::SaveUserName
+module Mixins::ValidateUser
   macro included
     before_save do
       validate_first_name_required
