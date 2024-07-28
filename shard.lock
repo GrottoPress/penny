@@ -66,7 +66,7 @@ shards:
 
   habitat:
     git: https://github.com/luckyframework/habitat.git
-    version: 0.4.8
+    version: 0.4.9
 
   halo:
     git: https://github.com/grottopress/halo.git
@@ -82,7 +82,7 @@ shards:
 
   lucille:
     git: https://github.com/grottopress/lucille.git
-    version: 1.1.2
+    version: 1.1.3
 
   lucky:
     git: https://github.com/luckyframework/lucky.git
@@ -150,7 +150,7 @@ shards:
 
   shield:
     git: https://github.com/grottopress/shield.git
-    version: 1.1.2
+    version: 1.2.1
 
   splay_tree_map:
     git: https://github.com/wyhaines/splay_tree_map.cr.git
