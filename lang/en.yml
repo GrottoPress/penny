@@ -309,6 +309,7 @@ en:
       ip_address_required: IP address could not be determined
       last_name_invalid: Last name is not a valid name
       last_name_required: Last name is required
+      level_required: Level is required
       login_failed: Email or password is incorrect
       login_notify_required: Login notification was not set
       name_exists: Name is taken

@@ -1,14 +1,12 @@
 class UpdateUser < User::SaveOperation
   permit_columns :first_name, :last_name, :level
 
-  before_save do
-    validate_required level
-
-    reset_level
-  end
-
   include Mixins::ValidateUser
   include Mixins::ValidateNotPwned
+
+  before_save do
+    reset_level
+  end
 
   # Ensure current admin cannot change their own level,
   # lest they get locked out
