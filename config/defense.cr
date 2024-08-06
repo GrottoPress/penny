@@ -103,7 +103,7 @@ end
 
 private class Store < Defense::RedisStore
   # Reusing the redis connection pool from *Mel*
-  def initialize(@redis = Mel.redis)
+  def initialize(@redis = Mel.settings.store.as(Mel::Redis).client)
   end
 end
 

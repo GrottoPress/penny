@@ -1,10 +1,7 @@
-require "mel/worker"
-
 Mel.configure do |settings|
   settings.batch_size = ENV["JOBS_BATCH_SIZE"].to_i
   settings.poll_interval = ENV["JOBS_POLL_INTERVAL"].to_i.seconds
-  settings.redis_url = ENV["REDIS_URL"]
-  # settings.redis_key_prefix = "penny"
+  settings.store = Mel::Redis.new(ENV["REDIS_URL"], :penny)
   settings.timezone = App.settings.timezone
   settings.worker_id = ENV["WORKER_ID"].to_i
 
@@ -28,7 +25,10 @@ if LuckyEnv.test?
     settings.worker_id = 1
     settings.batch_size = -1
     settings.poll_interval = 1.millisecond
-    settings.redis_key_prefix = "penny:spec"
+    settings.store = Mel::Redis.new(
+      settings.store.as(Mel::Redis).client,
+      "penny:spec"
+    )
   end
 end
 

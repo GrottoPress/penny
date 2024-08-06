@@ -14,6 +14,6 @@
 #   end
 
 #   private def verify_redis_connection
-#     Mel.redis.run({"PING"})
+#     Mel.settings.store.as(Mel::Redis).client.run({"PING"})
 #   end
 # end

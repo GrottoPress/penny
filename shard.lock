@@ -114,7 +114,7 @@ shards:
 
   mel:
     git: https://github.com/grottopress/mel.git
-    version: 0.20.0
+    version: 0.22.0
 
   pawn:
     git: https://github.com/grottopress/pawn.git
@@ -154,7 +154,7 @@ shards:
 
   splay_tree_map:
     git: https://github.com/wyhaines/splay_tree_map.cr.git
-    version: 0.2.2
+    version: 0.3.0
 
   unslash:
     git: https://github.com/grottopress/unslash.git

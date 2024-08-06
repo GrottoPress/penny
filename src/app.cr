@@ -6,7 +6,7 @@ require "halo"
 require "shield"
 require "unslash"
 require "i18n"
-require "mel"
+require "mel/redis"
 require "defense"
 require "fella"
 

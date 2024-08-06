@@ -9,7 +9,7 @@ BaseEmail.configure do |settings|
       ENV["SMTP_PORT"].to_i
     )
 
-    settings.deliver_later_strategy = Mel::Carbon::DeliverLaterStrategy.new
+    settings.deliver_later_strategy = Mel::Carbon::DeliverLater.new
   else
     settings.adapter = Carbon::DevAdapter.new
     settings.deliver_later_strategy = DevDeliverLaterStrategy.new
