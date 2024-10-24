@@ -27,3 +27,4 @@ Avram::SchemaEnforcer.ensure_correct_column_mappings!
 include Carbon::Expectations
 include Lucky::RequestExpectations
 include LuckyFlow::Expectations
+include Avram::Expectations

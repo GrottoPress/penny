@@ -11,6 +11,7 @@ class AppServer < Lucky::BaseAppServer
       Lucky::ErrorHandler.new(action: Errors::Show),
       Defense::Handler.new,
       CorsHandler.new,
+      Lucky::MaximumRequestSizeHandler.new,
       Unslash::Handler.new(308, safe: false),
       Lucky::RouteHandler.new,
       Lucky::StaticCompressionHandler.new(

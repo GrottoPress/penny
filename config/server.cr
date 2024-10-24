@@ -39,6 +39,11 @@ Lucky::RequestIdHandler.configure do |settings|
   }
 end
 
+Lucky::MaximumRequestSizeHandler.configure do |settings|
+  settings.enabled = true
+  settings.max_size = 10_000_000
+end
+
 private def secret_key_from_env
   ENV["SECRET_KEY_BASE"]? || raise_missing_secret_key
 end
