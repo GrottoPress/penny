@@ -2,7 +2,6 @@ module Mixins::Serializer
   enum Status
     Success
     Failure
-    Error
   end
 
   private abstract def status : Status

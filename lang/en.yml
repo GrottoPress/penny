@@ -35,6 +35,10 @@ en:
       login_timed_out: Your login timed out
       not_logged_in: You are not logged in
       not_logged_out: You are logged in
+    error:
+      default: Something went wrong
+      record_not_found: Record not found
+      route_not_found: Not found
     bearer_login:
       destroy:
         failure: Could not delete bearer login
