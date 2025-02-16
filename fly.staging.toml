@@ -37,7 +37,6 @@ swap_size_mb = 256
   LOGIN_EXPIRY = '86400' # 1 day
   LOGIN_IDLE_TIMEOUT = '1800' # 30 minutes
   LOGO_URL = '/logo.png'
-  MAKE_FIRST_USER_ADMIN = 'false'
   NAME = 'Penny (staging)'
   PASSWORD_MIN_LENGTH = '4'
   PASSWORD_REQUIRE_LOWERCASE = 'false'

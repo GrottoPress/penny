@@ -8,7 +8,6 @@ module App
     setting keep_logins_for : Time::Span
     setting keep_password_resets_for : Time::Span
     setting logo_url : String
-    setting make_first_user_admin : Bool
     setting name : String
     setting timezone : Time::Location?
     setting url : String

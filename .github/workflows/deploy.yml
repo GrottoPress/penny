@@ -108,7 +108,6 @@ jobs:
           LOGIN_EXPIRY: '86400' # 1 day
           LOGIN_IDLE_TIMEOUT: '1800' # 30 minutes
           LOGO_URL: /logo.png
-          MAKE_FIRST_USER_ADMIN: 'true'
           NAME: penny
           PASSWORD_MIN_LENGTH: '4'
           PASSWORD_REQUIRE_LOWERCASE: 'false'
