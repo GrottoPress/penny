@@ -58,7 +58,7 @@ COPY --from=node --chown=app-data:app-data /tmp/lucky/public/ ./public/
 
 RUN chmod +x bin/*
 
-RUN ["apk", "add", "--no-cache", "bind-tools", "tzdata"]
+RUN ["apk", "add", "--no-cache", "tzdata"]
 
 USER app-data:app-data
 
