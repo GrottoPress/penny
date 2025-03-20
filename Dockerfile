@@ -16,9 +16,10 @@ RUN mkdir -pm 0700 ~/.ssh && \
 WORKDIR /tmp/lucky
 
 COPY . .
-COPY ./root-config /root/
 
-RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
+# If using webfactory/ssh-agent action
+# COPY ./root-config /root/
+# RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
 
 RUN --mount=type=ssh,id=ssh-key shards build --static -Dpreview_mt \
         --production --skip-postinstall --skip-executables ${COMPILE_FLAGS}
@@ -35,9 +36,11 @@ RUN mkdir -pm 0700 ~/.ssh && \
 WORKDIR /tmp/lucky
 
 COPY --chown=node:node . .
-COPY ./root-config /root/
 
-RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
+# If using webfactory/ssh-agent action
+# COPY ./root-config /root/
+# RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
+
 RUN --mount=type=ssh,id=ssh-key npm ci && npm run prod
 
 FROM alpine:${ALPINE_VERSION}
