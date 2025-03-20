@@ -129,7 +129,6 @@ jobs:
           SSL_ENABLED: 'false'
           TIMEZONE: UTC
           URL: http://localhost:5000
-          WORKER_ID: '1'
         run: crystal spec --error-on-warnings spec/app
   deploy:
     needs: specs

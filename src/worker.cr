@@ -32,6 +32,4 @@ Mel.transaction do |store|
   )
 end
 
-ARGV.first?.try { |worker_id| Mel.settings.worker_id = worker_id.to_i }
-
 Mel.start

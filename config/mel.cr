@@ -3,7 +3,6 @@ Mel.configure do |settings|
   settings.poll_interval = ENV["JOBS_POLL_INTERVAL"].to_i.seconds
   settings.store = Mel::Redis.new(ENV["REDIS_URL"], :penny)
   settings.timezone = App.settings.timezone
-  settings.worker_id = ENV["WORKER_ID"].to_i
 
   settings.error_handler = ->(error : Exception) do
     unless LuckyEnv.production?
@@ -22,7 +21,6 @@ end
 
 if LuckyEnv.test?
   Mel.configure do |settings|
-    settings.worker_id = 1
     settings.batch_size = -1
     settings.poll_interval = 1.millisecond
     settings.store = Mel::Redis.new(

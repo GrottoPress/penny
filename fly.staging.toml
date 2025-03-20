@@ -55,7 +55,6 @@ swap_size_mb = 256
   SSL_ENABLED = 'false'
   TIMEZONE = 'Africa/Accra'
   URL = 'https://penny-staging.fly.dev'
-  WORKER_ID = '0'
 
   # Secrets
   #

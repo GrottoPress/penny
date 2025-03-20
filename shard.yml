@@ -46,7 +46,7 @@ dependencies:
     version: ~> 0.2.0
   mel:
     github: GrottoPress/mel
-    version: ~> 0.22.0
+    version: ~> 0.23.0
   redis:
     github: jgaskins/redis
     version: ~> 0.8.0
