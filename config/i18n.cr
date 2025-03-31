@@ -6,7 +6,7 @@ I18n.config.loaders << I18n::Loader::YAML.new("lang")
 I18n.config.default_locale = :en
 I18n.init
 
-private class Adapter
+private struct Adapter
   include Rex::Adapter
 
   def translate(text : String | Symbol, **named_args) : String
