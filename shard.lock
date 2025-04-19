@@ -114,7 +114,7 @@ shards:
 
   mel:
     git: https://github.com/grottopress/mel.git
-    version: 0.24.0
+    version: 1.0.0
 
   pawn:
     git: https://github.com/grottopress/pawn.git
