@@ -14,7 +14,7 @@ targets:
   worker:
     main: src/worker.cr
 
-crystal: ~> 1.12
+crystal: ~> 1.16
 
 dependencies:
   avram:
