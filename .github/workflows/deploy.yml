@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         crystal:
-          - '1.16.1'
+          - '1.16.2'
     runs-on: ubuntu-latest
     continue-on-error: false
     steps:
@@ -38,7 +38,7 @@ jobs:
         #   - v22.2.0
         #   - latest
         crystal:
-          - '1.16.1'
+          - '1.16.2'
         experimental:
           - false
     runs-on: ubuntu-latest
@@ -167,7 +167,7 @@ jobs:
           build-args: |
             ALPINE_VERSION=3.20
             COMPILE_FLAGS=--release
-            CRYSTAL_VERSION=1.16.1
+            CRYSTAL_VERSION=1.16.2
             NODE_VERSION=20.12
           cache-from: type=gha
           cache-to: type=gha,mode=max
