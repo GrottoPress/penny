@@ -5,7 +5,11 @@ abstract class BaseModel < Avram::Model
     primary_key id : Int64
   end
 
-  def self.database : Avram::Database.class
+  def self.read_database : Avram::Database.class
+    AppDatabase
+  end
+
+  def self.write_database : Avram::Database.class
     AppDatabase
   end
 end

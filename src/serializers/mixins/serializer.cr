@@ -7,7 +7,7 @@ module Mixins::Serializer
   private abstract def status : Status
 
   macro included
-    include Lucille::Serializer
+    include Lucky::Serializable
 
     @message : String?
 

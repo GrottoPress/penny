@@ -10,7 +10,7 @@ class Health::Show < BrowserAction
   end
 
   private def verify_database_connection
-    BaseModel.database.exec("SELECT 1;")
+    BaseModel.read_database.exec("SELECT 1;")
   end
 
   private def verify_redis_connection
