@@ -47,9 +47,6 @@ dependencies:
   mel:
     github: GrottoPress/mel
     version: ~> 1.0
-  redis:
-    github: jgaskins/redis
-    version: ~> 0.8.0
   shield:
     github: GrottoPress/shield
     version: ~> 1.0

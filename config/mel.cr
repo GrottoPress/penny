@@ -33,10 +33,10 @@ end
 if LuckyEnv.production?
   backend = Log::IOBackend.new(formatter: Dexter::JSONLogFormatter.proc)
   Mel.log.dexter.configure(:info, backend)
-  Redis::Connection::LOG.level = :error
+  Redis::Log.level = :error
 else
   Mel.log.dexter.configure(:info)
-  Redis::Connection::LOG.level = :info
+  Redis::Log.level = :info
 end
 
 unless LuckyEnv.task?
