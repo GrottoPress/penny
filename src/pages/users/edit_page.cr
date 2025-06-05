@@ -10,7 +10,6 @@ struct Users::EditPage
   def content
     h1 Rex.t(:"page.user.edit.main_title")
 
-    # ameba:disable Lint/NotNil
     form_for Update.with(user_id: operation.id.value.not_nil!) do
       para do
         mount Shared::Field, operation.email

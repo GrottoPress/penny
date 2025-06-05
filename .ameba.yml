@@ -1,2 +1,20 @@
 Lint/Formatting:
   Enabled: false
+Lint/NotNil:
+  Enabled: false
+Lint/SpecFilename:
+  Excluded:
+    - spec/setup/**/*.cr
+Lint/UselessAssign:
+  Excluded:
+    - db/migrations/**/*.cr
+    - spec/app/operations/mixins/**/*.cr
+    - src/actions/**/*.cr
+    - src/app_settings.cr
+    - src/components/**/*.cr
+    - src/models/**/*.cr
+    - src/operations/**/*.cr
+    - src/pages/**/*.cr
+Naming/PredicateName:
+  Excluded:
+    - src/queries/**/*.cr
