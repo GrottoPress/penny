@@ -3,9 +3,11 @@
 /bin/
 /lib/
 /node_modules/
+/plans/
 /public/css/
 /public/js/
 /tmp/
 *.dwarf
 /.env*
+/forge.yaml
 /start_server
