@@ -135,7 +135,7 @@ shards:
 
   redis: # Overridden
     git: https://github.com/jgaskins/redis.git
-    version: 0.12.0
+    version: 0.13.0
 
   rex:
     git: https://github.com/grottopress/rex.git
