@@ -165,7 +165,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            ALPINE_VERSION=3.20
+            ALPINE_VERSION=3.22
             COMPILE_FLAGS=--release
             CRYSTAL_VERSION=1.16.3
             NODE_VERSION=20.12
