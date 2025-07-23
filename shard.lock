@@ -51,7 +51,7 @@ shards:
 
   envy:
     git: https://github.com/grottopress/envy.git
-    version: 1.0.4
+    version: 1.0.5
 
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
@@ -99,7 +99,7 @@ shards:
 
   lucky_flow:
     git: https://github.com/luckyframework/lucky_flow.git
-    version: 0.10.0
+    version: 0.10.1
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
@@ -115,11 +115,11 @@ shards:
 
   mel:
     git: https://github.com/grottopress/mel.git
-    version: 1.0.0
+    version: 1.0.1
 
   pawn:
     git: https://github.com/grottopress/pawn.git
-    version: 2.0.0
+    version: 2.0.2
 
   pg:
     git: https://github.com/will/crystal-pg.git
@@ -127,7 +127,7 @@ shards:
 
   pond:
     git: https://github.com/grottopress/pond.git
-    version: 2.0.0
+    version: 2.0.1
 
   pulsar:
     git: https://github.com/luckyframework/pulsar.git
@@ -139,7 +139,7 @@ shards:
 
   rex:
     git: https://github.com/grottopress/rex.git
-    version: 1.0.0
+    version: 1.1.0
 
   selenium:
     git: https://github.com/crystal-loot/selenium.cr.git
@@ -167,7 +167,7 @@ shards:
 
   webless:
     git: https://github.com/crystal-loot/webless.git
-    version: 0.1.0
+    version: 0.2.0
 
   wordsmith:
     git: https://github.com/luckyframework/wordsmith.git
