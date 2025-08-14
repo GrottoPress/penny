@@ -23,81 +23,83 @@ Defense.throttle("request/ip", limit: 100, period: 5) do |request|
   remote_ip(request)
 end
 
-Defense.throttle("scanner/ip", limit: 5, period: 30) do |request|
-  remote_ip(request).try do |ip|
-    ip if Lucky.router.find_action(request).nil?
+Hash(String, Lucky::Action.class | Nil).new.tap do |actions|
+  Defense.throttle("scanner/ip", limit: 5, period: 30) do |request|
+    remote_ip(request).try do |ip|
+      ip if find_action(request, actions).nil?
+    end
   end
-end
 
-Defense.throttle("login/ip", limit: 5, period: 30) do |request|
-  remote_ip(request).try do |ip|
-    action = Lucky.router.find_action(request).try(&.payload)
-    ip if CurrentLogin::Create == action
+  Defense.throttle("login/ip", limit: 5, period: 30) do |request|
+    remote_ip(request).try do |ip|
+      ip if CurrentLogin::Create == find_action(request, actions)
+    end
   end
-end
 
-Defense.throttle("login/email", limit: 5, period: 30) do |request|
-  next unless remote_ip(request)
+  Defense.throttle("login/email", limit: 5, period: 30) do |request|
+    next unless remote_ip(request)
+    next unless CurrentLogin::Create == find_action(request, actions)
 
-  action = Lucky.router.find_action(request).try(&.payload)
-  next unless CurrentLogin::Create == action
-
-  Lucky::Params.new(request)
-    .nested?(StartCurrentLogin.param_key)["email"]?
-    .try(&.downcase.strip.presence)
-end
-
-Defense.throttle("password-reset/ip", limit: 5, period: 30) do |request|
-  remote_ip(request).try do |ip|
-    action = Lucky.router.find_action(request).try(&.payload)
-    ip if PasswordResets::Create == action
+    Lucky::Params.new(request)
+      .nested?(StartCurrentLogin.param_key)["email"]?
+      .try(&.downcase.strip.presence)
   end
-end
 
-Defense.throttle("password-reset/email", limit: 5, period: 30) do |request|
-  next unless remote_ip(request)
-
-  action = Lucky.router.find_action(request).try(&.payload)
-  next unless PasswordResets::Create == action
-
-  Lucky::Params.new(request)
-    .nested?(StartPasswordReset.param_key)["email"]?
-    .try(&.downcase.strip.presence)
-end
-
-Defense.throttle("password-reset-token/ip", limit: 10, period: 30) do |request|
-  remote_ip(request).try do |ip|
-    action = Lucky.router.find_action(request).try(&.payload)
-    ip if action.in?({PasswordResets::Token::Show, PasswordResets::Update})
+  Defense.throttle("password-reset/ip", limit: 5, period: 30) do |request|
+    remote_ip(request).try do |ip|
+      ip if PasswordResets::Create == find_action(request, actions)
+    end
   end
-end
 
-Defense.throttle("email-confirmation/ip", limit: 5, period: 30) do |request|
-  remote_ip(request).try do |ip|
-    action = Lucky.router.find_action(request).try(&.payload)
-    ip if EmailConfirmations::Create == action
+  Defense.throttle("password-reset/email", limit: 5, period: 30) do |request|
+    next unless remote_ip(request)
+    next unless PasswordResets::Create == find_action(request, actions)
+
+    Lucky::Params.new(request)
+      .nested?(StartPasswordReset.param_key)["email"]?
+      .try(&.downcase.strip.presence)
   end
-end
 
-Defense.throttle("email-confirmation/email", limit: 5, period: 30) do |request|
-  next unless remote_ip(request)
+  Defense.throttle(
+    "password-reset-token/ip",
+    limit: 10,
+    period: 30
+  ) do |request|
+    remote_ip(request).try do |ip|
+      ip if find_action(request, actions).in?({
+        PasswordResets::Token::Show,
+        PasswordResets::Update
+      })
+    end
+  end
 
-  action = Lucky.router.find_action(request).try(&.payload)
-  next unless EmailConfirmations::Create == action
+  Defense.throttle("email-confirmation/ip", limit: 5, period: 30) do |request|
+    remote_ip(request).try do |ip|
+      ip if EmailConfirmations::Create == find_action(request, actions)
+    end
+  end
 
-  Lucky::Params.new(request)
-    .nested?(StartEmailConfirmation.param_key)["email"]?
-    .try(&.downcase.strip.presence)
-end
+  Defense.throttle(
+    "email-confirmation/email",
+    limit: 5,
+    period: 30
+  ) do |request|
+    next unless remote_ip(request)
+    next unless EmailConfirmations::Create == find_action(request, actions)
 
-Defense.throttle(
-  "email-confirmation-token/ip",
-  limit: 5,
-  period: 30
-) do |request|
-  remote_ip(request).try do |ip|
-    action = Lucky.router.find_action(request).try(&.payload)
-    ip if EmailConfirmations::Token::Show == action
+    Lucky::Params.new(request)
+      .nested?(StartEmailConfirmation.param_key)["email"]?
+      .try(&.downcase.strip.presence)
+  end
+
+  Defense.throttle(
+    "email-confirmation-token/ip",
+    limit: 5,
+    period: 30
+  ) do |request|
+    remote_ip(request).try do |ip|
+      ip if EmailConfirmations::Token::Show == find_action(request, actions)
+    end
   end
 end
 
@@ -114,4 +116,9 @@ end
 # handler so it sets the IP address for you automatically
 private def remote_ip(request)
   request.remote_address.as?(Socket::IPAddress).try(&.address.presence)
+end
+
+private def find_action(request, actions)
+  request_id = RequestIdHeader.new(request).get
+  actions[request_id] ||= Lucky.router.find_action(request).try(&.payload)
 end

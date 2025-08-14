@@ -34,9 +34,9 @@ Lucky::ForceSSLHandler.configure do |settings|
 end
 
 Lucky::RequestIdHandler.configure do |settings|
-  settings.set_request_id = ->(__ : HTTP::Server::Context) {
-    UUID.random.to_s
-  }
+  settings.set_request_id = ->(context : HTTP::Server::Context) do
+    UUID.random.to_s.tap { |id| RequestIdHeader.new(context).set(id) }
+  end
 end
 
 Lucky::MaximumRequestSizeHandler.configure do |settings|
