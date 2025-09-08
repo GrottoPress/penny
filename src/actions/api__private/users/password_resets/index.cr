@@ -1,6 +1,7 @@
 # class Users::PasswordResets::Index < PrivateApi
 #   include Shield::Api::Users::PasswordResets::Index
 
+#   param count : Int32 = 12
 #   param page : Int32 = 1
 
 #   get "/users/:user_id/password-resets" do
@@ -9,5 +10,15 @@
 #       user: user,
 #       pages: pages
 #     )
+#   end
+
+#   private getter paginated_password_resets : Tuple(
+#     Lucky::Paginator,
+#     PasswordResetQuery
+#   ) do
+#     query = PasswordResetQuery.new.user_id(user_id)
+#     query = PasswordResetQueryFilter.run(query, params)
+
+#     paginate(query, per_page: count.clamp(5, 50))
 #   end
 # end

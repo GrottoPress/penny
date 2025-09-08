@@ -1,9 +1,17 @@
 # class Logins::Index < PrivateApi
 #   include Shield::Api::Logins::Index
 
+#   param count : Int32 = 12
 #   param page : Int32 = 1
 
 #   get "/logins" do
 #     json LoginSerializer.new(logins: logins, pages: pages)
+#   end
+
+#   private getter paginated_logins : Tuple(Lucky::Paginator, LoginQuery) do
+#     query = LoginQuery.new
+#     query = LoginQueryFilter.run(query, params)
+
+#     paginate(query, per_page: count.clamp(5, 50))
 #   end
 # end
