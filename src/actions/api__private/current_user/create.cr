@@ -6,4 +6,11 @@
 #   post "/account" do
 #     run_operation
 #   end
+
+#   def do_run_operation_succeeded(operation, user)
+#     json UserSerializer.new(
+#       user: user,
+#       message: Rex.t(:"action.current_user.update.success")
+#     )
+#   end
 # end

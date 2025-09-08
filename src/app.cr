@@ -20,6 +20,8 @@ require "shield/presets"
 
 require "./queries/mixins/**"
 require "./queries/**"
+require "./query_loaders/mixins/**"
+require "./query_loaders/**"
 require "./query_filters/mixins/**"
 require "./query_filters/**"
 require "./operations/mixins/**"

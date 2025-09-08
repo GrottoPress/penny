@@ -16,6 +16,7 @@
 #     PasswordResetQuery
 #   ) do
 #     query = PasswordResetQuery.new.user_id(user.id)
+#     query = PasswordResetQueryLoader.run(query, params)
 #     query = PasswordResetQueryFilter.run(query, params)
 
 #     paginate(query, per_page: count.clamp(5, 50))

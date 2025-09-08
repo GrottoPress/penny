@@ -16,6 +16,7 @@
 #     EmailConfirmationQuery
 #   ) do
 #     query = EmailConfirmationQuery.new.user_id(user.id)
+#     query = EmailConfirmationQueryLoader.run(query, params)
 #     query = EmailConfirmationQueryFilter.run(query, params)
 
 #     paginate(query, per_page: count.clamp(5, 50))

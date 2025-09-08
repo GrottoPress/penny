@@ -6,4 +6,11 @@
 #   post "/password-resets/token/verify" do
 #     run_operation
 #   end
+
+#   def do_verify_operation_succeeded(utility, password_reset)
+#     json PasswordResetSerializer.new(
+#       password_reset: PasswordResetQueryLoader.run(password_reset, params),
+#       message: Rex.t(:"action.password_reset.verify.success")
+#     )
+#   end
 # end

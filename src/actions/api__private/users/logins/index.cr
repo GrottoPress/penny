@@ -10,6 +10,7 @@
 
 #   private getter paginated_logins : Tuple(Lucky::Paginator, LoginQuery) do
 #     query = LoginQuery.new.user_id(user_id)
+#     query = LoginQueryLoader.run(query, params)
 #     query = LoginQueryFilter.run(query, params)
 
 #     paginate(query, per_page: count.clamp(5, 50))

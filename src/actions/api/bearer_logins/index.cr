@@ -13,6 +13,7 @@ class Api::BearerLogins::Index < PublicApi
     BearerLoginQuery
   ) do
     query = BearerLoginQuery.new
+    query = BearerLoginQueryLoader.run(query, params)
     query = BearerLoginQueryFilter.run(query, params)
 
     paginate(query, per_page: count.clamp(5, 50))
