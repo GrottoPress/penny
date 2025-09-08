@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - '**.cr'
+      - '!script/**'
       - '.github/workflows/deploy.staging.yml'
       - 'lang/**'
       - '.dockerignore'

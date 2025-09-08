@@ -9,7 +9,7 @@
 1. Install dependencies: `shards install`
 1. Copy `sample.env.yml` to `.env.yml`
 1. Edit settings in `.env.yml`
-1. Run `script/setup`
+1. Run `script/setup.cr`
 1. Run `lucky dev` to start the app
 
 ### Development
