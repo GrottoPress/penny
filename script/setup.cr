@@ -9,10 +9,10 @@ require "./system_check"
 print_done
 
 notice "Installing node dependencies"
-run_command "npm", "install", "--no-progress"
+run_command "pnpm", "install", "--no-progress"
 
 notice "Compiling assets"
-run_command "npm", "run", "dev"
+run_command "pnpm", "run", "dev"
 
 print_done
 

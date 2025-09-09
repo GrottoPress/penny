@@ -41,7 +41,9 @@ COPY --chown=node:node . .
 # COPY ./root-config /root/
 # RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
 
-RUN --mount=type=ssh,id=ssh-key npm ci && npm run prod
+RUN corepack enable
+RUN --mount=type=ssh,id=ssh-key pnpm install --frozen-lockfile && pnpm run prod
+# RUN --mount=type=ssh,id=ssh-key pnpm install --prod
 
 FROM alpine:${ALPINE_VERSION}
 
@@ -53,8 +55,9 @@ COPY --from=crystal --chown=app-data:app-data /tmp/lucky/bin/ ./bin/
 COPY --from=crystal --chown=app-data:app-data /tmp/lucky/lang/ ./lang/
 
 COPY --from=node --chown=app-data:app-data /tmp/lucky/public/ ./public/
-# COPY --from=node --chown=app-data:app-data /tmp/lucky/node_modules/ ./node_modules/
-# COPY --from=node --chown=app-data:app-data /tmp/lucky/package*.json .
+# COPY --from=node --chown=app-data:app-data /tmp/lucky/node_modules/ \
+#     ./node_modules/
+# COPY --from=node --chown=app-data:app-data /tmp/lucky/package.json .
 
 RUN chmod +x bin/*
 
