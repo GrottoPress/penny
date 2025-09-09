@@ -6,8 +6,9 @@
 
 #   get "/users/:user_id/bearer-logins" do
 #     json BearerLoginSerializer.new(
+#       params,
 #       bearer_logins: bearer_logins,
-#       user: user,
+#       current_user: current_user?,
 #       pages: pages
 #     )
 #   end

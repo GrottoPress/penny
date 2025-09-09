@@ -14,7 +14,9 @@
 #     )
 
 #     json EmailConfirmationSerializer.new(
+#       params,
 #       email_confirmation: email_confirmation,
+#       current_user: current_user?,
 #       message: Rex.t(:"action.email_confirmation.verify.success")
 #     )
 #   end

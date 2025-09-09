@@ -4,6 +4,10 @@ module Mixins::SuccessSerializer
 
     @pages : Lucky::Paginator?
 
+    def self.new(params : Lucky::Params, *args, **named_args)
+      new(params.get_all?(:fields), *args, **named_args)
+    end
+
     def render : NamedTuple
       json = previous_def
 
@@ -24,6 +28,14 @@ module Mixins::SuccessSerializer
       end
 
       json
+    end
+
+    def self.item(
+      record : Avram::Model,
+      params : Lucky::Params,
+      current_user : User? = nil
+    )
+      item(record, params.get_all?(:fields), current_user)
     end
 
     def self.list(list : Array, *args, **named_args)

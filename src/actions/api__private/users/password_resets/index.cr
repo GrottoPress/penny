@@ -6,8 +6,9 @@
 
 #   get "/users/:user_id/password-resets" do
 #     json PasswordResetSerializer.new(
+#       params,
 #       password_resets: password_resets,
-#       user: user,
+#       current_user: current_user?,
 #       pages: pages
 #     )
 #   end

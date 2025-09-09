@@ -5,7 +5,12 @@
 #   param page : Int32 = 1
 
 #   get "/users" do
-#     json UserSerializer.new(users: users, pages: pages)
+#     json UserSerializer.new(
+#       params,
+#       users: users,
+#       current_user: current_user?,
+#       pages: pages
+#     )
 #   end
 
 #   private getter paginated_users : Tuple(Lucky::Paginator, UserQuery) do

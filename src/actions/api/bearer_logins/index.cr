@@ -5,7 +5,12 @@ class Api::BearerLogins::Index < PublicApi
   param page : Int32 = 1
 
   get "/bearer-logins" do
-    json BearerLoginSerializer.new(bearer_logins: bearer_logins, pages: pages)
+    json BearerLoginSerializer.new(
+      params,
+      bearer_logins: bearer_logins,
+      current_user: current_user_or_bearer?,
+      pages: pages
+    )
   end
 
   private getter paginated_bearer_logins : Tuple(

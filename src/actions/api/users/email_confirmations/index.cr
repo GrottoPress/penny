@@ -6,8 +6,9 @@ class Api::Users::EmailConfirmations::Index < PublicApi
 
   get "/users/:user_id/email-confirmations" do
     json EmailConfirmationSerializer.new(
+      params,
       email_confirmations: email_confirmations,
-      user: user,
+      current_user: current_user_or_bearer?,
       pages: pages
     )
   end

@@ -5,7 +5,12 @@ class Api::CurrentUser::Logins::Index < PublicApi
   param page : Int32 = 1
 
   get "/account/logins" do
-    json LoginSerializer.new(logins: logins, pages: pages)
+    json LoginSerializer.new(
+      params,
+      logins: logins,
+      current_user: current_user_or_bearer?,
+      pages: pages
+    )
   end
 
   private getter paginated_logins : Tuple(Lucky::Paginator, LoginQuery) do

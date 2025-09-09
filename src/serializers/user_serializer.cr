@@ -2,25 +2,22 @@ struct UserSerializer
   include Mixins::SuccessSerializer
 
   def initialize(
+    @fields : Indexable(String)? = nil,
     @user : User? = nil,
     @users : Array(User)? = nil,
     @message : String? = nil,
     @pages : Lucky::Paginator? = nil,
     @token : String? = nil,
+    @current_user : User? = nil
   )
   end
 
-  def self.item(user : User)
-    {
-      created_at: user.created_at.to_unix,
-      email: user.email,
-      first_name: user.first_name,
-      full_name: user.full_name,
-      id: user.id,
-      last_name: user.last_name,
-      level: user.level,
-      updated_at: user.updated_at.to_unix,
-    }
+  def self.item(
+    user : User,
+    fields : Indexable(String)?,
+    current_user : User? = nil
+  )
+    UserResponseFilter.run(user, fields, current_user)
   end
 
   private def data_json : NamedTuple
@@ -32,25 +29,23 @@ struct UserSerializer
   end
 
   private def add_user(data)
-    @user.try { |user| data = data.merge({user: self.class.item(user)}) }
+    @user.try do |user|
+      data = data.merge({user: self.class.item(user, @fields, @current_user)})
+    end
+
     data
   end
 
   private def add_users(data)
     @users.try do |users|
-      data = data.merge({users: self.class.list(users)})
+      data = data.merge({users: self.class.list(users, @fields, @current_user)})
     end
 
     data
   end
 
   private def add_token(data)
-    @token.try { |token| data = data.merge({token: token }) }
-    data
-  end
-
-  private def add_user(data)
-    @user.try { |user| data = data.merge({user: UserSerializer.item(user)}) }
+    @token.try { |token| data = data.merge({token: token}) }
     data
   end
 end

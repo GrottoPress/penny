@@ -6,8 +6,9 @@ class Api::Users::PasswordResets::Index < PublicApi
 
   get "/users/:user_id/password-resets" do
     json PasswordResetSerializer.new(
+      params,
       password_resets: password_resets,
-      user: user,
+      current_user: current_user_or_bearer?,
       pages: pages
     )
   end

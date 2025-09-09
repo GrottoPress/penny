@@ -6,8 +6,9 @@ class Api::Users::BearerLogins::Index < PublicApi
 
   get "/users/:user_id/bearer-logins" do
     json BearerLoginSerializer.new(
+      params,
       bearer_logins: bearer_logins,
-      user: user,
+      current_user: current_user_or_bearer?,
       pages: pages
     )
   end

@@ -6,7 +6,9 @@
 
 #   get "/email-confirmations" do
 #     json EmailConfirmationSerializer.new(
+#       params,
 #       email_confirmations: email_confirmations,
+#       current_user: current_user?,
 #       pages: pages
 #     )
 #   end

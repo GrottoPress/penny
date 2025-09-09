@@ -5,7 +5,12 @@
 #   param page : Int32 = 1
 
 #   get "/account/bearer-logins" do
-#     json BearerLoginSerializer.new(bearer_logins: bearer_logins, pages: pages)
+#     json BearerLoginSerializer.new(
+#       params,
+#       bearer_logins: bearer_logins,
+#       current_user: current_user?,
+#       pages: pages
+#     )
 #   end
 
 #   private getter paginated_bearer_logins : Tuple(
