@@ -1,8 +1,8 @@
-/.*-version
-/*.env.yml
 /bin/
 /lib/
 /node_modules/
 /public/css/
 /public/js/
 /tmp/
+/.*-version*
+/*.env*
