@@ -8,6 +8,7 @@
 /public/js/
 /tmp/
 *.dwarf
+/.aider*
 /.env*
 /forge.yaml
 /start_server
