@@ -1,5 +1,5 @@
 struct RequestIdHeader
-  @@name = "X-Request-ID"
+  private NAME = "X-Request-ID"
 
   def initialize(@headers : HTTP::Headers)
   end
@@ -13,10 +13,10 @@ struct RequestIdHeader
   end
 
   def get : String
-    @headers[@@name]
+    @headers[NAME]
   end
 
   def set(value : String)
-    @headers[@@name] = value
+    @headers[NAME] = value
   end
 end
