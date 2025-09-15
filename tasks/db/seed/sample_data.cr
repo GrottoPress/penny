@@ -23,6 +23,6 @@ class Db::Seed::SampleData < LuckyTask::Task
     # unless UserQuery.new.email("me@example.com").first?
     #  SaveUser.create!(email: "me@example.com", name: "Jane")
     # end
-    puts "Done adding sample data"
+    output.puts "Done adding sample data"
   end
 end
