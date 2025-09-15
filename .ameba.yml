@@ -18,3 +18,5 @@ Lint/UselessAssign:
 Naming/PredicateName:
   Excluded:
     - src/queries/**/*.cr
+Performance/AnyInsteadOfEmpty:
+  Enabled: false
