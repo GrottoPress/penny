@@ -16,6 +16,8 @@ require "../db/migrations/**"
 # configuring LuckyFlow, starting the app server, etc.
 require "./setup/**"
 
+require "../tasks/**"
+
 require "shield/spec"
 require "mel/spec"
 

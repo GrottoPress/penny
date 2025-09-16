@@ -125,6 +125,7 @@ jobs:
           PASSWORD_REQUIRE_UPPERCASE: 'false'
           PASSWORD_RESET_EXPIRY: '1800' # 30 minutes
           REDIS_URL: redis://localhost:6379/0
+          ROOT_USER_EMAIL: admin@my-app.tld
           SECRET_KEY_BASE: XeqAgSy5QQ+dWe8ruOBUMrz9XPbPZ7chPVtz2ecDGss=
           SEND_GRID_KEY: unused
           SERVER_HOST: '0.0.0.0'

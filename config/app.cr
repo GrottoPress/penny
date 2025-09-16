@@ -6,6 +6,8 @@ App.configure do |settings|
     Time::Location.load(timezone)
   end
 
+  settings.root_user_email = ENV["ROOT_USER_EMAIL"]
+
   settings.logo_url = ENV["LOGO_URL"]
   settings.favicon_url = ENV["FAVICON_URL"]
 

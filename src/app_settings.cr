@@ -9,6 +9,7 @@ module App
     setting keep_password_resets_for : Time::Span
     setting logo_url : String
     setting name : String
+    setting root_user_email : String
     setting timezone : Time::Location?
     setting url : String
   end

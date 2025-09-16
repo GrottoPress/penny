@@ -9,12 +9,7 @@ class RegisterCurrentUser < User::SaveOperation
   include Mixins::ValidateNotPwned
   include Shield::SendWelcomeEmail
 
-  # Makes first user admin
   private def set_level
-    if UserQuery.new.none?
-      level.value = UserLevel.new(:admin)
-    else
-      level.value = UserLevel.new(:author)
-    end
+    level.value = UserLevel.new(:author)
   end
 end

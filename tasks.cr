@@ -17,6 +17,8 @@ require "./tasks/**"
 # Load migrations
 require "./db/migrations/**"
 
+require "./spec/support/factories/**"
+
 # Load Lucky tasks (dev, routes, etc.)
 require "lucky/tasks/**"
 require "avram/lucky/tasks"

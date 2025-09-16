@@ -1,5 +1,3 @@
-require "../../../spec/support/factories/**"
-
 # Add sample data helpful for development, e.g. (fake users, blog posts, etc.)
 #
 # Use `Db::Seed::RequiredData` if you need to create data *required* for your
