@@ -10,7 +10,9 @@ class Db::Seed::RootUser < LuckyTask::Task
     # end
 
     return log_not_ran if UserQuery.new.level(:admin).any?
+
     add_user
+    log_done
   end
 
   private def add_user
