@@ -9,6 +9,7 @@ class Db::Seed::RootUser < LuckyTask::Task
     #  SaveUser.create!(email: "me@example.com", name: "Jane")
     # end
 
+    return unless App.settings.root_user_email
     return log_not_ran if UserQuery.new.level(:admin).any?
 
     add_user
@@ -25,10 +26,10 @@ class Db::Seed::RootUser < LuckyTask::Task
     #
     # SaveUser.create!(email: "me@example.com", name: "Jane")
 
-    email = App.settings.root_user_email
-    password = Random::Secure.urlsafe_base64(32)
-
-    UserFactory.create &.email(email).level(:admin).password(password)
+    App.settings.root_user_email.try do |email|
+      password = Random::Secure.urlsafe_base64(32)
+      UserFactory.create &.email(email).level(:admin).password(password)
+    end
   end
 
   private def log_done
