@@ -103,7 +103,7 @@ shards:
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
-    version: 0.6.0
+    version: 0.6.1
 
   lucky_task:
     git: https://github.com/luckyframework/lucky_task.git
