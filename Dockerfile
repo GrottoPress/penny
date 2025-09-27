@@ -65,4 +65,4 @@ RUN ["apk", "add", "--no-cache", "tzdata"]
 
 USER app-data:app-data
 
-CMD bin/cli db.migrate && bin/cli db.seed.required_data && bin/app
+CMD ["bin/cli", "app.start"]
