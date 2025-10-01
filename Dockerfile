@@ -26,7 +26,7 @@ RUN --mount=type=ssh,id=ssh-key shards build --static -Dpreview_mt \
 
 FROM node:${NODE_VERSION}-alpine AS node
 
-RUN ["apk", "add", "curl", "git", "jq", "openssh-client"]
+RUN ["apk", "add", "--no-cache", "curl", "git", "jq", "openssh-client"]
 
 RUN mkdir -pm 0700 ~/.ssh && \
     curl --silent https://api.github.com/meta | jq --raw-output \
