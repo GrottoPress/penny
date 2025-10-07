@@ -59,7 +59,7 @@ shards:
 
   fella:
     git: https://github.com/grottopress/fella.git
-    version: 0.1.0
+    version: 0.1.1
 
   fnv:
     git: https://github.com/naqvis/crystal-fnv.git
@@ -71,7 +71,7 @@ shards:
 
   halo:
     git: https://github.com/grottopress/halo.git
-    version: 0.3.0
+    version: 0.3.1
 
   html5:
     git: https://github.com/naqvis/crystal-html5.git
