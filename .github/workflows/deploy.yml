@@ -66,6 +66,7 @@ jobs:
         run: shards install --skip-postinstall --skip-executables
       # - name: Install CockroachDB
       #   run: |
+      #     sudo apt update
       #     sudo apt -y install tar wget
       #     sudo mkdir -p /usr/local/lib/cockroach
       #     wget -O cockroachdb.tgz https://binaries.cockroachdb.com/cockroach-${{ matrix.cockroachdb }}.linux-amd64.tgz
@@ -77,7 +78,9 @@ jobs:
       # - name: Start CockroachDB
       #   run: cockroach start-single-node --insecure --listen-addr=localhost:36257 --sql-addr=localhost:26257 --background
       - name: Install Postgresql
-        run: sudo apt -y install postgresql
+        run: |
+          sudo apt update
+          sudo apt -y install postgresql
       - name: Start Postgresql
         run: sudo systemctl start postgresql
       - name: Set Postgres password
@@ -85,7 +88,9 @@ jobs:
           sudo -u postgres psql -c
           "ALTER USER postgres WITH PASSWORD 'password';"
       - name: Install Redis
-        run: sudo apt -y install redis
+        run: |
+          sudo apt update
+          sudo apt -y install redis
       - name: Start Redis
         run: sudo systemctl start redis
       - name: Run tests
