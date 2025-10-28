@@ -10,7 +10,7 @@ targets:
   cli:
     main: tasks.cr
 
-crystal: ~> 1.17
+crystal: ~> 1.18
 
 dependencies:
   avram:
