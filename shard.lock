@@ -115,7 +115,7 @@ shards:
 
   mel:
     git: https://github.com/grottopress/mel.git
-    version: 1.0.2
+    version: 1.0.3
 
   pawn:
     git: https://github.com/grottopress/pawn.git
@@ -135,7 +135,7 @@ shards:
 
   redis: # Overridden
     git: https://github.com/jgaskins/redis.git
-    version: 0.13.0
+    version: 0.14.1
 
   rex:
     git: https://github.com/grottopress/rex.git
