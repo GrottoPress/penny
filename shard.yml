@@ -21,7 +21,7 @@ dependencies:
     version: ~> 0.6.0
   defense:
     github: defense-cr/defense
-    version: ~> 0.5.0
+    version: ~> 0.6.0
   envy:
     github: GrottoPress/envy
     version: ~> 1.0
