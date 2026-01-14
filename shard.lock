@@ -15,7 +15,7 @@ shards:
 
   cadmium_transliterator:
     git: https://github.com/cadmiumcr/transliterator.git
-    version: 0.1.0+git.commit.46c4c14594057dbcfaf27e7e7c8c164d3f0ce3f1
+    version: 0.1.0+git.commit.0dcedb98cbac7dd5827f204a0714b62f25c6515a
 
   carbon:
     git: https://github.com/luckyframework/carbon.git
@@ -75,7 +75,7 @@ shards:
 
   html5:
     git: https://github.com/naqvis/crystal-html5.git
-    version: 0.5.0
+    version: 0.5.1
 
   i18n:
     git: https://github.com/crystal-i18n/i18n.git
