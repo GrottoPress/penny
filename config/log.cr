@@ -7,18 +7,24 @@ if LuckyEnv.test?
 
   backend = Log::IOBackend.new(File.new("tmp/test.log", mode: "w"))
   Log.dexter.configure(:debug, backend)
+
+  Redis::Log.level = :info
 elsif LuckyEnv.production?
   # Lucky uses JSON in production so logs can be searched more easily
   #
   # If you want logs like in develpoment use 'Lucky::PrettyLogFormatter.proc'.
   backend = Log::IOBackend.new(formatter: Dexter::JSONLogFormatter.proc)
   Log.dexter.configure(:info, backend)
+
   DB::Log.level = :error
+  Redis::Log.level = :error
 else
   # Use a pretty formatter printing to STDOUT in development
   backend = Log::IOBackend.new(formatter: Lucky::PrettyLogFormatter.proc)
   Log.dexter.configure(:debug, backend)
+
   DB::Log.level = :info
+  Redis::Log.level = :info
 end
 
 # Lucky only logs when before/after pipes halt by redirecting, or rendering a
