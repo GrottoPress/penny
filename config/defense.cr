@@ -103,9 +103,53 @@ Hash(String, Lucky::Action.class | Nil).new.tap do |actions|
   end
 end
 
-private class Store < Defense::RedisStore
+private class Store < Defense::Store
+  @client : Redis::Client
+
   # Reusing the redis connection pool from *Mel*
-  def initialize(@redis = Mel.settings.store.as(Mel::Redis).client)
+  def initialize(@client = Mel.settings.store.as(Mel::Redis).client)
+  end
+
+  def increment(unprefixed_key : String, expires_in : Int32) : Int64
+    key = prefix_key(unprefixed_key)
+
+    with_transaction do |transaction|
+      transaction.incr(key)
+      transaction.expire(key, expires_in)
+    end.first.as(Int64)
+  end
+
+  def exists?(unprefixed_key : String) : Bool
+    with_connection do |connection|
+      connection.exists(prefix_key(unprefixed_key)) == 1
+    end
+  end
+
+  def read(unprefixed_key : String) : Int64 | Nil
+    with_connection(&.get(prefix_key unprefixed_key).try &.to_i64)
+  end
+
+  def reset
+    keys = with_connection &.keys("#{prefix}:*")
+    with_connection &.del(keys.map &.to_s) unless keys.empty?
+  end
+
+  private def with_transaction(&)
+    with_connection &.multi { |transaction| yield transaction }
+  end
+
+  private def with_connection(&)
+    @client.@pool.retry do
+      @client.@pool.checkout do |connection|
+        yield connection
+      rescue error : IO::Error
+        # Triggers a retry
+        raise DB::PoolResourceLost(Redis::Connection).new(
+          connection,
+          cause: error
+        )
+      end
+    end
   end
 end
 
