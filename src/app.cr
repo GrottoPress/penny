@@ -10,6 +10,8 @@ require "mel/redis"
 require "defense"
 require "fella"
 
+require "../config/charms"
+
 require "./app_settings"
 require "./app_database"
 require "./models/mixins/**"
