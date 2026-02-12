@@ -1,6 +1,9 @@
 require "./mel"
 
-Defense.store = Store.new
+Defense.store = Defense::RedisStore.new(
+  # Reusing the redis connection pool from *Mel*
+  Mel.settings.store.as(Mel::Redis).client
+)
 
 Defense.blocklisted_response = ->(response : HTTP::Server::Response) do
   message = Rex.t(:"handler.request_blocked")
@@ -100,12 +103,6 @@ Hash(String, Lucky::Action.class | Nil).new.tap do |actions|
     remote_ip(request).try do |ip|
       ip if EmailConfirmations::Token::Show == find_action(request, actions)
     end
-  end
-end
-
-private class Store < Defense::RedisStore
-  # Reusing the redis connection pool from *Mel*
-  def initialize(@redis = Mel.settings.store.as(Mel::Redis).client)
   end
 end
 
