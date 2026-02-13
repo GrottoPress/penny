@@ -1,0 +1,4 @@
+dependencies:
+  redis:
+    github: akadusei/redis
+    commit: a53c88ede4b9d420708a9153e274d69ebb08f4e1
