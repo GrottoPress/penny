@@ -174,7 +174,7 @@ jobs:
             ALPINE_VERSION=3.22
             COMPILE_FLAGS=--release
             CRYSTAL_VERSION=1.19.1
-            NODE_VERSION=22.17.1
+            NODE_VERSION=24.13.1
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: .
