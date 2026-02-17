@@ -1,4 +1,3 @@
-# NOTICE: This lockfile contains some overrides from shard.override.yml
 version: 2.0
 shards:
   ameba:
@@ -133,9 +132,9 @@ shards:
     git: https://github.com/luckyframework/pulsar.git
     version: 0.2.3
 
-  redis: # Overridden
-    git: https://github.com/akadusei/redis.git
-    version: 0.15.2+git.commit.a53c88ede4b9d420708a9153e274d69ebb08f4e1
+  redis:
+    git: https://github.com/jgaskins/redis.git
+    version: 0.15.3
 
   rex:
     git: https://github.com/grottopress/rex.git
