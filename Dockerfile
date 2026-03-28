@@ -19,7 +19,9 @@ COPY --chown=node:node . .
 # COPY ./root-config /root/
 # RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
 
+RUN npm install --global corepack@latest
 RUN corepack enable
+
 RUN --mount=type=ssh,id=ssh-key pnpm install --frozen-lockfile && pnpm run prod
 # RUN --mount=type=ssh,id=ssh-key pnpm install --prod
 
