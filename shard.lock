@@ -70,7 +70,7 @@ shards:
 
   halo:
     git: https://github.com/grottopress/halo.git
-    version: 0.3.1
+    version: 0.3.2
 
   html5:
     git: https://github.com/naqvis/crystal-html5.git
