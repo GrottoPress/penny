@@ -10,5 +10,6 @@
 *.dwarf
 /.aider*
 /.env*
+/.vfox*
 /forge.yaml
 /start_server
