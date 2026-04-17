@@ -107,7 +107,7 @@ jobs:
           ASSETS_HOST: ''
           BEARER_LOGIN_EXPIRY: '7776000' # 3 months
           # DATABASE_URL: postgres://root@localhost:26257/penny_development?sslmode=disable
-          DATABASE_URL: postgres://postgres:password@localhost:5432/penny_development
+          DATABASE_URL: postgres://postgres:password@localhost:5432/penny_development?sslmode=disable
           EMAIL_FROM: noreply@my-app.tld
           EMAIL_REPLY_TO: support@my-app.tld
           GZIP_ENABLED: 'false'
