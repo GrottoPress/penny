@@ -12,8 +12,8 @@ class CurrentUser::EmailConfirmations::Index < BrowserAction
     Lucky::Paginator,
     EmailConfirmationQuery
   ) do
-    query = EmailConfirmationQuery.new.user_id(user.id)
-    query = EmailConfirmationQueryFilter.run(query, params)
+    query = EmailConfirmationQueryFilter.run(params)
+    query = query.user_id(user.id)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

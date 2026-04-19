@@ -9,8 +9,8 @@ class Users::Logins::Index < BrowserAction
   end
 
   private getter paginated_logins : Tuple(Lucky::Paginator, LoginQuery) do
-    query = LoginQuery.new.user_id(user_id)
-    query = LoginQueryFilter.run(query, params)
+    query = LoginQueryFilter.run(params)
+    query = query.user_id(user_id)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

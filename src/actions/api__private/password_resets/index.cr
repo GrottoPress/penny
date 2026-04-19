@@ -17,9 +17,8 @@
 #     Lucky::Paginator,
 #     PasswordResetQuery
 #   ) do
-#     query = PasswordResetQuery.new
+#     query = PasswordResetQueryFilter.run(params)
 #     query = PasswordResetQueryLoader.run(query, params)
-#     query = PasswordResetQueryFilter.run(query, params)
 
 #     paginate(query, per_page: count.clamp(5, 50))
 #   end

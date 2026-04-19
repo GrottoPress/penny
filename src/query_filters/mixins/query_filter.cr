@@ -11,5 +11,9 @@ module Mixins::QueryFilter
     def self.run(query, params)
       new(query).run(params)
     end
+
+    def self.run(params)
+      new.run(params)
+    end
   end
 end

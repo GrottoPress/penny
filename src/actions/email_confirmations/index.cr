@@ -12,8 +12,7 @@ class EmailConfirmations::Index < BrowserAction
     Lucky::Paginator,
     EmailConfirmationQuery
   ) do
-    query = EmailConfirmationQuery.new
-    query = EmailConfirmationQueryFilter.run(query, params)
+    query = EmailConfirmationQueryFilter.run(params)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

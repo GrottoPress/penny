@@ -14,8 +14,7 @@ class Api::Users::Index < PublicApi
   end
 
   private getter paginated_users : Tuple(Lucky::Paginator, UserQuery) do
-    query = UserQuery.new
-    query = UserQueryFilter.run(query, params)
+    query = UserQueryFilter.run(params)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

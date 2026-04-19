@@ -12,8 +12,7 @@ class BearerLogins::Index < BrowserAction
     Lucky::Paginator,
     BearerLoginQuery
   ) do
-    query = BearerLoginQuery.new
-    query = BearerLoginQueryFilter.run(query, params)
+    query = BearerLoginQueryFilter.run(params)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

@@ -17,9 +17,9 @@ class Api::Users::PasswordResets::Index < PublicApi
     Lucky::Paginator,
     PasswordResetQuery
   ) do
-    query = PasswordResetQuery.new.user_id(user_id)
+    query = PasswordResetQueryFilter.run(params)
     query = PasswordResetQueryLoader.run(query, params)
-    query = PasswordResetQueryFilter.run(query, params)
+    query = query.user_id(user_id)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

@@ -9,8 +9,7 @@ class Users::Index < BrowserAction
   end
 
   private getter paginated_users : Tuple(Lucky::Paginator, UserQuery) do
-    query = UserQuery.new
-    query = UserQueryFilter.run(query, params)
+    query = UserQueryFilter.run(params)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

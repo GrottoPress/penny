@@ -17,9 +17,8 @@ class Api::BearerLogins::Index < PublicApi
     Lucky::Paginator,
     BearerLoginQuery
   ) do
-    query = BearerLoginQuery.new
+    query = BearerLoginQueryFilter.run(params)
     query = BearerLoginQueryLoader.run(query, params)
-    query = BearerLoginQueryFilter.run(query, params)
 
     paginate(query, per_page: count.clamp(5, 50))
   end

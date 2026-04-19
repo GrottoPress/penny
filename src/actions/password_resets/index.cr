@@ -12,8 +12,7 @@ class PasswordResets::Index < BrowserAction
     Lucky::Paginator,
     PasswordResetQuery
   ) do
-    query = PasswordResetQuery.new
-    query = PasswordResetQueryFilter.run(query, params)
+    query = PasswordResetQueryFilter.run(params)
 
     paginate(query, per_page: count.clamp(5, 50))
   end
