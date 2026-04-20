@@ -60,10 +60,6 @@ shards:
     git: https://github.com/grottopress/fella.git
     version: 0.1.1
 
-  fnv:
-    git: https://github.com/naqvis/crystal-fnv.git
-    version: 0.1.3
-
   habitat:
     git: https://github.com/luckyframework/habitat.git
     version: 0.4.9
@@ -98,7 +94,7 @@ shards:
 
   lucky_flow:
     git: https://github.com/luckyframework/lucky_flow.git
-    version: 0.10.1
+    version: 0.10.2
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
@@ -162,7 +158,7 @@ shards:
 
   webdrivers:
     git: https://github.com/crystal-loot/webdrivers.cr.git
-    version: 0.4.4
+    version: 0.4.5
 
   webless:
     git: https://github.com/crystal-loot/webless.git
@@ -174,5 +170,5 @@ shards:
 
   xpath2:
     git: https://github.com/naqvis/crystal-xpath2.git
-    version: 0.1.3
+    version: 0.2.0
 
