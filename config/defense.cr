@@ -2,7 +2,7 @@ require "./mel"
 
 Defense.store = Defense::RedisStore.new(
   # Reusing the redis connection pool from *Mel*
-  Mel.settings.store.as(Mel::Redis).client
+  Mel.redis.client
 )
 
 Defense.blocklisted_response = ->(response : HTTP::Server::Response) do

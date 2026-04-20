@@ -14,6 +14,6 @@ class Health::Show < BrowserAction
   end
 
   private def verify_redis_connection
-    Mel.settings.store.as(Mel::Redis).client.run({"PING"})
+    Mel.redis.client.run({"PING"})
   end
 end

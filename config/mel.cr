@@ -23,10 +23,7 @@ if LuckyEnv.test?
   Mel.configure do |settings|
     settings.batch_size = -1
     settings.poll_interval = 1.millisecond
-    settings.store = Mel::Redis.new(
-      settings.store.as(Mel::Redis).client,
-      "penny:spec"
-    )
+    settings.store = Mel::Redis.new(Mel.redis.client, "penny:spec")
   end
 end
 
