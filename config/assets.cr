@@ -14,4 +14,4 @@ Lucky::Server.configure do |settings|
 end
 
 # Load the asset manifest in public/mix-manifest.json
-Lucky::AssetHelpers.load_manifest
+Lucky::AssetHelpers.load_manifest(from: :mix)

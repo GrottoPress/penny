@@ -6,7 +6,7 @@ shards:
 
   avram:
     git: https://github.com/luckyframework/avram.git
-    version: 1.4.2
+    version: 1.5.0
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
@@ -82,11 +82,11 @@ shards:
 
   lucky:
     git: https://github.com/luckyframework/lucky.git
-    version: 1.4.0
+    version: 1.5.0
 
   lucky_cache:
     git: https://github.com/luckyframework/lucky_cache.git
-    version: 0.1.1
+    version: 0.2.0
 
   lucky_env:
     git: https://github.com/luckyframework/lucky_env.git
