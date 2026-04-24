@@ -46,7 +46,7 @@ dependencies:
     version: ~> 1.2
   shield:
     github: GrottoPress/shield
-    version: ~> 1.0
+    version: ~> 1.6
   unslash:
     github: GrottoPress/unslash
     version: ~> 1.0

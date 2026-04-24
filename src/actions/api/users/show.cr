@@ -5,7 +5,7 @@ class Api::Users::Show < PublicApi
     json UserSerializer.new(
       params,
       user: user,
-      current_user: current_user_or_bearer?
+      current_user: current_user?
     )
   end
 end

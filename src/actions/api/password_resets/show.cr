@@ -5,7 +5,7 @@
 #     json PasswordResetSerializer.new(
 #       params,
 #       password_reset: password_reset,
-#       current_user: current_user_or_bearer?
+#       current_user: current_user?
 #     )
 #   end
 

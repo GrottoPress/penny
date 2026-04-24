@@ -8,7 +8,7 @@ class Api::Users::Logins::Index < PublicApi
     json LoginSerializer.new(
       params,
       logins: logins,
-      current_user: current_user_or_bearer?,
+      current_user: current_user?,
       pages: pages
     )
   end

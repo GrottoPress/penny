@@ -19,13 +19,11 @@ abstract class PublicApi < Lucky::Action
 
   skip :pin_login_to_ip_address
 
+  authorize_user &.level.admin?
+
   accepted_formats [:json]
 
   route_prefix "/api/v0"
 
   disable_cookies
-
-  def authorize?(user : User)  : Bool
-    user.level.admin?
-  end
 end

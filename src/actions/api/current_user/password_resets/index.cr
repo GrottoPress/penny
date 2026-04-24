@@ -8,7 +8,7 @@ class Api::CurrentUser::PasswordResets::Index < PublicApi
     json PasswordResetSerializer.new(
       params,
       password_resets: password_resets,
-      current_user: current_user_or_bearer?,
+      current_user: current_user?,
       pages: pages
     )
   end

@@ -8,7 +8,7 @@ class Api::CurrentUser::EmailConfirmations::Index < PublicApi
     json EmailConfirmationSerializer.new(
       params,
       email_confirmations: email_confirmations,
-      current_user: current_user_or_bearer?,
+      current_user: current_user?,
       pages: pages
     )
   end

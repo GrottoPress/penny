@@ -15,13 +15,11 @@ abstract class BrowserAction < Lucky::Action
 
   skip :pin_login_to_ip_address
 
+  authorize_user &.level.admin?
+
   accepted_formats [:html, :json], default: :html
 
   def frame_guard_value : String
     "SAMEORIGIN"
-  end
-
-  def authorize?(user : User) : Bool
-    user.level.admin?
   end
 end

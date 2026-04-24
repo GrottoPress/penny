@@ -5,7 +5,7 @@
 #     json BearerLoginSerializer.new(
 #       params,
 #       bearer_login: bearer_login,
-#       current_user: current_user_or_bearer?
+#       current_user: current_user?
 #     )
 #   end
 

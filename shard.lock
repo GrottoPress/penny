@@ -146,7 +146,7 @@ shards:
 
   shield:
     git: https://github.com/grottopress/shield.git
-    version: 1.5.0
+    version: 1.6.0
 
   splay_tree_map:
     git: https://github.com/wyhaines/splay_tree_map.cr.git
