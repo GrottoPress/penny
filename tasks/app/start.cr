@@ -21,7 +21,7 @@ class App::Start < LuckyTask::Task
   end
 
   private def run_handlers(server)
-    {Signal::INT, Signal::TERM}.each &.trap { server.close rescue nil }
+    Process.on_terminate { server.close rescue nil }
     at_exit { server.close rescue nil }
   end
 end
