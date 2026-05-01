@@ -2,10 +2,10 @@
 #   include Shield::Api::Logins::Show
 
 #   get "/logins/:login_id" do
-#     json LoginSerializer.new(params, login: login, current_user: current_user?)
-#   end
-
-#   getter login : Login do
-#     LoginQueryLoader.run(previous_def, params)
+#     json LoginSerializer.new(
+#       params,
+#       login: LoginQueryLoader.run(login, params),
+#       current_user: current_user?
+#     )
 #   end
 # end
