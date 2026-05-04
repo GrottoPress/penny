@@ -28,7 +28,7 @@ dependencies:
     version: ~> 1.0
   fella:
     github: GrottoPress/fella
-    version: ~> 0.1.0
+    version: ~> 0.3.0
   halo:
     github:  GrottoPress/halo
     version: ~> 0.3.0

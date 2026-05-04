@@ -58,7 +58,7 @@ shards:
 
   fella:
     git: https://github.com/grottopress/fella.git
-    version: 0.1.1
+    version: 0.3.0
 
   habitat:
     git: https://github.com/luckyframework/habitat.git

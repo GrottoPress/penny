@@ -47,10 +47,6 @@ Avram::QueryLog.dexter.configure(:none)
 #   end
 # end
 
-Fella.configure do |settings|
-  settings.skip_if = ->(request : HTTP::Request) do
-    return false unless LuckyEnv.production?
-    return false unless filter = "code|password|secret|token"
-    request.query_params.any? { |key, _| !key.match(/#{filter}/i).nil? }
-  end
+# Docs: <https://github.com/GrottoPress/fella/blob/master/README.md>
+Fella.configure do |_|
 end
