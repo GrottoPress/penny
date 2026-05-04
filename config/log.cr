@@ -42,7 +42,7 @@ Avram::QueryLog.dexter.configure(:none)
 # Lucky::LogHandler.configure do |settings|
 #   settings.skip_if = ->(context : HTTP::Server::Context) do
 #     return false unless LuckyEnv.production?
-#     return false unless filter = ENV["SKIP_LOG_REGEX"]?
+#     return false unless filter = "code|password|secret|token"
 #     request.query_params.any? { |key, _| !key.match(/#{filter}/i).nil? }
 #   end
 # end
@@ -50,7 +50,7 @@ Avram::QueryLog.dexter.configure(:none)
 Fella.configure do |settings|
   settings.skip_if = ->(request : HTTP::Request) do
     return false unless LuckyEnv.production?
-    return false unless filter = ENV["SKIP_LOG_REGEX"]?
+    return false unless filter = "code|password|secret|token"
     request.query_params.any? { |key, _| !key.match(/#{filter}/i).nil? }
   end
 end

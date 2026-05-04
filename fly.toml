@@ -49,7 +49,6 @@ swap_size_mb = 256
   SERVER_PORT = '5000'
   SESSION_KEY = '_penny-session'
   SKIP_LOAD_ENV = 'true'
-  SKIP_LOG_REGEX = 'password|secret|token'
   SMTP_HOST = 'smtp.domain.tld'
   SMTP_PORT = '587'
   SSL_ENABLED = 'false'
