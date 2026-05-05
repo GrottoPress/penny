@@ -4,7 +4,12 @@
 class Errors::Show < Lucky::ErrorAction
   default_format :json
   disable_cookies
-  dont_report [Lucky::RouteNotFoundError, Avram::RecordNotFoundError]
+
+  dont_report [
+    Avram::RecordNotFoundError,
+    Lucky::NotAcceptableError,
+    Lucky::RouteNotFoundError
+  ]
 
   def render(error : Lucky::RouteNotFoundError)
     if html?
@@ -69,6 +74,6 @@ class Errors::Show < Lucky::ErrorAction
         TEXT
     end
 
-    # ServerErrorEmail.new(error, context.request).deliver_later
+    # ServerErrorEmail.new(error, request).deliver_later
   end
 end
