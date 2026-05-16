@@ -1,3 +1,9 @@
+{% if flag?(:execution_context) %}
+  Fiber::ExecutionContext.default.resize(
+    Fiber::ExecutionContext.default_workers_count
+  )
+{% end %}
+
 App.configure do |settings|
   settings.name = ENV["NAME"]
   settings.url = ENV["URL"]

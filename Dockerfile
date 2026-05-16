@@ -44,7 +44,8 @@ COPY --from=node /tmp/lucky/ .
 # COPY ./root-config /root/
 # RUN sed 's|/home/runner|/root|g' -i.bak /root/.ssh/config
 
-RUN --mount=type=ssh,id=ssh-key shards build --static -Dpreview_mt \
+RUN --mount=type=ssh,id=ssh-key shards build --static \
+        -Dpreview_mt -Dexecution_context \
         --production --skip-postinstall --skip-executables ${COMPILE_FLAGS}
 
 FROM alpine:${ALPINE_VERSION}
