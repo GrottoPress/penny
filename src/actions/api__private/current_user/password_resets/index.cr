@@ -1,9 +1,6 @@
 # class CurrentUser::PasswordResets::Index < PrivateApi
 #   include Shield::Api::CurrentUser::PasswordResets::Index
 
-#   param count : Int32 = 12
-#   param page : Int32 = 1
-
 #   get "/account/password-resets" do
 #     json PasswordResetSerializer.new(
 #       params,
@@ -21,6 +18,6 @@
 #     query = PasswordResetQueryLoader.run(query, params)
 #     query = query.user_id(user.id)
 
-#     paginate(query, per_page: count.clamp(5, 50))
+#     paginate(query)
 #   end
 # end

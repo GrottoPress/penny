@@ -1,9 +1,6 @@
 # class Users::Logins::Index < PrivateApi
 #   include Shield::Api::Users::Logins::Index
 
-#   param count : Int32 = 12
-#   param page : Int32 = 1
-
 #   get "/users/:user_id/logins" do
 #     json LoginSerializer.new(
 #       params,
@@ -18,6 +15,6 @@
 #     query = LoginQueryLoader.run(query, params)
 #     query = query.user_id(user_id)
 
-#     paginate(query, per_page: count.clamp(5, 50))
+#     paginate(query)
 #   end
 # end

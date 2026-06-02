@@ -1,9 +1,6 @@
 # class Users::EmailConfirmations::Index < PrivateApi
 #   include Shield::Api::Users::EmailConfirmations::Index
 
-#   param count : Int32 = 12
-#   param page : Int32 = 1
-
 #   get "/users/:user_id/email-confirmations" do
 #     json EmailConfirmationSerializer.new(
 #       params,
@@ -21,6 +18,6 @@
 #     query = EmailConfirmationQueryLoader.run(query, params)
 #     query = query.user_id(user_id)
 
-#     paginate(query, per_page: count.clamp(5, 50))
+#     paginate(query)
 #   end
 # end

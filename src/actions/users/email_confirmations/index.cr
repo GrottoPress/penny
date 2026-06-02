@@ -1,9 +1,6 @@
 class Users::EmailConfirmations::Index < BrowserAction
   include Shield::Users::EmailConfirmations::Index
 
-  param count : Int32 = 12
-  param page : Int32 = 1
-
   get "/users/:user_id/email-confirmations" do
     html IndexPage, email_confirmations: email_confirmations, user: user, pages: pages
   end
@@ -15,6 +12,6 @@ class Users::EmailConfirmations::Index < BrowserAction
     query = EmailConfirmationQueryFilter.run(params)
     query = query.user_id(user_id)
 
-    paginate(query, per_page: count.clamp(5, 50))
+    paginate(query)
   end
 end

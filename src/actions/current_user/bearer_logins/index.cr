@@ -1,9 +1,6 @@
 class CurrentUser::BearerLogins::Index < BrowserAction
   include Shield::CurrentUser::BearerLogins::Index
 
-  param count : Int32 = 12
-  param page : Int32 = 1
-
   get "/account/bearer-logins" do
     html IndexPage, bearer_logins: bearer_logins, pages: pages
   end
@@ -15,6 +12,6 @@ class CurrentUser::BearerLogins::Index < BrowserAction
     query = BearerLoginQueryFilter.run(params)
     query = query.user_id(user.id)
 
-    paginate(query, per_page: count.clamp(5, 50))
+    paginate(query)
   end
 end

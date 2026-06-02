@@ -22,4 +22,8 @@ abstract class BrowserAction < Lucky::Action
   def frame_guard_value : String
     "SAMEORIGIN"
   end
+
+  def paginator_per_page : Int32
+    params.get?(:count).try(&.to_i.clamp(5, 50)) || 12
+  end
 end

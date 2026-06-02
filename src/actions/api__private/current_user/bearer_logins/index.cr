@@ -1,9 +1,6 @@
 # class CurrentUser::BearerLogins::Index < PrivateApi
 #   include Shield::Api::CurrentUser::BearerLogins::Index
 
-#   param count : Int32 = 12
-#   param page : Int32 = 1
-
 #   get "/account/bearer-logins" do
 #     json BearerLoginSerializer.new(
 #       params,
@@ -21,6 +18,6 @@
 #     query = BearerLoginQueryLoader.run(query, params)
 #     query = query.user_id(user.id)
 
-#     paginate(query, per_page: count.clamp(5, 50))
+#     paginate(query)
 #   end
 # end

@@ -1,9 +1,6 @@
 class Api::EmailConfirmations::Index < PublicApi
   include Shield::Api::EmailConfirmations::Index
 
-  param count : Int32 = 12
-  param page : Int32 = 1
-
   get "/email-confirmations" do
     json EmailConfirmationSerializer.new(
       params,
@@ -20,6 +17,6 @@ class Api::EmailConfirmations::Index < PublicApi
     query = EmailConfirmationQueryFilter.run(params)
     query = EmailConfirmationQueryLoader.run(query, params)
 
-    paginate(query, per_page: count.clamp(5, 50))
+    paginate(query)
   end
 end

@@ -1,9 +1,6 @@
 class Api::Users::Index < PublicApi
   include Shield::Api::Users::Index
 
-  param count : Int32 = 12
-  param page : Int32 = 1
-
   get "/users" do
     json UserSerializer.new(
       params,
@@ -16,6 +13,6 @@ class Api::Users::Index < PublicApi
   private getter paginated_users : Tuple(Lucky::Paginator, UserQuery) do
     query = UserQueryFilter.run(params)
 
-    paginate(query, per_page: count.clamp(5, 50))
+    paginate(query)
   end
 end

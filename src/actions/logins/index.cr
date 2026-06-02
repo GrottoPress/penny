@@ -1,9 +1,6 @@
 class Logins::Index < BrowserAction
   include Shield::Logins::Index
 
-  param count : Int32 = 12
-  param page : Int32 = 1
-
   get "/logins" do
     html IndexPage, logins: logins, pages: pages
   end
@@ -11,6 +8,6 @@ class Logins::Index < BrowserAction
   private getter paginated_logins : Tuple(Lucky::Paginator, LoginQuery) do
     query = LoginQueryFilter.run(params)
 
-    paginate(query, per_page: count.clamp(5, 50))
+    paginate(query)
   end
 end

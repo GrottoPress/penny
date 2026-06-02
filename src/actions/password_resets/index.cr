@@ -1,9 +1,6 @@
 class PasswordResets::Index < BrowserAction
   include Shield::PasswordResets::Index
 
-  param count : Int32 = 12
-  param page : Int32 = 1
-
   get "/password-resets" do
     html IndexPage, password_resets: password_resets, pages: pages
   end
@@ -14,6 +11,6 @@ class PasswordResets::Index < BrowserAction
   ) do
     query = PasswordResetQueryFilter.run(params)
 
-    paginate(query, per_page: count.clamp(5, 50))
+    paginate(query)
   end
 end

@@ -1,9 +1,6 @@
 # class PasswordResets::Index < PrivateApi
 #   include Shield::Api::PasswordResets::Index
 
-#   param count : Int32 = 12
-#   param page : Int32 = 1
-
 #   get "/password-resets" do
 #     json PasswordResetSerializer.new(
 #       params,
@@ -20,6 +17,6 @@
 #     query = PasswordResetQueryFilter.run(params)
 #     query = PasswordResetQueryLoader.run(query, params)
 
-#     paginate(query, per_page: count.clamp(5, 50))
+#     paginate(query)
 #   end
 # end
