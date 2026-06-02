@@ -29,6 +29,6 @@ abstract class PrivateApi < Lucky::Action
   disable_cookies
 
   def paginator_per_page : Int32
-    params.get?(:count).try(&.to_i.clamp(5, 50)) || 12
+    params.get?(:count).try(&.to_i.clamp(1, 100)) || 12
   end
 end
