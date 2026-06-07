@@ -27,9 +27,10 @@ RUN --mount=type=ssh,id=ssh-key pnpm install --frozen-lockfile && pnpm run prod
 
 FROM crystallang/crystal:${CRYSTAL_VERSION}-alpine AS crystal
 
+ENV GC_DONT_GC=1
 ARG COMPILE_FLAGS=
 
-RUN ["apk", "add", "--no-cache", "curl", "git", "jq", "openssh-client"]
+RUN ["apk", "add", "--no-cache", "curl", "git", "jq", "mold", "openssh-client"]
 
 RUN mkdir -pm 0700 ~/.ssh && \
     curl --silent https://api.github.com/meta | jq --raw-output \
@@ -46,7 +47,8 @@ COPY --from=node /tmp/lucky/ .
 
 RUN --mount=type=ssh,id=ssh-key shards build --static \
         -Dpreview_mt -Dexecution_context \
-        --production --skip-postinstall --skip-executables ${COMPILE_FLAGS}
+        --production --skip-postinstall --skip-executables \
+        --link-flags="-fuse-ld=mold" ${COMPILE_FLAGS}
 
 FROM alpine:${ALPINE_VERSION}
 
