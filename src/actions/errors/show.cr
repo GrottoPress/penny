@@ -6,6 +6,7 @@ class Errors::Show < Lucky::ErrorAction
   disable_cookies
 
   dont_report [
+    ArgumentError,
     Avram::RecordNotFoundError,
     Lucky::NotAcceptableError,
     Lucky::RouteNotFoundError
