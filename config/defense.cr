@@ -43,7 +43,6 @@ Hash(String, Lucky::Action.class | Nil).new.tap do |actions|
   end
 
   Defense.throttle("login/email", limit: 5, period: 30) do |request|
-    next unless remote_ip(request)
     next unless CurrentLogin::Create == find_action(request, actions)
 
     Lucky::Params.new(request)
@@ -58,7 +57,6 @@ Hash(String, Lucky::Action.class | Nil).new.tap do |actions|
   end
 
   Defense.throttle("password-reset/email", limit: 5, period: 30) do |request|
-    next unless remote_ip(request)
     next unless PasswordResets::Create == find_action(request, actions)
 
     Lucky::Params.new(request)
@@ -90,7 +88,6 @@ Hash(String, Lucky::Action.class | Nil).new.tap do |actions|
     limit: 5,
     period: 30
   ) do |request|
-    next unless remote_ip(request)
     next unless EmailConfirmations::Create == find_action(request, actions)
 
     Lucky::Params.new(request)
