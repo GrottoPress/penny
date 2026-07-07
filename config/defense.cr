@@ -21,12 +21,15 @@ Defense.throttled_response = ->(response : HTTP::Server::Response) do
   response.puts FailureSerializer.new(message: message).to_json
 end
 
-Defense.throttle("request/ip", limit: 100, period: 5) do |request|
-  next unless LuckyEnv.production?
-  remote_ip(request)
-end
-
 Hash(String, Lucky::Action.class | Nil).new.tap do |actions|
+  Defense.throttle("request/ip", limit: 100, period: 5) do |request|
+    next unless LuckyEnv.production?
+
+    request.remote_ip.try do |ip|
+      ip unless Health::Show == find_action(request, actions)
+    end
+  end
+
   Defense.throttle("scanner/ip", limit: 5, period: 30) do |request|
     remote_ip(request).try do |ip|
       ip if find_action(request, actions).nil?
