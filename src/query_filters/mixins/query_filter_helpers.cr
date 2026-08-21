@@ -19,6 +19,17 @@ module Mixins::QueryFilterHelpers
       query
     end
 
+    # ?search=some+query
+    private def filter_search(query, params)
+      params.get?(:search).try do |search|
+        unless search.empty?
+          query = query.search(search)
+        end
+      end
+
+      query
+    end
+
     # ?user_id=123
     private def filter_user_id(query, params)
       params.get?(:user_id).try do |user_id|

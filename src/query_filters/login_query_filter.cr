@@ -14,20 +14,6 @@ struct LoginQueryFilter
     query
   end
 
-  # ?search=some+query
-  private def filter_search(query, params)
-    params.get?(:search).try do |search|
-      unless search.empty?
-        user_query = UserQuery.new.search(search)
-
-        query = query.where(&.ip_address.search(search)
-          .or(&.join_user user_query))
-      end
-    end
-
-    query
-  end
-
   # ?status=active
   private def filter_status(query, params)
     params.get?(:status).try do |status|
