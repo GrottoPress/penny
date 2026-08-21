@@ -1,5 +1,7 @@
 class CreatePasswordResets::V20200428231231 < Avram::Migrator::Migration::V1
   def migrate
+    enable_extension "pg_trgm"
+
     create :password_resets do
       primary_key id : Int64
 
@@ -11,6 +13,11 @@ class CreatePasswordResets::V20200428231231 < Avram::Migrator::Migration::V1
       add success : Bool
       add token_digest : String
     end
+
+    execute <<-SQL
+      CREATE INDEX password_resets_search_index ON password_resets
+      USING gin (ip_address gin_trgm_ops);
+      SQL
   end
 
   def rollback

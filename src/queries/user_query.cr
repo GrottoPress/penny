@@ -1,13 +1,12 @@
 class UserQuery < User::BaseQuery
+  include Mixins::QueryHelpers
+
   def search(keywords)
-    column = <<-SQL
+    search(<<-SQL, keywords)
       (#{self.class.email_column} || ' ' ||
         #{self.class.first_name_column} || ' ' ||
         #{self.class.last_name_column})
       SQL
-
-    where("#{column} ILIKE ?", "%#{keywords}%")
-      .order_by("LENGTH(#{column})", :ASC)
   end
 
   def self.email_column
