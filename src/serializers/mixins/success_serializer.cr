@@ -4,7 +4,7 @@ module Mixins::SuccessSerializer
 
     @pages : Lucky::Paginator?
 
-    def self.new(params : Lucky::Params, *args, **named_args)
+    def self.new(params : Avram::Paramable, *args, **named_args)
       new(params.get_all?(:fields), *args, **named_args)
     end
 
@@ -32,7 +32,7 @@ module Mixins::SuccessSerializer
 
     def self.item(
       record : Avram::Model,
-      params : Lucky::Params,
+      params : Avram::Paramable,
       current_user : User? = nil
     )
       item(record, params.get_all?(:fields), current_user)

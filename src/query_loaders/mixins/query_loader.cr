@@ -5,7 +5,7 @@ module Mixins::QueryLoader
   macro included
     include Mixins::QueryLoaderHelpers
 
-    def run(query, params : Lucky::Params)
+    def run(query, params : Avram::Paramable)
       run(query, params.get_all?(:fields))
     end
 

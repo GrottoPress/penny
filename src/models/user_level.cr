@@ -1,4 +1,4 @@
-__enum UserLevel do
+string_enum UserLevel do
   Admin
   Editor
   Author

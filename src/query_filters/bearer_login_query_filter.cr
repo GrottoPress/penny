@@ -4,7 +4,7 @@ struct BearerLoginQueryFilter
   def initialize(@query = BearerLoginQuery.new)
   end
 
-  def run(params : Lucky::Params) : BearerLoginQuery
+  def run(params : Avram::Paramable) : BearerLoginQuery
     query = @query
     query = filter_search(query, params)
     query = filter_order_by(query, params)

@@ -4,7 +4,7 @@ struct PasswordResetQueryFilter
   def initialize(@query = PasswordResetQuery.new)
   end
 
-  def run(params : Lucky::Params) : PasswordResetQuery
+  def run(params : Avram::Paramable) : PasswordResetQuery
     query = @query
     query = filter_search(query, params)
     query = filter_order_by(query, params)

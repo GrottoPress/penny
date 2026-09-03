@@ -4,7 +4,7 @@ struct EmailConfirmationQueryFilter
   def initialize(@query = EmailConfirmationQuery.new)
   end
 
-  def run(params : Lucky::Params) : EmailConfirmationQuery
+  def run(params : Avram::Paramable) : EmailConfirmationQuery
     query = @query
     query = filter_search(query, params)
     query = filter_order_by(query, params)

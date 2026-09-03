@@ -5,8 +5,7 @@ describe BearerLoginQueryFilter do
     user = UserFactory.create &.first_name("Kofi")
     BearerLoginFactory.create &.user_id(user.id)
 
-    request = HTTP::Request.new("GET", "/?search=kofi")
-    params = Lucky::Params.new(request)
+    params = fake_form(search: "kofi")
 
     BearerLoginQueryFilter.new
       .run(params)
@@ -14,8 +13,7 @@ describe BearerLoginQueryFilter do
       .try(&.user_id)
       .should(eq user.id)
 
-    request = HTTP::Request.new("GET", "/?search=ama")
-    params = Lucky::Params.new(request)
+    params = fake_form(search: "ama")
 
     BearerLoginQueryFilter.new.run(params).first?.should(be_nil)
   end

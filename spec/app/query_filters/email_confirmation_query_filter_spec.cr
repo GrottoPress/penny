@@ -5,8 +5,7 @@ describe EmailConfirmationQueryFilter do
     user = UserFactory.create &.first_name("Kofi")
     EmailConfirmationFactory.create &.user_id(user.id)
 
-    request = HTTP::Request.new("GET", "/?search=kofi")
-    params = Lucky::Params.new(request)
+    params = fake_form(search: "kofi")
 
     EmailConfirmationQueryFilter.new
       .run(params)
@@ -14,8 +13,7 @@ describe EmailConfirmationQueryFilter do
       .try(&.user_id)
       .should(eq user.id)
 
-    request = HTTP::Request.new("GET", "/?search=ama")
-    params = Lucky::Params.new(request)
+    params = fake_form(search: "ama")
 
     EmailConfirmationQueryFilter.new.run(params).first?.should(be_nil)
   end
@@ -23,8 +21,7 @@ describe EmailConfirmationQueryFilter do
   it "works when user_id is NULL" do
     email_confirmation = EmailConfirmationFactory.create &.ip_address("1.2.3.4")
 
-    request = HTTP::Request.new("GET", "/?search=2.3")
-    params = Lucky::Params.new(request)
+    params = fake_form(search: "2.3")
 
     EmailConfirmationQueryFilter.new
       .run(params)

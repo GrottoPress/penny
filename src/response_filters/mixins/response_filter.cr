@@ -14,7 +14,7 @@ module Mixins::ResponseFilter
   macro included
     include Mixins::ResponseFilterHelpers
 
-    def run(params : Lucky::Params, current_user : User?)
+    def run(params : Avram::Paramable, current_user : User?)
       run(params.get_all?(:fields))
     end
 

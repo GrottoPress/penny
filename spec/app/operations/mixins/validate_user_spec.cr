@@ -19,66 +19,70 @@ end
 
 describe Mixins::ValidateUser do
   it "requires first name" do
-    SaveUser.create(params(
+    SaveUser.create(fake_params(user: {
       last_name: "Nkrumah",
       level: :author
-    )) do |operation, _|
+    })) do |operation, _|
       operation.saved?.should be_false
       operation.first_name.should have_error("is required")
     end
   end
 
   it "requires last name" do
-    SaveUser.create(params(
+    SaveUser.create(fake_params(user: {
       first_name: "Kwame",
       level: :author
-    )) do |operation, _|
+    })) do |operation, _|
       operation.saved?.should be_false
       operation.last_name.should have_error("is required")
     end
   end
 
   it "requires level" do
-    SaveUser.create(params(
+    SaveUser.create(fake_params(user: {
       first_name: "Kwame",
       last_name: "Atta"
-    )) do |operation, _|
+    })) do |operation, _|
       operation.saved?.should be_false
       operation.level.should have_error("is required")
     end
   end
 
   it "requires valid first name format" do
-    SaveUser.create(params(first_name: "K/L", level: :author)) do |operation, _|
+    SaveUser.create(fake_params(user: {
+      first_name: "K/L", level: :author
+    })) do |operation, _|
       operation.saved?.should be_false
       operation.first_name.should have_error("not a valid")
     end
   end
 
   it "requires valid last name format" do
-    SaveUser.create(params(last_name: "K/L", level: :author)) do |operation, _|
+    SaveUser.create(fake_params(user: {
+      last_name: "K/L", level: :author
+    })) do |operation, _|
       operation.saved?.should be_false
       operation.last_name.should have_error("not a valid")
     end
   end
 
   it "rejects long first name" do
-    SaveUser.create(params(
+    SaveUser.create(fake_params(user: {
       first_name: "f" * 300,
       last_name: "Atta",
       level: :author
-    )) do |operation, _|
+    })) do |operation, _|
       operation.saved?.should be_false
       operation.first_name.should have_error("longer than")
     end
   end
 
   it "rejects long last name" do
-    SaveUser.create(params(
+    SaveUser.create(fake_params(user: {
       first_name: "Kiddi",
       last_name: "l" * 300,
       level: :author
-    )) do |operation, _|
+    })) do |operation, _|
       operation.saved?.should be_false
       operation.last_name.should have_error("longer than")
     end

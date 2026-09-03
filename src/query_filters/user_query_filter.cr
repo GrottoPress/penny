@@ -4,7 +4,7 @@ struct UserQueryFilter
   def initialize(@query = UserQuery.new)
   end
 
-  def run(params : Lucky::Params) : UserQuery
+  def run(params : Avram::Paramable) : UserQuery
     query = @query
     query = filter_search(query, params)
     query = filter_level(query, params)

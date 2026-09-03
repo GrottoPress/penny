@@ -5,8 +5,7 @@ describe PasswordResetQueryFilter do
     user = UserFactory.create &.first_name("Kofi")
     PasswordResetFactory.create &.user_id(user.id)
 
-    request = HTTP::Request.new("GET", "/?search=kofi")
-    params = Lucky::Params.new(request)
+    params = fake_form(search: "kofi")
 
     PasswordResetQueryFilter.new
       .run(params)
@@ -14,8 +13,7 @@ describe PasswordResetQueryFilter do
       .try(&.user_id)
       .should(eq user.id)
 
-    request = HTTP::Request.new("GET", "/?search=ama")
-    params = Lucky::Params.new(request)
+    params = fake_form(search: "ama")
 
     PasswordResetQueryFilter.new.run(params).first?.should(be_nil)
   end

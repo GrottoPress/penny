@@ -4,7 +4,7 @@ struct LoginQueryFilter
   def initialize(@query = LoginQuery.new)
   end
 
-  def run(params : Lucky::Params) : LoginQuery
+  def run(params : Avram::Paramable) : LoginQuery
     query = @query
     query = filter_search(query, params)
     query = filter_order_by(query, params)
