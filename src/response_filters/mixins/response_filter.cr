@@ -15,7 +15,7 @@ module Mixins::ResponseFilter
     include Mixins::ResponseFilterHelpers
 
     def run(params : Avram::Paramable, current_user : User?)
-      run(params.get_all?(:fields))
+      run(params.get_all?(:fields), current_user)
     end
 
     def self.run(record : Avram::Model, params, current_user = nil)
