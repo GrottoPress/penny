@@ -3,17 +3,8 @@
 # where clients may want to filter results based on a search query,
 # for instance.
 module Mixins::QueryFilter
-  abstract def run(params : Avram::Paramable) : Avram::Queryable
-
   macro included
+    include Lucille::QueryFilter
     include Mixins::QueryFilterHelpers
-
-    def self.run(query, params)
-      new(query).run(params)
-    end
-
-    def self.run(params)
-      new.run(params)
-    end
   end
 end

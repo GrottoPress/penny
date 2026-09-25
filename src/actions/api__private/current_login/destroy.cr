@@ -8,7 +8,7 @@
 #   def do_run_operation_succeeded(operation, login)
 #     json LoginSerializer.new(
 #       params,
-#       login: LoginQueryLoader.run(login, params),
+#       login: LoginPreloader.run(login, params),
 #       current_user: current_user?,
 #       message: Rex.t(:"action.current_login.destroy.success")
 #     )

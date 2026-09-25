@@ -15,7 +15,7 @@ class Api::CurrentUser::EmailConfirmations::Index < PublicApi
     EmailConfirmationQuery
   ) do
     query = EmailConfirmationQueryFilter.run(params)
-    query = EmailConfirmationQueryLoader.run(query, params)
+    query = EmailConfirmationPreloader.run(query, params)
     query = query.user_id(user.id)
 
     paginate(query)

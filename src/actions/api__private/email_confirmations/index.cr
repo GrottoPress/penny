@@ -15,7 +15,7 @@
 #     EmailConfirmationQuery
 #   ) do
 #     query = EmailConfirmationQueryFilter.run(params)
-#     query = EmailConfirmationQueryLoader.run(query, params)
+#     query = EmailConfirmationPreloader.run(query, params)
 
 #     paginate(query)
 #   end

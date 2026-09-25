@@ -9,21 +9,8 @@
 # response which includes all bearer login fields and the bearer login user's
 # names
 module Mixins::ResponseFilter
-  abstract def run(fields : Indexable(String)?, current_user : User?) : Hash
-
   macro included
+    include Lucille::ResponseFilter
     include Mixins::ResponseFilterHelpers
-
-    def run(params : Avram::Paramable, current_user : User?)
-      run(params.get_all?(:fields), current_user)
-    end
-
-    def self.run(record : Avram::Model, params, current_user = nil)
-      new(record).run(params, current_user)
-    end
-
-    def self.run(params, current_user = nil)
-      new.run(params, current_user)
-    end
   end
 end

@@ -15,7 +15,7 @@ class Api::PasswordResets::Index < PublicApi
     PasswordResetQuery
   ) do
     query = PasswordResetQueryFilter.run(params)
-    query = PasswordResetQueryLoader.run(query, params)
+    query = PasswordResetPreloader.run(query, params)
 
     paginate(query)
   end

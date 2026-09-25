@@ -12,7 +12,7 @@
 
 #   private getter paginated_logins : Tuple(Lucky::Paginator, LoginQuery) do
 #     query = LoginQueryFilter.run(params)
-#     query = LoginQueryLoader.run(query, params)
+#     query = LoginPreloader.run(query, params)
 
 #     paginate(query)
 #   end

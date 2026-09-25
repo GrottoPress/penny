@@ -33,7 +33,7 @@ class Shared::Field(T) < BaseComponent
   include Lucky::CatchUnpermittedAttribute
 
   needs attribute : Avram::PermittedAttribute(T)
-  needs label_text : String?
+  needs label_text : String? = nil
 
   def render(&)
     label_for attribute, label_text

@@ -1,19 +1,16 @@
-struct PasswordResetQueryLoader
-  include Mixins::QueryLoader
+struct PasswordResetPreloader
+  include Mixins::Preloader
 
   def run(
-    query : PasswordResetQuery,
-    fields : Array(String)?
+    query : Avram::Queryable,
+    fields : Indexable(String)?
   ) : PasswordResetQuery
     query = preload_user(query, fields)
     query
   end
 
-  def run(
-    password_reset : PasswordReset,
-    fields : Array(String)?
-  ) : PasswordReset
-    password_reset = preload_user(password_reset, fields)
+  def run(record : Avram::Model, fields : Indexable(String)?) : PasswordReset
+    password_reset = preload_user(record, fields)
     password_reset
   end
 

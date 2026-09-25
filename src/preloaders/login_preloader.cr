@@ -1,13 +1,13 @@
-struct LoginQueryLoader
-  include Mixins::QueryLoader
+struct LoginPreloader
+  include Mixins::Preloader
 
-  def run(query : LoginQuery, fields : Array(String)?) : LoginQuery
+  def run(query : Avram::Queryable, fields : Indexable(String)?) : LoginQuery
     query = preload_user(query, fields)
     query
   end
 
-  def run(login : Login, fields : Array(String)?) : Login
-    login = preload_user(login, fields)
+  def run(record : Avram::Model, fields : Indexable(String)?) : Login
+    login = preload_user(record, fields)
     login
   end
 

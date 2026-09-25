@@ -4,7 +4,7 @@
 #   get "/password-resets/:password_reset_id" do
 #     json PasswordResetSerializer.new(
 #       params,
-#       password_reset: PasswordResetQueryLoader.run(password_reset, params),
+#       password_reset: PasswordResetPreloader.run(password_reset, params),
 #       current_user: current_user?
 #     )
 #   end

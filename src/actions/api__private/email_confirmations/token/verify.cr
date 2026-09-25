@@ -8,7 +8,7 @@
 #   end
 
 #   def do_verify_operation_succeeded(utility, email_confirmation)
-#     email_confirmation = EmailConfirmationQueryLoader.run(
+#     email_confirmation = EmailConfirmationPreloader.run(
 #       email_confirmation,
 #       params
 #     )

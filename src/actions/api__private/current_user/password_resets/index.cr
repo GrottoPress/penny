@@ -15,7 +15,7 @@
 #     PasswordResetQuery
 #   ) do
 #     query = PasswordResetQueryFilter.run(params)
-#     query = PasswordResetQueryLoader.run(query, params)
+#     query = PasswordResetPreloader.run(query, params)
 #     query = query.user_id(user.id)
 
 #     paginate(query)

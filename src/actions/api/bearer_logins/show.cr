@@ -4,7 +4,7 @@
 #   get "/bearer-logins/:bearer_login_id" do
 #     json BearerLoginSerializer.new(
 #       params,
-#       bearer_login: BearerLoginQueryLoader.run(bearer_login, params),
+#       bearer_login: BearerLoginPreloader.run(bearer_login, params),
 #       current_user: current_user?
 #     )
 #   end

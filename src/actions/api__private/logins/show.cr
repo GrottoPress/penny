@@ -4,7 +4,7 @@
 #   get "/logins/:login_id" do
 #     json LoginSerializer.new(
 #       params,
-#       login: LoginQueryLoader.run(login, params),
+#       login: LoginPreloader.run(login, params),
 #       current_user: current_user?
 #     )
 #   end

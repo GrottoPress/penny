@@ -1,13 +1,16 @@
-struct BearerLoginQueryLoader
-  include Mixins::QueryLoader
+struct BearerLoginPreloader
+  include Mixins::Preloader
 
-  def run(query : BearerLoginQuery, fields : Array(String)?) : BearerLoginQuery
+  def run(
+    query : Avram::Queryable,
+    fields : Indexable(String)?
+  ) : BearerLoginQuery
     query = preload_user(query, fields)
     query
   end
 
-  def run(bearer_login : BearerLogin, fields : Array(String)?) : BearerLogin
-    bearer_login = preload_user(bearer_login, fields)
+  def run(record : Avram::Model, fields : Indexable(String)?) : BearerLogin
+    bearer_login = preload_user(record, fields)
     bearer_login
   end
 

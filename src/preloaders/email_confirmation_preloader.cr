@@ -1,19 +1,19 @@
-struct EmailConfirmationQueryLoader
-  include Mixins::QueryLoader
+struct EmailConfirmationPreloader
+  include Mixins::Preloader
 
   def run(
-    query : EmailConfirmationQuery,
-    fields : Array(String)?
+    query : Avram::Queryable,
+    fields : Indexable(String)?
   ) : EmailConfirmationQuery
     query = preload_user(query, fields)
     query
   end
 
   def run(
-    email_confirmation : EmailConfirmation,
-    fields : Array(String)?
+    record : Avram::Model,
+    fields : Indexable(String)?
   ) : EmailConfirmation
-    email_confirmation = preload_user(email_confirmation, fields)
+    email_confirmation = preload_user(record, fields)
     email_confirmation
   end
 

@@ -15,7 +15,7 @@ class Api::CurrentUser::BearerLogins::Index < PublicApi
     BearerLoginQuery
   ) do
     query = BearerLoginQueryFilter.run(params)
-    query = BearerLoginQueryLoader.run(query, params)
+    query = BearerLoginPreloader.run(query, params)
     query = query.user_id(user.id)
 
     paginate(query)

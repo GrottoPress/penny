@@ -4,7 +4,7 @@
 #   get "/email-confirmations/:email_confirmation_id" do
 #     json EmailConfirmationSerializer.new(
 #       params,
-#       email_confirmation: EmailConfirmationQueryLoader.run(
+#       email_confirmation: EmailConfirmationPreloader.run(
 #         email_confirmation,
 #         params
 #       ),
