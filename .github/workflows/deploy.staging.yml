@@ -36,6 +36,8 @@ jobs:
           crystal: ${{ matrix.crystal }}
       - name: Install shards
         run: shards install
+      - name: Build ameba
+        run: crystal build -o bin/ameba lib/ameba/bin/ameba.cr
       - name: Lint code
         run: ./bin/ameba
   specs:

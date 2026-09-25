@@ -66,7 +66,7 @@ class Errors::Show < Lucky::ErrorAction
 
   private def report(error : Exception) : Nil
     unless LuckyEnv.production?
-      return puts <<-TEXT
+      return puts <<-TEXT # ameba:disable Style/RedundantReturn
 
         === BEGIN Error ===
         #{error.inspect_with_backtrace.chomp}

@@ -6,7 +6,7 @@ Mel.configure do |settings|
 
   settings.error_handler = ->(error : Exception) do
     unless LuckyEnv.production?
-      return puts <<-TEXT
+      return puts <<-TEXT # ameba:disable Style/RedundantReturn
 
         === BEGIN Error ===
         #{error.inspect_with_backtrace.chomp}

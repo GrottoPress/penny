@@ -1,3 +1,9 @@
+Excluded:
+  - bin
+  - lib
+  - tmp
+Lint/AssignmentInCallArgument:
+  Enabled: false
 Lint/Formatting:
   Enabled: false
 Lint/NotNil:
@@ -18,5 +24,9 @@ Lint/UselessAssign:
 Naming/PredicateName:
   Excluded:
     - src/queries/**/*.cr
-Performance/AnyInsteadOfEmpty:
+Performance/AnyInsteadOfPresent:
+  Enabled: false
+Style/HeredocEscape:
+  Enabled: false
+Style/PercentLiteralDelimiters:
   Enabled: false
