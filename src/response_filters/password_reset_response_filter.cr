@@ -51,12 +51,14 @@ struct PasswordResetResponseFilter
   private def add_status(response, fields)
     return unless QueryPattern.match?("password_reset.status", fields)
 
-    response[:is_active] = @password_reset.status.active?
-    response[:is_failure] = @password_reset.status.failure?
-    response[:is_inactive] = @password_reset.status.inactive?
-    response[:is_pending] = @password_reset.status.pending?
-    response[:is_success] = @password_reset.status.success?
-    response[:is_unactive] = @password_reset.status.unactive?
+    response[:is_active] = @password_reset.active?
+    response[:is_failure] = @password_reset.failure?
+    response[:is_inactive] = @password_reset.inactive?
+    response[:is_success] = @password_reset.success?
+
+    if @password_reset.active? || @password_reset.inactive?
+      response[:status] = @password_reset.status.to_s
+    end
   end
 
   private def add_user(response, fields, current_user)

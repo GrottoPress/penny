@@ -55,11 +55,12 @@ struct BearerLoginResponseFilter
   private def add_status(response, fields)
     return unless QueryPattern.match?("bearer_login.status", fields)
 
-    response[:is_active] = @bearer_login.status.active?
-    response[:is_inactive] = @bearer_login.status.inactive?
-    response[:is_pending] = @bearer_login.status.pending?
-    response[:is_unactive] = @bearer_login.status.unactive?
-    response[:status] = @bearer_login.status.to_s
+    response[:is_active] = @bearer_login.active?
+    response[:is_inactive] = @bearer_login.inactive?
+
+    if @bearer_login.active? || @bearer_login.inactive?
+      response[:status] = @bearer_login.status.to_s
+    end
   end
 
   private def add_user(response, fields, current_user)

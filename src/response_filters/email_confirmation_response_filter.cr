@@ -58,12 +58,14 @@ struct EmailConfirmationResponseFilter
   private def add_status(response, fields)
     return unless QueryPattern.match?("email_confirmation.status", fields)
 
-    response[:is_active] = @email_confirmation.status.active?
-    response[:is_failure] = @email_confirmation.status.failure?
-    response[:is_inactive] = @email_confirmation.status.inactive?
-    response[:is_pending] = @email_confirmation.status.pending?
-    response[:is_success] = @email_confirmation.status.success?
-    response[:is_unactive] = @email_confirmation.status.unactive?
+    response[:is_active] = @email_confirmation.active?
+    response[:is_failure] = @email_confirmation.failure?
+    response[:is_inactive] = @email_confirmation.inactive?
+    response[:is_success] = @email_confirmation.success?
+
+    if @email_confirmation.active? || @email_confirmation.inactive?
+      response[:status] = @email_confirmation.status.to_s
+    end
   end
 
   private def add_user(response, fields, current_user)

@@ -51,11 +51,9 @@ struct LoginResponseFilter
   private def add_status(response, fields)
     return unless QueryPattern.match?("login.status", fields)
 
-    response[:is_active] = @login.status.active?
-    response[:is_inactive] = @login.status.inactive?
-    response[:is_pending] = @login.status.pending?
-    response[:is_unactive] = @login.status.unactive?
-    response[:status] = @login.status.to_s
+    response[:is_active] = @login.active?
+    response[:is_inactive] = @login.inactive?
+    response[:status] = @login.status.to_s if @login.active? || @login.inactive?
   end
 
   private def add_user(response, fields, current_user)
