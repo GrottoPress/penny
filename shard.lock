@@ -38,7 +38,7 @@ shards:
 
   defense:
     git: https://github.com/defense-cr/defense.git
-    version: 0.6.0+git.commit.52e6430dc1c772497650a725b3bb4e568db02b2f
+    version: 0.7.0
 
   dexter:
     git: https://github.com/luckyframework/dexter.git
