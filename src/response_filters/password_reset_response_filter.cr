@@ -1,20 +1,10 @@
-alias PasswordResetResponse = Hash(Symbol, Union(
-  Bool,
-  Int64,
-  String,
-  UserResponse
-))
-
 struct PasswordResetResponseFilter
   include Mixins::ResponseFilter
 
   def initialize(@password_reset : PasswordReset)
   end
 
-  def run(
-    fields : Indexable(String)?,
-    current_user : User? = nil
-  ) : PasswordResetResponse
+  def run(fields : Indexable(String)?, current_user : User? = nil) : ApiResponse
     default_response.tap do |response|
       add_active_at(response, fields)
       add_inactive_at(response, fields)
@@ -72,9 +62,9 @@ struct PasswordResetResponseFilter
   end
 
   private def default_response
-    PasswordResetResponse{
+    ApiResponse{
       :id => @password_reset.id,
-      :user => UserResponse{:id => @password_reset.user_id},
+      :user => ApiResponse{:id => @password_reset.user_id},
       :user_id => @password_reset.user_id,
     }
   end

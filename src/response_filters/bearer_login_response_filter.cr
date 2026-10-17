@@ -1,21 +1,10 @@
-alias BearerLoginResponse = Hash(Symbol, Union(
-  Array(String),
-  Bool,
-  Int64,
-  String,
-  UserResponse
-))
-
 struct BearerLoginResponseFilter
   include Mixins::ResponseFilter
 
   def initialize(@bearer_login : BearerLogin)
   end
 
-  def run(
-    fields : Indexable(String)?,
-    current_user : User? = nil
-  ) : BearerLoginResponse
+  def run(fields : Indexable(String)?, current_user : User? = nil) : ApiResponse
     default_response.tap do |response|
       add_active_at(response, fields)
       add_inactive_at(response, fields)
@@ -74,9 +63,9 @@ struct BearerLoginResponseFilter
   end
 
   private def default_response
-    BearerLoginResponse{
+    ApiResponse{
       :id => @bearer_login.id,
-      :user => UserResponse{:id => @bearer_login.user_id},
+      :user => ApiResponse{:id => @bearer_login.user_id},
       :user_id => @bearer_login.user_id,
     }
   end

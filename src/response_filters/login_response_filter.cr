@@ -1,20 +1,10 @@
-alias LoginResponse = Hash(Symbol, Union(
-  Bool,
-  Int64,
-  String,
-  UserResponse
-))
-
 struct LoginResponseFilter
   include Mixins::ResponseFilter
 
   def initialize(@login : Login)
   end
 
-  def run(
-    fields : Indexable(String)?,
-    current_user : User? = nil
-  ) : LoginResponse
+  def run(fields : Indexable(String)?, current_user : User? = nil) : ApiResponse
     default_response.tap do |response|
       add_active_at(response, fields)
       add_inactive_at(response, fields)
@@ -63,9 +53,9 @@ struct LoginResponseFilter
   end
 
   private def default_response
-    LoginResponse{
+    ApiResponse{
       :id => @login.id,
-      :user => UserResponse{:id => @login.user_id},
+      :user => ApiResponse{:id => @login.user_id},
       :user_id => @login.user_id,
     }
   end

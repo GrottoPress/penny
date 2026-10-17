@@ -1,21 +1,10 @@
-alias UserResponse = Hash(Symbol, Union(
-  Bool,
-  Int64,
-  String,
-  UserLevel,
-  UserSettings
-))
-
 struct UserResponseFilter
   include Mixins::ResponseFilter
 
   def initialize(@user : User)
   end
 
-  def run(
-    fields : Indexable(String)?,
-    current_user : User? = nil
-  ) : UserResponse
+  def run(fields : Indexable(String)?, current_user : User? = nil) : ApiResponse
     default_response.tap do |response|
       add_created_at(response, fields, current_user)
       add_email(response, fields, current_user)
@@ -88,6 +77,6 @@ struct UserResponseFilter
   end
 
   private def default_response
-    UserResponse{:id => @user.id}
+    ApiResponse{:id => @user.id}
   end
 end

@@ -1,20 +1,10 @@
-alias EmailConfirmationResponse = Hash(Symbol, Union(
-  Bool,
-  Int64,
-  String,
-  UserResponse
-))
-
 struct EmailConfirmationResponseFilter
   include Mixins::ResponseFilter
 
   def initialize(@email_confirmation : EmailConfirmation)
   end
 
-  def run(
-    fields : Indexable(String)?,
-    current_user : User? = nil
-  ) : EmailConfirmationResponse
+  def run(fields : Indexable(String)?, current_user : User? = nil) : ApiResponse
     default_response.tap do |response|
       add_active_at(response, fields)
       add_email(response, fields)
@@ -77,11 +67,11 @@ struct EmailConfirmationResponseFilter
   end
 
   private def default_response
-    EmailConfirmationResponse{
+    ApiResponse{
       :id => @email_confirmation.id,
     }.tap do |response|
       @email_confirmation.user_id.try do |user_id|
-        response[:user] = UserResponse{:id => user_id}
+        response[:user] = ApiResponse{:id => user_id}
         response[:user_id] = user_id
       end
     end
