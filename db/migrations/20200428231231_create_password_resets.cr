@@ -1,11 +1,12 @@
 class CreatePasswordResets::V20200428231231 < Avram::Migrator::Migration::V1
   def migrate
     enable_extension "pg_trgm"
+    enable_extension "pgcrypto"
 
     create :password_resets do
-      primary_key id : Int64
+      primary_key id : UUID
 
-      add_belongs_to user : User, on_delete: :cascade
+      add_belongs_to user : User, foreign_key_type: UUID, on_delete: :cascade
 
       add active_at : Time
       add inactive_at : Time?

@@ -77,6 +77,6 @@ struct UserResponseFilter
   end
 
   private def default_response
-    ApiResponse{:id => @user.id}
+    ApiResponse{:id => @user.id.hexstring}
   end
 end

@@ -54,9 +54,9 @@ struct LoginResponseFilter
 
   private def default_response
     ApiResponse{
-      :id => @login.id,
-      :user => ApiResponse{:id => @login.user_id},
-      :user_id => @login.user_id,
+      :id => @login.id.hexstring,
+      :user => ApiResponse{:id => @login.user_id.hexstring},
+      :user_id => @login.user_id.hexstring,
     }
   end
 end

@@ -63,9 +63,9 @@ struct PasswordResetResponseFilter
 
   private def default_response
     ApiResponse{
-      :id => @password_reset.id,
-      :user => ApiResponse{:id => @password_reset.user_id},
-      :user_id => @password_reset.user_id,
+      :id => @password_reset.id.hexstring,
+      :user => ApiResponse{:id => @password_reset.user_id.hexstring},
+      :user_id => @password_reset.user_id.hexstring,
     }
   end
 end

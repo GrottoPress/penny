@@ -64,9 +64,9 @@ struct BearerLoginResponseFilter
 
   private def default_response
     ApiResponse{
-      :id => @bearer_login.id,
-      :user => ApiResponse{:id => @bearer_login.user_id},
-      :user_id => @bearer_login.user_id,
+      :id => @bearer_login.id.hexstring,
+      :user => ApiResponse{:id => @bearer_login.user_id.hexstring},
+      :user_id => @bearer_login.user_id.hexstring,
     }
   end
 end

@@ -1,9 +1,10 @@
 class CreateUsers::V20200428163501 < Avram::Migrator::Migration::V1
   def migrate
     enable_extension "pg_trgm"
+    enable_extension "pgcrypto"
 
     create :users do
-      primary_key id : Int64
+      primary_key id : UUID
 
       add_timestamps
 
