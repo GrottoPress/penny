@@ -67,9 +67,7 @@ struct EmailConfirmationResponseFilter
   end
 
   private def default_response
-    ApiResponse{
-      :id => @email_confirmation.id.hexstring,
-    }.tap do |response|
+    ApiResponse{:id => @email_confirmation.id.hexstring}.tap do |response|
       @email_confirmation.user_id.try do |user_id|
         response[:user] = ApiResponse{:id => user_id.hexstring}
         response[:user_id] = user_id.hexstring
