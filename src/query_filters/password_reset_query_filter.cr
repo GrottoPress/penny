@@ -16,7 +16,7 @@ struct PasswordResetQueryFilter
 
   # ?status=active
   private def filter_status(query, params)
-    params.get?(:status).try do |status|
+    params.get?(:status).presence.try do |status|
       case status.downcase
       when "success"
         query = query.is_success

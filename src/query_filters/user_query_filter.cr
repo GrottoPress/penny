@@ -15,8 +15,8 @@ struct UserQueryFilter
 
   # ?level=admin
   private def filter_level(query, params)
-    params.get?(:level).try do |level|
-      query = query.level(level) unless level.empty?
+    params.get?(:level).presence.try do |level|
+      query = query.level(level)
     end
 
     query
